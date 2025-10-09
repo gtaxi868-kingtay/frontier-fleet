@@ -105,7 +105,7 @@ const Index = () => {
                   title="Engineer Equipment"
                   description="Heavy construction and bridging gear"
                   icon={HardHat}
-                  link="/equipment"
+                  link="/engineer-equipment"
                   stats={[
                     { label: "Total", value: 156 },
                     { label: "Serviceable", value: "88%" },
@@ -117,7 +117,7 @@ const Index = () => {
                   title="Plant & Machinery"
                   description="Vehicles and heavy plant equipment"
                   icon={Truck}
-                  link="/plant"
+                  link="/plant-machinery"
                   stats={[
                     { label: "Total", value: 47 },
                     { label: "Operational", value: "89%" },

@@ -22,9 +22,9 @@ export function StatCard({
 }: StatCardProps) {
   const variantStyles = {
     default: "border-border/50",
-    success: "border-success/30 bg-success/5",
-    warning: "border-warning/30 bg-warning/5",
-    danger: "border-destructive/30 bg-destructive/5",
+    success: "border-success/20 bg-success/5",
+    warning: "border-warning/20 bg-warning/5",
+    danger: "border-destructive/20 bg-destructive/5",
   };
 
   const iconStyles = {
@@ -35,7 +35,7 @@ export function StatCard({
   };
 
   return (
-    <Card className={`${variantStyles[variant]} border backdrop-blur-sm`}>
+    <Card className={`${variantStyles[variant]} border`}>
       <CardContent className="p-6">
         <div className="flex items-start justify-between">
           <div className="space-y-2 flex-1">
@@ -44,7 +44,7 @@ export function StatCard({
               <h3 className="text-3xl font-bold tracking-tight">{value}</h3>
               {trendValue && (
                 <span
-                  className={`text-sm font-medium ${
+                  className={`text-sm font-semibold ${
                     trend === "up"
                       ? "text-success"
                       : trend === "down"
@@ -60,7 +60,7 @@ export function StatCard({
               <p className="text-xs text-muted-foreground">{subtitle}</p>
             )}
           </div>
-          <div className={`p-3 rounded-lg ${iconStyles[variant]}`}>
+          <div className={`p-3 rounded-xl ${iconStyles[variant]}`}>
             <Icon className="h-6 w-6" />
           </div>
         </div>

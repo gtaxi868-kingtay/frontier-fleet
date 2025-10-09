@@ -8,73 +8,87 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Military Dark Theme - Base Colors */
-    --background: 222 47% 5%;
-    --foreground: 210 40% 98%;
+    /* iOS 17 Light Theme - Clean & Modern */
+    --background: 0 0% 98%;
+    --foreground: 240 10% 15%;
 
-    /* Card with glassmorphism */
-    --card: 222 45% 8%;
-    --card-foreground: 210 40% 98%;
+    /* Card with subtle blur */
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 15%;
 
     /* Popover/Dropdown */
-    --popover: 222 47% 6%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 15%;
 
-    /* Primary - Electric Cyan Accent */
-    --primary: 189 94% 43%;
-    --primary-foreground: 222 47% 5%;
-    --primary-glow: 189 94% 55%;
+    /* Primary - iOS Blue */
+    --primary: 211 100% 50%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 211 100% 60%;
 
-    /* Secondary - Muted Slate */
-    --secondary: 215 25% 18%;
-    --secondary-foreground: 210 40% 98%;
+    /* Secondary - Soft Gray */
+    --secondary: 240 5% 96%;
+    --secondary-foreground: 240 10% 15%;
 
-    /* Muted - Darker variants */
-    --muted: 215 25% 15%;
-    --muted-foreground: 217 15% 65%;
+    /* Muted - Light variants */
+    --muted: 240 5% 96%;
+    --muted-foreground: 240 4% 46%;
 
-    /* Accent - Bright Cyan */
-    --accent: 189 94% 43%;
-    --accent-foreground: 222 47% 5%;
+    /* Accent - iOS Blue */
+    --accent: 211 100% 50%;
+    --accent-foreground: 0 0% 100%;
 
-    /* Status Colors */
-    --success: 142 76% 36%;
-    --success-foreground: 210 40% 98%;
+    /* Status Colors - iOS Style */
+    --success: 142 76% 45%;
+    --success-foreground: 0 0% 100%;
     
     --warning: 38 92% 50%;
-    --warning-foreground: 222 47% 5%;
+    --warning-foreground: 0 0% 100%;
     
     --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 100%;
 
-    /* Borders & Inputs */
-    --border: 215 25% 20%;
-    --input: 215 25% 20%;
-    --ring: 189 94% 43%;
+    /* Borders & Inputs - Very subtle */
+    --border: 240 6% 90%;
+    --input: 240 6% 90%;
+    --ring: 211 100% 50%;
 
-    --radius: 0.5rem;
+    --radius: 1rem;
 
-    /* Sidebar - Darker variant */
-    --sidebar-background: 222 47% 4%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 189 94% 43%;
-    --sidebar-primary-foreground: 222 47% 5%;
-    --sidebar-accent: 215 25% 12%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 215 25% 15%;
-    --sidebar-ring: 189 94% 43%;
+    /* Sidebar - Clean white */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 240 10% 15%;
+    --sidebar-primary: 211 100% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 5% 96%;
+    --sidebar-accent-foreground: 240 10% 15%;
+    --sidebar-border: 240 6% 90%;
+    --sidebar-ring: 211 100% 50%;
 
-    /* Custom Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(189 94% 43%) 0%, hsl(189 94% 55%) 100%);
-    --gradient-hero: linear-gradient(135deg, hsl(222 47% 5%) 0%, hsl(215 25% 18%) 100%);
-    --gradient-card: linear-gradient(135deg, hsl(222 45% 8% / 0.6) 0%, hsl(222 45% 10% / 0.4) 100%);
+    /* iOS 17 Style Shadows - Soft and layered */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    --shadow-glow: 0 0 20px hsl(211 100% 50% / 0.15);
     
-    /* Shadows with glow */
-    --shadow-glow: 0 0 30px hsl(189 94% 43% / 0.3);
-    --shadow-card: 0 4px 20px hsl(222 47% 2% / 0.5);
-    
-    /* Animations */
+    /* Animations - iOS smooth */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-spring: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .dark {
+    /* Dark mode variant for iOS 17 */
+    --background: 240 10% 8%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 12%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 12%;
+    --popover-foreground: 0 0% 98%;
+    --muted: 240 5% 20%;
+    --muted-foreground: 240 5% 64%;
+    --border: 240 6% 20%;
+    --input: 240 6% 20%;
   }
 }
 
