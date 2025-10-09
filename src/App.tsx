@@ -4,6 +4,19 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
+import Weapons from "./pages/Weapons";
+import Tools from "./pages/Tools";
+import EngineerEquipment from "./pages/EngineerEquipment";
+import PlantMachinery from "./pages/PlantMachinery";
+import PPE from "./pages/PPE";
+import Uniforms from "./pages/Uniforms";
+import Explosives from "./pages/Explosives";
+import Facilities from "./pages/Facilities";
+import WorksMaterials from "./pages/WorksMaterials";
+import Inventory from "./pages/Inventory";
+import RoomInventory from "./pages/RoomInventory";
+import Analytics from "./pages/Analytics";
+import Reports from "./pages/Reports";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -16,6 +29,19 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/weapons" element={<Weapons />} />
+          <Route path="/tools" element={<Tools />} />
+          <Route path="/engineer-equipment" element={<EngineerEquipment />} />
+          <Route path="/plant-machinery" element={<PlantMachinery />} />
+          <Route path="/ppe" element={<PPE />} />
+          <Route path="/uniforms" element={<Uniforms />} />
+          <Route path="/explosives" element={<Explosives />} />
+          <Route path="/facilities" element={<Facilities />} />
+          <Route path="/works-materials" element={<WorksMaterials />} />
+          <Route path="/inventory" element={<Inventory />} />
+          <Route path="/room-inventory" element={<RoomInventory />} />
+          <Route path="/analytics" element={<Analytics />} />
+          <Route path="/reports" element={<Reports />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
