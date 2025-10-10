@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, Search, Camera, FileText } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
+import { QrReader } from "react-qr-reader";
 import {
   Dialog,
   DialogContent,
@@ -291,19 +292,50 @@ export default function Weapons() {
                   </TabsContent>
 
                   <TabsContent value="qr" className="space-y-4">
-                    <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
-                      <Camera className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                      <p className="text-sm text-muted-foreground mb-4">
-                        Scan QR code to automatically fill weapon details
-                      </p>
-                      <p className="text-xs text-muted-foreground mb-4">
-                        QR format: WeaponID|WeaponType|SerialNumber|RackNumber
-                      </p>
-                      <Input
-                        placeholder="Or paste QR data here"
-                        onChange={(e) => handleQRScan(e.target.value)}
-                        className="mb-4"
-                      />
+                    <div className="border-2 border-dashed border-border rounded-lg overflow-hidden">
+                      {scanMode ? (
+                        <div className="relative">
+                          <QrReader
+                            onResult={(result, error) => {
+                              if (result) {
+                                handleQRScan(result.getText());
+                              }
+                            }}
+                            constraints={{ facingMode: "environment" }}
+                            className="w-full"
+                          />
+                          <Button
+                            onClick={() => setScanMode(false)}
+                            className="absolute top-4 right-4"
+                            variant="secondary"
+                            size="sm"
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="p-8 text-center">
+                          <Camera className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                          <p className="text-sm text-muted-foreground mb-4">
+                            Scan QR code to automatically fill weapon details
+                          </p>
+                          <p className="text-xs text-muted-foreground mb-4">
+                            QR format: WeaponID|WeaponType|SerialNumber|RackNumber
+                          </p>
+                          <Button
+                            onClick={() => setScanMode(true)}
+                            className="mb-4"
+                            variant="outline"
+                          >
+                            <Camera className="h-4 w-4 mr-2" />
+                            Start Camera
+                          </Button>
+                          <Input
+                            placeholder="Or paste QR data here"
+                            onChange={(e) => handleQRScan(e.target.value)}
+                          />
+                        </div>
+                      )}
                     </div>
                     <Form {...form}>
                       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
