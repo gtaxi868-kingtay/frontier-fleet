@@ -56,8 +56,22 @@ const App = () => (
                           <Route path="/works-materials" element={<WorksMaterials />} />
                           <Route path="/inventory" element={<Inventory />} />
                           <Route path="/room-inventory" element={<RoomInventory />} />
-                          <Route path="/analytics" element={<Analytics />} />
-                          <Route path="/reports" element={<Reports />} />
+                          <Route 
+                            path="/analytics" 
+                            element={
+                              <ProtectedRoute allowedRoles={['CO', 'S4', 'OC']}>
+                                <Analytics />
+                              </ProtectedRoute>
+                            } 
+                          />
+                          <Route 
+                            path="/reports" 
+                            element={
+                              <ProtectedRoute allowedRoles={['CO', 'S4', 'OC']}>
+                                <Reports />
+                              </ProtectedRoute>
+                            } 
+                          />
                           <Route path="*" element={<NotFound />} />
                         </Routes>
                       </div>

@@ -21,6 +21,21 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
     return <Navigate to="/auth" replace />;
   }
 
+  // Check if user has no approved role yet
+  if (!role && allowedRoles) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="text-center space-y-3">
+          <h1 className="text-2xl font-bold mb-2">Role Approval Pending</h1>
+          <p className="text-muted-foreground">
+            Your role is pending approval from CO/S4.<br />
+            You'll be able to access the system once approved.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   if (allowedRoles && role && !allowedRoles.includes(role)) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
