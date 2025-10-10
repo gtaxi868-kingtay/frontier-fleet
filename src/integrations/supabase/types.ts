@@ -373,6 +373,123 @@ export type Database = {
           },
         ]
       }
+      mechanics_tools: {
+        Row: {
+          authority: string | null
+          category: string
+          condition_issue: string | null
+          condition_return: string | null
+          created_at: string | null
+          id: string
+          issue_date: string | null
+          issued_to: string | null
+          last_inspection_date: string | null
+          next_inspection_due: string | null
+          notes: string | null
+          qty_issued: number | null
+          qty_on_hand: number | null
+          return_date: string | null
+          serviceable: boolean | null
+          squadron_id: string | null
+          tool_id: string
+          tool_name: string
+          updated_at: string | null
+        }
+        Insert: {
+          authority?: string | null
+          category: string
+          condition_issue?: string | null
+          condition_return?: string | null
+          created_at?: string | null
+          id?: string
+          issue_date?: string | null
+          issued_to?: string | null
+          last_inspection_date?: string | null
+          next_inspection_due?: string | null
+          notes?: string | null
+          qty_issued?: number | null
+          qty_on_hand?: number | null
+          return_date?: string | null
+          serviceable?: boolean | null
+          squadron_id?: string | null
+          tool_id: string
+          tool_name: string
+          updated_at?: string | null
+        }
+        Update: {
+          authority?: string | null
+          category?: string
+          condition_issue?: string | null
+          condition_return?: string | null
+          created_at?: string | null
+          id?: string
+          issue_date?: string | null
+          issued_to?: string | null
+          last_inspection_date?: string | null
+          next_inspection_due?: string | null
+          notes?: string | null
+          qty_issued?: number | null
+          qty_on_hand?: number | null
+          return_date?: string | null
+          serviceable?: boolean | null
+          squadron_id?: string | null
+          tool_id?: string
+          tool_name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      mt_facilities: {
+        Row: {
+          capacity: number | null
+          created_at: string | null
+          equipment_present: string | null
+          facility_id: string
+          facility_name: string
+          facility_type: string
+          id: string
+          last_maintenance_date: string | null
+          location: string | null
+          next_maintenance_due: string | null
+          notes: string | null
+          squadron_id: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          capacity?: number | null
+          created_at?: string | null
+          equipment_present?: string | null
+          facility_id: string
+          facility_name: string
+          facility_type: string
+          id?: string
+          last_maintenance_date?: string | null
+          location?: string | null
+          next_maintenance_due?: string | null
+          notes?: string | null
+          squadron_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          capacity?: number | null
+          created_at?: string | null
+          equipment_present?: string | null
+          facility_id?: string
+          facility_name?: string
+          facility_type?: string
+          id?: string
+          last_maintenance_date?: string | null
+          location?: string | null
+          next_maintenance_due?: string | null
+          notes?: string | null
+          squadron_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       plant_machinery: {
         Row: {
           created_at: string | null
@@ -901,6 +1018,66 @@ export type Database = {
           role?: Database["public"]["Enums"]["app_role"]
           status?: Database["public"]["Enums"]["approval_status"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      vehicles: {
+        Row: {
+          assigned_to: string | null
+          created_at: string | null
+          fuel_type: string | null
+          id: string
+          last_service_date: string | null
+          location: string | null
+          make_model: string | null
+          mileage: number | null
+          next_service_due: string | null
+          notes: string | null
+          registration_number: string | null
+          serial_number: string | null
+          serviceability: string | null
+          squadron_id: string | null
+          updated_at: string | null
+          vehicle_id: string
+          vehicle_type: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          created_at?: string | null
+          fuel_type?: string | null
+          id?: string
+          last_service_date?: string | null
+          location?: string | null
+          make_model?: string | null
+          mileage?: number | null
+          next_service_due?: string | null
+          notes?: string | null
+          registration_number?: string | null
+          serial_number?: string | null
+          serviceability?: string | null
+          squadron_id?: string | null
+          updated_at?: string | null
+          vehicle_id: string
+          vehicle_type: string
+        }
+        Update: {
+          assigned_to?: string | null
+          created_at?: string | null
+          fuel_type?: string | null
+          id?: string
+          last_service_date?: string | null
+          location?: string | null
+          make_model?: string | null
+          mileage?: number | null
+          next_service_due?: string | null
+          notes?: string | null
+          registration_number?: string | null
+          serial_number?: string | null
+          serviceability?: string | null
+          squadron_id?: string | null
+          updated_at?: string | null
+          vehicle_id?: string
+          vehicle_type?: string
         }
         Relationships: []
       }
