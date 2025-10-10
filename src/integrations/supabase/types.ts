@@ -254,18 +254,21 @@ export type Database = {
           created_at: string | null
           id: string
           role: Database["public"]["Enums"]["app_role"]
+          status: Database["public"]["Enums"]["approval_status"]
           user_id: string
         }
         Insert: {
           created_at?: string | null
           id?: string
           role: Database["public"]["Enums"]["app_role"]
+          status?: Database["public"]["Enums"]["approval_status"]
           user_id: string
         }
         Update: {
           created_at?: string | null
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
+          status?: Database["public"]["Enums"]["approval_status"]
           user_id?: string
         }
         Relationships: []
@@ -285,6 +288,7 @@ export type Database = {
     }
     Enums: {
       app_role: "CO" | "S4" | "OC" | "SQMS" | "Soldier"
+      approval_status: "pending" | "approved" | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -413,6 +417,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["CO", "S4", "OC", "SQMS", "Soldier"],
+      approval_status: ["pending", "approved", "rejected"],
     },
   },
 } as const

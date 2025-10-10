@@ -20,7 +20,7 @@ interface AuthContextType {
   role: AppRole | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signUp: (email: string, password: string, name: string, rank: string) => Promise<{ error: any }>;
+  signUp: (email: string, password: string, name: string, rank: string, role: AppRole) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
 }
 
@@ -82,15 +82,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (profileError) throw profileError;
       setProfile(profileData);
 
-      // Fetch role
+      // Fetch role (only approved roles)
       const { data: roleData, error: roleError } = await supabase
         .from('user_roles')
-        .select('role')
+        .select('role, status')
         .eq('user_id', userId)
+        .eq('status', 'approved')
         .single();
 
       if (roleError) {
-        console.log('No role assigned yet');
+        console.log('No approved role assigned yet');
         setRole(null);
       } else {
         setRole(roleData.role as AppRole);
@@ -115,10 +116,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return { error };
   };
 
-  const signUp = async (email: string, password: string, name: string, rank: string) => {
+  const signUp = async (email: string, password: string, name: string, rank: string, role: AppRole) => {
     const redirectUrl = `${window.location.origin}/`;
     
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -129,6 +130,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         },
       },
     });
+    
+    if (!error && data.user) {
+      // Create role request (pending approval)
+      const { error: roleError } = await supabase
+        .from('user_roles')
+        .insert({
+          user_id: data.user.id,
+          role: role,
+          status: 'pending'
+        });
+      
+      if (roleError) {
+        console.error('Error creating role request:', roleError);
+      }
+    }
     
     return { error };
   };

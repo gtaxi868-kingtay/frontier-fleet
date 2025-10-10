@@ -41,6 +41,7 @@ export default function Auth() {
     password: '',
     name: '',
     rank: '',
+    role: '',
   });
 
   // Redirect if already logged in
@@ -73,14 +74,15 @@ export default function Auth() {
       signUpData.email,
       signUpData.password,
       signUpData.name,
-      signUpData.rank
+      signUpData.rank,
+      signUpData.role as 'CO' | 'S4' | 'OC' | 'SQMS' | 'Soldier'
     );
     
     if (error) {
       toast.error(error.message);
     } else {
-      toast.success('Account created successfully! You can now sign in.');
-      setSignUpData({ email: '', password: '', name: '', rank: '' });
+      toast.success('Account created! Awaiting role approval from CO/S4.');
+      setSignUpData({ email: '', password: '', name: '', rank: '', role: '' });
     }
     
     setLoading(false);
@@ -191,6 +193,27 @@ export default function Auth() {
                             {rank}
                           </SelectItem>
                         ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-role">Role</Label>
+                    <Select
+                      value={signUpData.role}
+                      onValueChange={(value) =>
+                        setSignUpData({ ...signUpData, role: value })
+                      }
+                      required
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select your role" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-popover z-50">
+                        <SelectItem value="CO">Commanding Officer (CO)</SelectItem>
+                        <SelectItem value="S4">Logistics Officer (S4)</SelectItem>
+                        <SelectItem value="OC">Officer Commanding (OC)</SelectItem>
+                        <SelectItem value="SQMS">Storeman (SQMS)</SelectItem>
+                        <SelectItem value="Soldier">Soldier</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
