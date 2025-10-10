@@ -1,14 +1,19 @@
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Bell, Settings } from "lucide-react";
+import { Bell, LogOut } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
-interface DashboardHeaderProps {
-  userName?: string;
-  userRole?: string;
-}
-
-export function DashboardHeader({ userName = "Officer", userRole = "S4" }: DashboardHeaderProps) {
+export function DashboardHeader() {
+  const { profile, role, signOut } = useAuth();
   return (
     <header className="sticky top-0 z-40 border-b border-border/50 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80">
       <div className="flex h-16 items-center gap-4 px-6">
@@ -21,21 +26,36 @@ export function DashboardHeader({ userName = "Officer", userRole = "S4" }: Dashb
             <Bell className="h-5 w-5" />
             <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-primary animate-pulse" />
           </Button>
-          
-          <Button variant="ghost" size="icon" className="rounded-xl">
-            <Settings className="h-5 w-5" />
-          </Button>
 
           <div className="flex items-center gap-3 pl-3 border-l border-border/50">
-            <div className="text-right">
-              <p className="text-sm font-medium">{userName}</p>
-              <p className="text-xs text-muted-foreground">{userRole}</p>
-            </div>
-            <Avatar className="h-9 w-9 border-2 border-primary/20">
-              <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
-                {userName.substring(0, 2).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="flex items-center gap-3 hover:bg-muted/50">
+                  <div className="text-right">
+                    <p className="text-sm font-medium">{profile?.name || 'User'}</p>
+                    <p className="text-xs text-muted-foreground">{role || 'No Role'}</p>
+                  </div>
+                  <Avatar className="h-9 w-9 border-2 border-primary/20">
+                    <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
+                      {profile?.name?.substring(0, 2).toUpperCase() || 'U'}
+                    </AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>
+                  <div>
+                    <p className="font-medium">{profile?.name}</p>
+                    <p className="text-xs text-muted-foreground">{profile?.rank}</p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={signOut} className="text-destructive cursor-pointer">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Sign Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </div>

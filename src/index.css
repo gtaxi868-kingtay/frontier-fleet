@@ -8,87 +8,79 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* iOS 17 Light Theme - Clean & Modern */
-    --background: 0 0% 98%;
-    --foreground: 240 10% 15%;
+    /* Futuristic Military Dark Theme */
+    --background: 220 15% 8%;
+    --foreground: 0 0% 95%;
 
-    /* Card with subtle blur */
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 15%;
+    /* Card with subtle glow */
+    --card: 220 15% 12%;
+    --card-foreground: 0 0% 95%;
 
     /* Popover/Dropdown */
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 15%;
+    --popover: 220 15% 10%;
+    --popover-foreground: 0 0% 95%;
 
-    /* Primary - iOS Blue */
-    --primary: 211 100% 50%;
+    /* Primary - Tactical Green */
+    --primary: 142 70% 45%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 211 100% 60%;
+    --primary-glow: 142 70% 55%;
 
-    /* Secondary - Soft Gray */
-    --secondary: 240 5% 96%;
-    --secondary-foreground: 240 10% 15%;
+    /* Secondary - Metallic Blue-Gray */
+    --secondary: 210 20% 25%;
+    --secondary-foreground: 0 0% 95%;
 
-    /* Muted - Light variants */
-    --muted: 240 5% 96%;
-    --muted-foreground: 240 4% 46%;
+    /* Muted - Dark variants */
+    --muted: 220 15% 18%;
+    --muted-foreground: 0 0% 60%;
 
-    /* Accent - iOS Blue */
-    --accent: 211 100% 50%;
+    /* Accent - Cyber Blue */
+    --accent: 200 95% 50%;
     --accent-foreground: 0 0% 100%;
 
-    /* Status Colors - iOS Style */
-    --success: 142 76% 45%;
+    /* Status Colors - Military Grade */
+    --success: 142 70% 45%;
     --success-foreground: 0 0% 100%;
     
-    --warning: 38 92% 50%;
-    --warning-foreground: 0 0% 100%;
+    --warning: 38 95% 55%;
+    --warning-foreground: 0 0% 10%;
     
-    --destructive: 0 84% 60%;
+    --destructive: 0 85% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Borders & Inputs - Very subtle */
-    --border: 240 6% 90%;
-    --input: 240 6% 90%;
-    --ring: 211 100% 50%;
+    /* Borders & Inputs - Subtle glow */
+    --border: 220 15% 20%;
+    --input: 220 15% 18%;
+    --ring: 142 70% 45%;
 
-    --radius: 1rem;
+    --radius: 0.75rem;
 
-    /* Sidebar - Clean white */
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 240 10% 15%;
-    --sidebar-primary: 211 100% 50%;
+    /* Sidebar - Command Center */
+    --sidebar-background: 220 15% 10%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 142 70% 45%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 5% 96%;
-    --sidebar-accent-foreground: 240 10% 15%;
-    --sidebar-border: 240 6% 90%;
-    --sidebar-ring: 211 100% 50%;
+    --sidebar-accent: 220 15% 18%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 220 15% 20%;
+    --sidebar-ring: 142 70% 45%;
 
-    /* iOS 17 Style Shadows - Soft and layered */
-    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-    --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-    --shadow-glow: 0 0 20px hsl(211 100% 50% / 0.15);
+    /* Military-Grade Shadows - Glowing effects */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.4);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.6), 0 8px 10px -6px rgb(0 0 0 / 0.5);
+    --shadow-card: 0 2px 8px 0 rgb(0 0 0 / 0.5), 0 0 0 1px rgb(142 70% 45% / 0.1);
+    --shadow-glow: 0 0 30px rgb(142 70% 45% / 0.3), 0 0 10px rgb(142 70% 45% / 0.2);
     
-    /* Animations - iOS smooth */
+    /* Animations - Military precision */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-spring: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
   .dark {
-    /* Dark mode variant for iOS 17 */
-    --background: 240 10% 8%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 12%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 12%;
-    --popover-foreground: 0 0% 98%;
-    --muted: 240 5% 20%;
-    --muted-foreground: 240 5% 64%;
-    --border: 240 6% 20%;
-    --input: 240 6% 20%;
+    /* Already optimized for dark mode */
+    --background: 220 15% 8%;
+    --foreground: 0 0% 95%;
   }
 }
 
@@ -99,5 +91,32 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  /* Glow effect for primary elements */
+  .glow-primary {
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
+  }
+  
+  /* Scan line effect for tactical feel */
+  @keyframes scan {
+    0%, 100% { opacity: 0.1; }
+    50% { opacity: 0.3; }
+  }
+  
+  .tactical-scan {
+    position: relative;
+  }
+  
+  .tactical-scan::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, hsl(var(--primary)), transparent);
+    animation: scan 3s ease-in-out infinite;
   }
 }

@@ -5,7 +5,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
+import { AuthProvider } from "@/hooks/useAuth";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
+import Auth from "./pages/Auth";
 import Weapons from "./pages/Weapons";
 import Tools from "./pages/Tools";
 import EngineerEquipment from "./pages/EngineerEquipment";
@@ -29,31 +32,42 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <SidebarProvider>
-          <div className="flex min-h-screen w-full">
-            <AppSidebar />
-            <div className="flex-1">
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/weapons" element={<Weapons />} />
-                <Route path="/tools" element={<Tools />} />
-                <Route path="/engineer-equipment" element={<EngineerEquipment />} />
-                <Route path="/plant-machinery" element={<PlantMachinery />} />
-                <Route path="/ppe" element={<PPE />} />
-                <Route path="/uniforms" element={<Uniforms />} />
-                <Route path="/explosives" element={<Explosives />} />
-                <Route path="/facilities" element={<Facilities />} />
-                <Route path="/works-materials" element={<WorksMaterials />} />
-                <Route path="/inventory" element={<Inventory />} />
-                <Route path="/room-inventory" element={<RoomInventory />} />
-                <Route path="/analytics" element={<Analytics />} />
-                <Route path="/reports" element={<Reports />} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </div>
-          </div>
-        </SidebarProvider>
+        <AuthProvider>
+          <Routes>
+            <Route path="/auth" element={<Auth />} />
+            <Route
+              path="/*"
+              element={
+                <ProtectedRoute>
+                  <SidebarProvider>
+                    <div className="flex min-h-screen w-full">
+                      <AppSidebar />
+                      <div className="flex-1">
+                        <Routes>
+                          <Route path="/" element={<Index />} />
+                          <Route path="/weapons" element={<Weapons />} />
+                          <Route path="/tools" element={<Tools />} />
+                          <Route path="/engineer-equipment" element={<EngineerEquipment />} />
+                          <Route path="/plant-machinery" element={<PlantMachinery />} />
+                          <Route path="/ppe" element={<PPE />} />
+                          <Route path="/uniforms" element={<Uniforms />} />
+                          <Route path="/explosives" element={<Explosives />} />
+                          <Route path="/facilities" element={<Facilities />} />
+                          <Route path="/works-materials" element={<WorksMaterials />} />
+                          <Route path="/inventory" element={<Inventory />} />
+                          <Route path="/room-inventory" element={<RoomInventory />} />
+                          <Route path="/analytics" element={<Analytics />} />
+                          <Route path="/reports" element={<Reports />} />
+                          <Route path="*" element={<NotFound />} />
+                        </Routes>
+                      </div>
+                    </div>
+                  </SidebarProvider>
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
