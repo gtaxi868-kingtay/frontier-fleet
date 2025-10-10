@@ -1,10 +1,140 @@
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, Camera, FileText } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
+
+const weaponSchema = z.object({
+  weapon_id: z.string().min(1, "Weapon ID is required"),
+  weapon_type: z.string().min(1, "Weapon type is required"),
+  serial_number: z.string().nullable().optional(),
+  condition_issue: z.string().nullable().optional(),
+  serviceable: z.boolean().default(true),
+  notes: z.string().nullable().optional(),
+});
+
+type WeaponFormData = z.infer<typeof weaponSchema>;
 
 export default function Weapons() {
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [scanMode, setScanMode] = useState(false);
+  const { toast } = useToast();
+  const { session } = useAuth();
+  const [hasS4Role, setHasS4Role] = useState(false);
+
+  const form = useForm<WeaponFormData>({
+    resolver: zodResolver(weaponSchema),
+    defaultValues: {
+      weapon_id: "",
+      weapon_type: "",
+      serial_number: "",
+      condition_issue: "Good",
+      serviceable: true,
+      notes: "",
+    },
+  });
+
+  // Check if user has S4 role
+  useState(() => {
+    const checkRole = async () => {
+      if (!session?.user?.id) return;
+      const { data } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", session.user.id)
+        .eq("role", "S4")
+        .eq("status", "approved")
+        .single();
+      setHasS4Role(!!data);
+    };
+    checkRole();
+  });
+
+  const handleQRScan = (data: string) => {
+    try {
+      // Parse QR code data (expecting format: weaponId|weaponType|serialNumber)
+      const parts = data.split("|");
+      if (parts.length >= 2) {
+        form.setValue("weapon_id", parts[0]);
+        form.setValue("weapon_type", parts[1]);
+        if (parts[2]) form.setValue("serial_number", parts[2]);
+        setScanMode(false);
+        toast({
+          title: "QR Code Scanned",
+          description: "Weapon details loaded successfully",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Scan Error",
+        description: "Invalid QR code format",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const onSubmit = async (data: WeaponFormData) => {
+    try {
+      const weaponData = {
+        weapon_id: data.weapon_id,
+        weapon_type: data.weapon_type,
+        serial_number: data.serial_number || null,
+        condition_issue: data.condition_issue || null,
+        serviceable: data.serviceable,
+        notes: data.notes || null,
+      };
+
+      const { error } = await supabase.from("weapons").insert([weaponData]);
+      
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Weapon added successfully",
+      });
+      
+      setDialogOpen(false);
+      form.reset();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <DashboardHeader />
@@ -18,10 +148,197 @@ export default function Weapons() {
               Track and manage battalion weapons inventory
             </p>
           </div>
-          <Button variant="default" className="gap-2">
-            <Plus className="h-4 w-4" />
-            Add Weapon
-          </Button>
+          {hasS4Role && (
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="default" className="gap-2">
+                  <Plus className="h-4 w-4" />
+                  Add Weapon
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>Add New Weapon</DialogTitle>
+                </DialogHeader>
+                
+                <Tabs defaultValue="manual" className="w-full">
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="manual" className="gap-2">
+                      <FileText className="h-4 w-4" />
+                      Manual Entry
+                    </TabsTrigger>
+                    <TabsTrigger value="qr" className="gap-2">
+                      <Camera className="h-4 w-4" />
+                      QR Scan
+                    </TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="manual" className="space-y-4">
+                    <Form {...form}>
+                      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                        <FormField
+                          control={form.control}
+                          name="weapon_id"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Weapon ID *</FormLabel>
+                              <FormControl>
+                                <Input placeholder="W-001" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="weapon_type"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Weapon Type *</FormLabel>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select weapon type" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="Rifle">Rifle</SelectItem>
+                                  <SelectItem value="Pistol">Pistol</SelectItem>
+                                  <SelectItem value="Machine Gun">Machine Gun</SelectItem>
+                                  <SelectItem value="Grenade Launcher">Grenade Launcher</SelectItem>
+                                  <SelectItem value="Sniper Rifle">Sniper Rifle</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="serial_number"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Serial Number</FormLabel>
+                              <FormControl>
+                                <Input placeholder="SN123456" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="condition_issue"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Condition</FormLabel>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select condition" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="Excellent">Excellent</SelectItem>
+                                  <SelectItem value="Good">Good</SelectItem>
+                                  <SelectItem value="Fair">Fair</SelectItem>
+                                  <SelectItem value="Poor">Poor</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="notes"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Notes</FormLabel>
+                              <FormControl>
+                                <Textarea placeholder="Additional notes..." {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <Button type="submit" className="w-full">Add Weapon</Button>
+                      </form>
+                    </Form>
+                  </TabsContent>
+
+                  <TabsContent value="qr" className="space-y-4">
+                    <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
+                      <Camera className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Scan QR code to automatically fill weapon details
+                      </p>
+                      <p className="text-xs text-muted-foreground mb-4">
+                        QR format: WeaponID|WeaponType|SerialNumber
+                      </p>
+                      <Input
+                        placeholder="Or paste QR data here"
+                        onChange={(e) => handleQRScan(e.target.value)}
+                        className="mb-4"
+                      />
+                    </div>
+                    <Form {...form}>
+                      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                        <FormField
+                          control={form.control}
+                          name="weapon_id"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Weapon ID *</FormLabel>
+                              <FormControl>
+                                <Input placeholder="Scanned from QR" {...field} readOnly />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="weapon_type"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Weapon Type *</FormLabel>
+                              <FormControl>
+                                <Input placeholder="Scanned from QR" {...field} readOnly />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="serial_number"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Serial Number</FormLabel>
+                              <FormControl>
+                                <Input placeholder="Scanned from QR" {...field} readOnly />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <Button type="submit" className="w-full">Add Weapon</Button>
+                      </form>
+                    </Form>
+                  </TabsContent>
+                </Tabs>
+              </DialogContent>
+            </Dialog>
+          )}
         </div>
 
         <Card className="border-border/50 backdrop-blur-sm">
