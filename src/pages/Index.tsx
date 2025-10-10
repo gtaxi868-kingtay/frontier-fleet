@@ -12,7 +12,10 @@ import {
   HardHat,
   Truck,
   Flame,
-  Shirt
+  Shirt,
+  Building,
+  Hammer,
+  Boxes
 } from "lucide-react";
 
 const Index = () => {
@@ -140,6 +143,66 @@ const Index = () => {
                     { label: "Serviceable", value: "96%" },
                     { label: "Issued", value: 1189 },
                     { label: "In Store", value: 58 },
+                  ]}
+                />
+                <ModuleCard
+                  title="PPE"
+                  description="Personal protective equipment"
+                  icon={Shield}
+                  link="/ppe"
+                  stats={[
+                    { label: "Total", value: 567 },
+                    { label: "Serviceable", value: "93%" },
+                    { label: "Issued", value: 498 },
+                    { label: "In Store", value: 69 },
+                  ]}
+                />
+                <ModuleCard
+                  title="Facilities"
+                  description="Infrastructure and base facilities"
+                  icon={Building}
+                  link="/facilities"
+                  stats={[
+                    { label: "Total", value: 34 },
+                    { label: "Working", value: "97%" },
+                    { label: "Inspected", value: 28 },
+                    { label: "Pending", value: 6 },
+                  ]}
+                />
+                <ModuleCard
+                  title="Works Materials"
+                  description="Construction and project materials"
+                  icon={Hammer}
+                  link="/works-materials"
+                  stats={[
+                    { label: "Projects", value: 12 },
+                    { label: "Materials", value: 234 },
+                    { label: "Issued", value: "1.2T" },
+                    { label: "Active", value: 8 },
+                  ]}
+                />
+                <ModuleCard
+                  title="General Inventory"
+                  description="Miscellaneous stores and supplies"
+                  icon={Boxes}
+                  link="/inventory"
+                  stats={[
+                    { label: "Categories", value: 24 },
+                    { label: "Items", value: 1834 },
+                    { label: "Stock Level", value: "87%" },
+                    { label: "Low Stock", value: 12 },
+                  ]}
+                />
+                <ModuleCard
+                  title="Room Inventory"
+                  description="Barrack and facility room checks"
+                  icon={Building}
+                  link="/room-inventory"
+                  stats={[
+                    { label: "Rooms", value: 87 },
+                    { label: "Compliant", value: "91%" },
+                    { label: "Inspected", value: 79 },
+                    { label: "Overdue", value: 8 },
                   ]}
                 />
               </div>
