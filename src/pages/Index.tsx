@@ -15,7 +15,8 @@ import {
   Shirt,
   Building,
   Hammer,
-  Boxes
+  Boxes,
+  Car
 } from "lucide-react";
 
 const Index = () => {
@@ -119,6 +120,18 @@ const Index = () => {
                     { label: "Operational", value: "89%" },
                     { label: "Deployed", value: 38 },
                     { label: "Maintenance", value: 5 },
+                  ]}
+                />
+                <ModuleCard
+                  title="Motor Transport"
+                  description="MT department vehicles, tools, and workshops"
+                  icon={Car}
+                  link="/motor-transport"
+                  stats={[
+                    { label: "Vehicles", value: 0 },
+                    { label: "Serviceable", value: "0%" },
+                    { label: "Tools", value: 0 },
+                    { label: "Facilities", value: 0 },
                   ]}
                 />
                 <ModuleCard

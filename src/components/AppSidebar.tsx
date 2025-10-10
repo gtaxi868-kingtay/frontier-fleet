@@ -13,7 +13,8 @@ import {
   BarChart3,
   FileText,
   Home,
-  UserCog
+  UserCog,
+  Car
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -36,6 +37,7 @@ const modules = [
   { title: "Tools", url: "/tools", icon: Wrench },
   { title: "Engineer Equipment", url: "/engineer-equipment", icon: HardHat },
   { title: "Plant & Machinery", url: "/plant-machinery", icon: Truck },
+  { title: "Motor Transport", url: "/motor-transport", icon: Car },
   { title: "PPE", url: "/ppe", icon: AlertTriangle },
   { title: "Uniforms", url: "/uniforms", icon: Shirt },
   { title: "Explosives", url: "/explosives", icon: Flame },

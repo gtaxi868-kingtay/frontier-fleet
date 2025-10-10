@@ -13,6 +13,7 @@ import Weapons from "./pages/Weapons";
 import Tools from "./pages/Tools";
 import EngineerEquipment from "./pages/EngineerEquipment";
 import PlantMachinery from "./pages/PlantMachinery";
+import MotorTransport from "./pages/MotorTransport";
 import PPE from "./pages/PPE";
 import Uniforms from "./pages/Uniforms";
 import Explosives from "./pages/Explosives";
@@ -50,6 +51,7 @@ const App = () => (
                           <Route path="/tools" element={<Tools />} />
                           <Route path="/engineer-equipment" element={<EngineerEquipment />} />
                           <Route path="/plant-machinery" element={<PlantMachinery />} />
+                          <Route path="/motor-transport" element={<MotorTransport />} />
                           <Route path="/ppe" element={<PPE />} />
                           <Route path="/uniforms" element={<Uniforms />} />
                           <Route path="/explosives" element={<Explosives />} />
