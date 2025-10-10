@@ -55,6 +55,271 @@ export type Database = {
           },
         ]
       }
+      engineer_equipment: {
+        Row: {
+          authority: string | null
+          condition_issue: string | null
+          condition_return: string | null
+          created_at: string | null
+          equip_id: string
+          equipment_name: string
+          id: string
+          issue_date: string | null
+          issued_to: string | null
+          last_inspection_date: string | null
+          next_inspection_due: string | null
+          notes: string | null
+          qty_issued: number | null
+          qty_on_hand: number | null
+          qty_returned: number | null
+          return_date: string | null
+          serviceable: boolean | null
+          squadron_id: string | null
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          authority?: string | null
+          condition_issue?: string | null
+          condition_return?: string | null
+          created_at?: string | null
+          equip_id: string
+          equipment_name: string
+          id?: string
+          issue_date?: string | null
+          issued_to?: string | null
+          last_inspection_date?: string | null
+          next_inspection_due?: string | null
+          notes?: string | null
+          qty_issued?: number | null
+          qty_on_hand?: number | null
+          qty_returned?: number | null
+          return_date?: string | null
+          serviceable?: boolean | null
+          squadron_id?: string | null
+          type: string
+          updated_at?: string | null
+        }
+        Update: {
+          authority?: string | null
+          condition_issue?: string | null
+          condition_return?: string | null
+          created_at?: string | null
+          equip_id?: string
+          equipment_name?: string
+          id?: string
+          issue_date?: string | null
+          issued_to?: string | null
+          last_inspection_date?: string | null
+          next_inspection_due?: string | null
+          notes?: string | null
+          qty_issued?: number | null
+          qty_on_hand?: number | null
+          qty_returned?: number | null
+          return_date?: string | null
+          serviceable?: boolean | null
+          squadron_id?: string | null
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "engineer_equipment_issued_to_fkey"
+            columns: ["issued_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "engineer_equipment_squadron_id_fkey"
+            columns: ["squadron_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      explosives: {
+        Row: {
+          authority: string
+          created_at: string | null
+          explosive_id: string
+          id: string
+          issue_date: string | null
+          issued_to: string | null
+          lot_number: string
+          notes: string | null
+          quantity_issued: number | null
+          quantity_received: number | null
+          quantity_returned: number | null
+          return_date: string | null
+          squadron_id: string | null
+          storage_location: string
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          authority: string
+          created_at?: string | null
+          explosive_id: string
+          id?: string
+          issue_date?: string | null
+          issued_to?: string | null
+          lot_number: string
+          notes?: string | null
+          quantity_issued?: number | null
+          quantity_received?: number | null
+          quantity_returned?: number | null
+          return_date?: string | null
+          squadron_id?: string | null
+          storage_location: string
+          type: string
+          updated_at?: string | null
+        }
+        Update: {
+          authority?: string
+          created_at?: string | null
+          explosive_id?: string
+          id?: string
+          issue_date?: string | null
+          issued_to?: string | null
+          lot_number?: string
+          notes?: string | null
+          quantity_issued?: number | null
+          quantity_received?: number | null
+          quantity_returned?: number | null
+          return_date?: string | null
+          squadron_id?: string | null
+          storage_location?: string
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "explosives_issued_to_fkey"
+            columns: ["issued_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "explosives_squadron_id_fkey"
+            columns: ["squadron_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      facilities: {
+        Row: {
+          created_at: string | null
+          element: string | null
+          facility_id: string
+          facility_name: string
+          id: string
+          last_inspection: string | null
+          not_working: number | null
+          notes: string | null
+          quantity: number | null
+          squadron_id: string | null
+          updated_at: string | null
+          working: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          element?: string | null
+          facility_id: string
+          facility_name: string
+          id?: string
+          last_inspection?: string | null
+          not_working?: number | null
+          notes?: string | null
+          quantity?: number | null
+          squadron_id?: string | null
+          updated_at?: string | null
+          working?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          element?: string | null
+          facility_id?: string
+          facility_name?: string
+          id?: string
+          last_inspection?: string | null
+          not_working?: number | null
+          notes?: string | null
+          quantity?: number | null
+          squadron_id?: string | null
+          updated_at?: string | null
+          working?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "facilities_squadron_id_fkey"
+            columns: ["squadron_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      general_inventory: {
+        Row: {
+          category: string
+          created_at: string | null
+          id: string
+          item_id: string
+          item_name: string
+          last_stock_check: string | null
+          notes: string | null
+          qty_issued_monthly: number | null
+          qty_on_hand: number | null
+          qty_returned_monthly: number | null
+          reorder_level: number | null
+          squadron_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          id?: string
+          item_id: string
+          item_name: string
+          last_stock_check?: string | null
+          notes?: string | null
+          qty_issued_monthly?: number | null
+          qty_on_hand?: number | null
+          qty_returned_monthly?: number | null
+          reorder_level?: number | null
+          squadron_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          id?: string
+          item_id?: string
+          item_name?: string
+          last_stock_check?: string | null
+          notes?: string | null
+          qty_issued_monthly?: number | null
+          qty_on_hand?: number | null
+          qty_returned_monthly?: number | null
+          reorder_level?: number | null
+          squadron_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "general_inventory_squadron_id_fkey"
+            columns: ["squadron_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       inventory_items: {
         Row: {
           assigned_to: string | null
@@ -102,6 +367,156 @@ export type Database = {
           {
             foreignKeyName: "inventory_items_unit_id_fkey"
             columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      plant_machinery: {
+        Row: {
+          created_at: string | null
+          fuel_type: string | null
+          fuel_used_monthly: number | null
+          id: string
+          last_service_date: string | null
+          location: string | null
+          make_model: string | null
+          next_service_due: string | null
+          notes: string | null
+          operator_assigned: string | null
+          plant_id: string
+          serial_number: string | null
+          service_interval_days: number | null
+          serviceability: string | null
+          squadron_id: string | null
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          fuel_type?: string | null
+          fuel_used_monthly?: number | null
+          id?: string
+          last_service_date?: string | null
+          location?: string | null
+          make_model?: string | null
+          next_service_due?: string | null
+          notes?: string | null
+          operator_assigned?: string | null
+          plant_id: string
+          serial_number?: string | null
+          service_interval_days?: number | null
+          serviceability?: string | null
+          squadron_id?: string | null
+          type: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          fuel_type?: string | null
+          fuel_used_monthly?: number | null
+          id?: string
+          last_service_date?: string | null
+          location?: string | null
+          make_model?: string | null
+          next_service_due?: string | null
+          notes?: string | null
+          operator_assigned?: string | null
+          plant_id?: string
+          serial_number?: string | null
+          service_interval_days?: number | null
+          serviceability?: string | null
+          squadron_id?: string | null
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plant_machinery_operator_assigned_fkey"
+            columns: ["operator_assigned"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "plant_machinery_squadron_id_fkey"
+            columns: ["squadron_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ppe: {
+        Row: {
+          category: string
+          condition_issue: string | null
+          condition_return: string | null
+          created_at: string | null
+          id: string
+          issue_date: string | null
+          issued_to: string | null
+          item: string
+          notes: string | null
+          ppe_id: string
+          qty_issued: number | null
+          qty_on_hand: number | null
+          qty_returned: number | null
+          return_date: string | null
+          serviceable: boolean | null
+          squadron_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          category: string
+          condition_issue?: string | null
+          condition_return?: string | null
+          created_at?: string | null
+          id?: string
+          issue_date?: string | null
+          issued_to?: string | null
+          item: string
+          notes?: string | null
+          ppe_id: string
+          qty_issued?: number | null
+          qty_on_hand?: number | null
+          qty_returned?: number | null
+          return_date?: string | null
+          serviceable?: boolean | null
+          squadron_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string
+          condition_issue?: string | null
+          condition_return?: string | null
+          created_at?: string | null
+          id?: string
+          issue_date?: string | null
+          issued_to?: string | null
+          item?: string
+          notes?: string | null
+          ppe_id?: string
+          qty_issued?: number | null
+          qty_on_hand?: number | null
+          qty_returned?: number | null
+          return_date?: string | null
+          serviceable?: boolean | null
+          squadron_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ppe_issued_to_fkey"
+            columns: ["issued_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ppe_squadron_id_fkey"
+            columns: ["squadron_id"]
             isOneToOne: false
             referencedRelation: "units"
             referencedColumns: ["id"]
@@ -184,6 +599,156 @@ export type Database = {
           },
         ]
       }
+      room_inventory: {
+        Row: {
+          created_at: string | null
+          expected_qty: number | null
+          id: string
+          inspection_date: string | null
+          inspector: string | null
+          inventory_item: string
+          notes: string | null
+          occupants: string | null
+          platoon_company: string | null
+          present_qty: number | null
+          room_id: string
+          room_type: string | null
+          squadron_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          expected_qty?: number | null
+          id?: string
+          inspection_date?: string | null
+          inspector?: string | null
+          inventory_item: string
+          notes?: string | null
+          occupants?: string | null
+          platoon_company?: string | null
+          present_qty?: number | null
+          room_id: string
+          room_type?: string | null
+          squadron_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          expected_qty?: number | null
+          id?: string
+          inspection_date?: string | null
+          inspector?: string | null
+          inventory_item?: string
+          notes?: string | null
+          occupants?: string | null
+          platoon_company?: string | null
+          present_qty?: number | null
+          room_id?: string
+          room_type?: string | null
+          squadron_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "room_inventory_inspector_fkey"
+            columns: ["inspector"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "room_inventory_squadron_id_fkey"
+            columns: ["squadron_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tools: {
+        Row: {
+          authority: string | null
+          category: string
+          condition_issue: string | null
+          condition_return: string | null
+          created_at: string | null
+          id: string
+          issue_date: string | null
+          issued_to: string | null
+          last_inspection_date: string | null
+          next_inspection_due: string | null
+          notes: string | null
+          qty_issued: number | null
+          qty_on_hand: number | null
+          qty_returned: number | null
+          return_date: string | null
+          serviceable: boolean | null
+          squadron_id: string | null
+          tool_id: string
+          tool_name: string
+          updated_at: string | null
+        }
+        Insert: {
+          authority?: string | null
+          category: string
+          condition_issue?: string | null
+          condition_return?: string | null
+          created_at?: string | null
+          id?: string
+          issue_date?: string | null
+          issued_to?: string | null
+          last_inspection_date?: string | null
+          next_inspection_due?: string | null
+          notes?: string | null
+          qty_issued?: number | null
+          qty_on_hand?: number | null
+          qty_returned?: number | null
+          return_date?: string | null
+          serviceable?: boolean | null
+          squadron_id?: string | null
+          tool_id: string
+          tool_name: string
+          updated_at?: string | null
+        }
+        Update: {
+          authority?: string | null
+          category?: string
+          condition_issue?: string | null
+          condition_return?: string | null
+          created_at?: string | null
+          id?: string
+          issue_date?: string | null
+          issued_to?: string | null
+          last_inspection_date?: string | null
+          next_inspection_due?: string | null
+          notes?: string | null
+          qty_issued?: number | null
+          qty_on_hand?: number | null
+          qty_returned?: number | null
+          return_date?: string | null
+          serviceable?: boolean | null
+          squadron_id?: string | null
+          tool_id?: string
+          tool_name?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tools_issued_to_fkey"
+            columns: ["issued_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tools_squadron_id_fkey"
+            columns: ["squadron_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       transactions: {
         Row: {
           created_at: string | null
@@ -224,6 +789,72 @@ export type Database = {
             columns: ["item_id"]
             isOneToOne: false
             referencedRelation: "inventory_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      uniforms: {
+        Row: {
+          condition_issue: string | null
+          condition_return: string | null
+          created_at: string | null
+          id: string
+          issue_date: string | null
+          issued_to: string | null
+          item_name: string
+          notes: string | null
+          return_date: string | null
+          serviceable: boolean | null
+          size: string | null
+          squadron_id: string | null
+          uniform_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          condition_issue?: string | null
+          condition_return?: string | null
+          created_at?: string | null
+          id?: string
+          issue_date?: string | null
+          issued_to?: string | null
+          item_name: string
+          notes?: string | null
+          return_date?: string | null
+          serviceable?: boolean | null
+          size?: string | null
+          squadron_id?: string | null
+          uniform_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          condition_issue?: string | null
+          condition_return?: string | null
+          created_at?: string | null
+          id?: string
+          issue_date?: string | null
+          issued_to?: string | null
+          item_name?: string
+          notes?: string | null
+          return_date?: string | null
+          serviceable?: boolean | null
+          size?: string | null
+          squadron_id?: string | null
+          uniform_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "uniforms_issued_to_fkey"
+            columns: ["issued_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "uniforms_squadron_id_fkey"
+            columns: ["squadron_id"]
+            isOneToOne: false
+            referencedRelation: "units"
             referencedColumns: ["id"]
           },
         ]
@@ -272,6 +903,128 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      weapons: {
+        Row: {
+          condition_issue: string | null
+          created_at: string | null
+          id: string
+          issue_date: string | null
+          issued_to: string | null
+          last_inspection_date: string | null
+          next_inspection_due: string | null
+          notes: string | null
+          return_date: string | null
+          serial_number: string | null
+          serviceable: boolean | null
+          squadron_id: string | null
+          survey_report_filed: boolean | null
+          updated_at: string | null
+          weapon_id: string
+          weapon_type: string
+        }
+        Insert: {
+          condition_issue?: string | null
+          created_at?: string | null
+          id?: string
+          issue_date?: string | null
+          issued_to?: string | null
+          last_inspection_date?: string | null
+          next_inspection_due?: string | null
+          notes?: string | null
+          return_date?: string | null
+          serial_number?: string | null
+          serviceable?: boolean | null
+          squadron_id?: string | null
+          survey_report_filed?: boolean | null
+          updated_at?: string | null
+          weapon_id: string
+          weapon_type: string
+        }
+        Update: {
+          condition_issue?: string | null
+          created_at?: string | null
+          id?: string
+          issue_date?: string | null
+          issued_to?: string | null
+          last_inspection_date?: string | null
+          next_inspection_due?: string | null
+          notes?: string | null
+          return_date?: string | null
+          serial_number?: string | null
+          serviceable?: boolean | null
+          squadron_id?: string | null
+          survey_report_filed?: boolean | null
+          updated_at?: string | null
+          weapon_id?: string
+          weapon_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "weapons_issued_to_fkey"
+            columns: ["issued_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "weapons_squadron_id_fkey"
+            columns: ["squadron_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      works_materials: {
+        Row: {
+          authority: string | null
+          created_at: string | null
+          id: string
+          material: string
+          notes: string | null
+          project_task: string
+          quantity_issued: number | null
+          quantity_received: number | null
+          squadron_id: string | null
+          updated_at: string | null
+          voucher_id: string
+        }
+        Insert: {
+          authority?: string | null
+          created_at?: string | null
+          id?: string
+          material: string
+          notes?: string | null
+          project_task: string
+          quantity_issued?: number | null
+          quantity_received?: number | null
+          squadron_id?: string | null
+          updated_at?: string | null
+          voucher_id: string
+        }
+        Update: {
+          authority?: string | null
+          created_at?: string | null
+          id?: string
+          material?: string
+          notes?: string | null
+          project_task?: string
+          quantity_issued?: number | null
+          quantity_received?: number | null
+          squadron_id?: string | null
+          updated_at?: string | null
+          voucher_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "works_materials_squadron_id_fkey"
+            columns: ["squadron_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
