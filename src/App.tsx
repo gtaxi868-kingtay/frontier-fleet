@@ -22,6 +22,7 @@ import Inventory from "./pages/Inventory";
 import RoomInventory from "./pages/RoomInventory";
 import Analytics from "./pages/Analytics";
 import Reports from "./pages/Reports";
+import RoleManagement from "./pages/RoleManagement";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -69,6 +70,14 @@ const App = () => (
                             element={
                               <ProtectedRoute allowedRoles={['CO', 'S4', 'OC']}>
                                 <Reports />
+                              </ProtectedRoute>
+                            } 
+                          />
+                          <Route 
+                            path="/role-management" 
+                            element={
+                              <ProtectedRoute allowedRoles={['CO', 'S4']}>
+                                <RoleManagement />
                               </ProtectedRoute>
                             } 
                           />

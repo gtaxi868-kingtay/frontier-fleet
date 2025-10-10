@@ -12,9 +12,11 @@ import {
   Building,
   BarChart3,
   FileText,
-  Home
+  Home,
+  UserCog
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 
 import {
   Sidebar,
@@ -46,6 +48,10 @@ const modules = [
 ];
 
 export function AppSidebar() {
+  const { role } = useAuth();
+  
+  const showRoleManagement = role === 'CO' || role === 'S4';
+
   return (
     <Sidebar collapsible="icon" className="border-r border-border/50 bg-sidebar">
       <SidebarHeader className="border-b border-border/50 p-4">
@@ -85,6 +91,31 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {showRoleManagement && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Administration</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <NavLink 
+                      to="/role-management"
+                      className={({ isActive }) =>
+                        isActive 
+                          ? "bg-primary/10 text-primary font-medium" 
+                          : "hover:bg-muted/50"
+                      }
+                    >
+                      <UserCog className="h-4 w-4" />
+                      <span>Role Management</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
     </Sidebar>
   );
