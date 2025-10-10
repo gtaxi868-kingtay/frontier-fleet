@@ -39,6 +39,7 @@ const weaponSchema = z.object({
   weapon_id: z.string().min(1, "Weapon ID is required"),
   weapon_type: z.string().min(1, "Weapon type is required"),
   serial_number: z.string().nullable().optional(),
+  rack_number: z.string().nullable().optional(),
   condition_issue: z.string().nullable().optional(),
   serviceable: z.boolean().default(true),
   notes: z.string().nullable().optional(),
@@ -59,6 +60,7 @@ export default function Weapons() {
       weapon_id: "",
       weapon_type: "",
       serial_number: "",
+      rack_number: "",
       condition_issue: "Good",
       serviceable: true,
       notes: "",
@@ -83,12 +85,13 @@ export default function Weapons() {
 
   const handleQRScan = (data: string) => {
     try {
-      // Parse QR code data (expecting format: weaponId|weaponType|serialNumber)
+      // Parse QR code data (expecting format: weaponId|weaponType|serialNumber|rackNumber)
       const parts = data.split("|");
       if (parts.length >= 2) {
         form.setValue("weapon_id", parts[0]);
         form.setValue("weapon_type", parts[1]);
         if (parts[2]) form.setValue("serial_number", parts[2]);
+        if (parts[3]) form.setValue("rack_number", parts[3]);
         setScanMode(false);
         toast({
           title: "QR Code Scanned",
@@ -110,6 +113,7 @@ export default function Weapons() {
         weapon_id: data.weapon_id,
         weapon_type: data.weapon_type,
         serial_number: data.serial_number || null,
+        rack_number: data.rack_number || null,
         condition_issue: data.condition_issue || null,
         serviceable: data.serviceable,
         notes: data.notes || null,
@@ -231,6 +235,20 @@ export default function Weapons() {
 
                         <FormField
                           control={form.control}
+                          name="rack_number"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Rack Number</FormLabel>
+                              <FormControl>
+                                <Input placeholder="R-01" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
                           name="condition_issue"
                           render={({ field }) => (
                             <FormItem>
@@ -279,7 +297,7 @@ export default function Weapons() {
                         Scan QR code to automatically fill weapon details
                       </p>
                       <p className="text-xs text-muted-foreground mb-4">
-                        QR format: WeaponID|WeaponType|SerialNumber
+                        QR format: WeaponID|WeaponType|SerialNumber|RackNumber
                       </p>
                       <Input
                         placeholder="Or paste QR data here"
@@ -323,6 +341,20 @@ export default function Weapons() {
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Serial Number</FormLabel>
+                              <FormControl>
+                                <Input placeholder="Scanned from QR" {...field} readOnly />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="rack_number"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Rack Number</FormLabel>
                               <FormControl>
                                 <Input placeholder="Scanned from QR" {...field} readOnly />
                               </FormControl>

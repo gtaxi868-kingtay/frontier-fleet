@@ -914,6 +914,7 @@ export type Database = {
           last_inspection_date: string | null
           next_inspection_due: string | null
           notes: string | null
+          rack_number: string | null
           return_date: string | null
           serial_number: string | null
           serviceable: boolean | null
@@ -932,6 +933,7 @@ export type Database = {
           last_inspection_date?: string | null
           next_inspection_due?: string | null
           notes?: string | null
+          rack_number?: string | null
           return_date?: string | null
           serial_number?: string | null
           serviceable?: boolean | null
@@ -950,6 +952,7 @@ export type Database = {
           last_inspection_date?: string | null
           next_inspection_due?: string | null
           notes?: string | null
+          rack_number?: string | null
           return_date?: string | null
           serial_number?: string | null
           serviceable?: boolean | null
