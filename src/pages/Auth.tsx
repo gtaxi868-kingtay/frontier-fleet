@@ -6,8 +6,25 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Shield } from 'lucide-react';
 import { toast } from 'sonner';
+
+const militaryRanks = [
+  'Private',
+  'Lance Corporal',
+  'Corporal',
+  'Sergeant',
+  'Staff Sergeant',
+  'Warrant Officer II',
+  'Warrant Officer I',
+  'Second Lieutenant',
+  'Lieutenant',
+  'Captain',
+  'Major',
+  'Lieutenant Colonel',
+  'Colonel',
+];
 
 export default function Auth() {
   const { signIn, signUp, user } = useAuth();
@@ -158,16 +175,24 @@ export default function Auth() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="signup-rank">Rank</Label>
-                    <Input
-                      id="signup-rank"
-                      type="text"
-                      placeholder="Private, Corporal, etc."
+                    <Select
                       value={signUpData.rank}
-                      onChange={(e) =>
-                        setSignUpData({ ...signUpData, rank: e.target.value })
+                      onValueChange={(value) =>
+                        setSignUpData({ ...signUpData, rank: value })
                       }
                       required
-                    />
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select your rank" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-popover z-50">
+                        {militaryRanks.map((rank) => (
+                          <SelectItem key={rank} value={rank}>
+                            {rank}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="signup-email">Email</Label>
