@@ -3,8 +3,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { useState } from "react";
+import { AddWorksMaterialDialog } from "@/components/AddWorksMaterialDialog";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function WorksMaterials() {
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const { role } = useAuth();
+  const canManage = role === 'S4' || role === 'OC' || role === 'SQMS';
+
   return (
     <div className="min-h-screen bg-background">
       <DashboardHeader />
@@ -18,10 +25,12 @@ export default function WorksMaterials() {
               Construction and repair resource management
             </p>
           </div>
-          <Button variant="default" className="gap-2">
-            <Plus className="h-4 w-4" />
-            Add Material
-          </Button>
+          {canManage && (
+            <Button variant="default" className="gap-2" onClick={() => setDialogOpen(true)}>
+              <Plus className="h-4 w-4" />
+              Add Material
+            </Button>
+          )}
         </div>
 
         <Card className="border-border/50 backdrop-blur-sm">
@@ -36,10 +45,16 @@ export default function WorksMaterials() {
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground text-center py-8">
-              No materials data available. Connect to backend to load inventory.
+              No materials data available. Add items to get started.
             </p>
           </CardContent>
         </Card>
+
+        <AddWorksMaterialDialog
+          open={dialogOpen}
+          onOpenChange={setDialogOpen}
+          onSuccess={() => {}}
+        />
       </main>
     </div>
   );
