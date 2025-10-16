@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { AddVehicleDialog } from "@/components/AddVehicleDialog";
 import { AddMechanicsToolDialog } from "@/components/AddMechanicsToolDialog";
 import { AddMTFacilityDialog } from "@/components/AddMTFacilityDialog";
+import { BulkUploadDialog } from "@/components/BulkUploadDialog";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -154,10 +155,13 @@ export default function MotorTransport() {
                       <Input placeholder="Search vehicles..." className="pl-9" />
                     </div>
                     {canManage && (
-                      <Button variant="default" className="gap-2" onClick={() => setVehicleDialogOpen(true)}>
-                        <Plus className="h-4 w-4" />
-                        Add Vehicle
-                      </Button>
+                      <div className="flex gap-2">
+                        {role === 'S4' && <BulkUploadDialog module="vehicles" moduleName="Vehicles" />}
+                        <Button variant="default" className="gap-2" onClick={() => setVehicleDialogOpen(true)}>
+                          <Plus className="h-4 w-4" />
+                          Add Vehicle
+                        </Button>
+                      </div>
                     )}
                   </div>
                 </CardTitle>

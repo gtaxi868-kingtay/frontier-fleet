@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import battalionEmblem from "@/assets/battalion-emblem.png";
 
 import {
   Sidebar,
@@ -58,10 +59,10 @@ export function AppSidebar() {
     <Sidebar collapsible="icon" className="border-r border-border/50 bg-sidebar">
       <SidebarHeader className="border-b border-border/50 p-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary shadow-sm">
-            <Shield className="h-6 w-6 text-primary-foreground" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl shadow-sm">
+            <img src={battalionEmblem} alt="Battalion Emblem" className="h-10 w-10 object-contain" />
           </div>
-          <div className="flex flex-col">
+          <div className="flex flex-col group-data-[collapsible=icon]:hidden">
             <span className="text-sm font-bold tracking-tight">IBIMS</span>
             <span className="text-xs text-muted-foreground">1st Eng Bn</span>
           </div>

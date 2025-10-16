@@ -5,6 +5,7 @@ import { Plus, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { AddUniformDialog } from "@/components/AddUniformDialog";
+import { BulkUploadDialog } from "@/components/BulkUploadDialog";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function Uniforms() {
@@ -26,10 +27,13 @@ export default function Uniforms() {
             </p>
           </div>
           {canManage && (
-            <Button variant="default" className="gap-2" onClick={() => setDialogOpen(true)}>
-              <Plus className="h-4 w-4" />
-              Add Uniform
-            </Button>
+            <div className="flex gap-2">
+              {role === 'S4' && <BulkUploadDialog module="uniforms" moduleName="Uniforms" />}
+              <Button variant="default" className="gap-2" onClick={() => setDialogOpen(true)}>
+                <Plus className="h-4 w-4" />
+                Add Uniform
+              </Button>
+            </div>
           )}
         </div>
 

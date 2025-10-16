@@ -5,6 +5,7 @@ import { Plus, Search, Camera, FileText } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { QrReader } from "react-qr-reader";
+import { BulkUploadDialog } from "@/components/BulkUploadDialog";
 import {
   Dialog,
   DialogContent,
@@ -154,13 +155,15 @@ export default function Weapons() {
             </p>
           </div>
           {hasS4Role && (
-            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-              <DialogTrigger asChild>
-                <Button variant="default" className="gap-2">
-                  <Plus className="h-4 w-4" />
-                  Add Weapon
-                </Button>
-              </DialogTrigger>
+            <div className="flex gap-2">
+              <BulkUploadDialog module="weapons" moduleName="Weapons" />
+              <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="default" className="gap-2">
+                    <Plus className="h-4 w-4" />
+                    Add Weapon
+                  </Button>
+                </DialogTrigger>
               <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>Add New Weapon</DialogTitle>
@@ -402,6 +405,7 @@ export default function Weapons() {
                 </Tabs>
               </DialogContent>
             </Dialog>
+            </div>
           )}
         </div>
 

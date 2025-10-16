@@ -3,6 +3,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Bell, LogOut } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import battalionEmblem from "@/assets/battalion-emblem.png";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,6 +19,14 @@ export function DashboardHeader() {
     <header className="sticky top-0 z-40 border-b border-border/50 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80">
       <div className="flex h-16 items-center gap-4 px-6">
         <SidebarTrigger className="-ml-2" />
+        
+        <div className="flex items-center gap-3">
+          <img src={battalionEmblem} alt="Battalion Emblem" className="h-8 w-8 object-contain" />
+          <div className="hidden md:block">
+            <h2 className="text-sm font-semibold">1st Engineer Battalion</h2>
+            <p className="text-xs text-muted-foreground">TTDF Inventory Management</p>
+          </div>
+        </div>
         
         <div className="flex-1" />
 
