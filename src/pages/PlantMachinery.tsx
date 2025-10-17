@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { AddPlantMachineryDialog } from "@/components/AddPlantMachineryDialog";
 import { useAuth } from "@/hooks/useAuth";
+import { BulkUploadDialog } from "@/components/BulkUploadDialog";
 
 export default function PlantMachinery() {
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -26,10 +27,13 @@ export default function PlantMachinery() {
             </p>
           </div>
           {canManage && (
-            <Button variant="default" className="gap-2" onClick={() => setDialogOpen(true)}>
-              <Plus className="h-4 w-4" />
-              Add Plant/Machinery
-            </Button>
+            <div className="flex gap-2">
+              {role === 'S4' && <BulkUploadDialog module="plant_machinery" moduleName="Plant & Machinery" />}
+              <Button variant="default" className="gap-2" onClick={() => setDialogOpen(true)}>
+                <Plus className="h-4 w-4" />
+                Add Plant/Machinery
+              </Button>
+            </div>
           )}
         </div>
 

@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import battalionEmblem from "@/assets/battalion-emblem.png";
+import battalionEmblem from "@/assets/new-project.png";
 
 import {
   Sidebar,

@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { AddFacilityDialog } from "@/components/AddFacilityDialog";
 import { useAuth } from "@/hooks/useAuth";
+import { BulkUploadDialog } from "@/components/BulkUploadDialog";
 
 export default function Facilities() {
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -26,10 +27,13 @@ export default function Facilities() {
             </p>
           </div>
           {canManage && (
-            <Button variant="default" className="gap-2" onClick={() => setDialogOpen(true)}>
-              <Plus className="h-4 w-4" />
-              Add Facility
-            </Button>
+            <div className="flex gap-2">
+              {role === 'S4' && <BulkUploadDialog module="facilities" moduleName="Facilities" />}
+              <Button variant="default" className="gap-2" onClick={() => setDialogOpen(true)}>
+                <Plus className="h-4 w-4" />
+                Add Facility
+              </Button>
+            </div>
           )}
         </div>
 

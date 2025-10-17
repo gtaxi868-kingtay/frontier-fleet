@@ -154,7 +154,7 @@ export default function MotorTransport() {
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                       <Input placeholder="Search vehicles..." className="pl-9" />
                     </div>
-                    {canManage && (
+{canManage && (
                       <div className="flex gap-2">
                         {role === 'S4' && <BulkUploadDialog module="vehicles" moduleName="Vehicles" />}
                         <Button variant="default" className="gap-2" onClick={() => setVehicleDialogOpen(true)}>
@@ -204,11 +204,14 @@ export default function MotorTransport() {
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                       <Input placeholder="Search tools..." className="pl-9" />
                     </div>
-                    {canManage && (
-                      <Button variant="default" className="gap-2" onClick={() => setToolDialogOpen(true)}>
-                        <Plus className="h-4 w-4" />
-                        Add Tool
-                      </Button>
+{canManage && (
+                      <div className="flex gap-2">
+                        {role === 'S4' && <BulkUploadDialog module="mechanics_tools" moduleName="Mechanics Tools" />}
+                        <Button variant="default" className="gap-2" onClick={() => setToolDialogOpen(true)}>
+                          <Plus className="h-4 w-4" />
+                          Add Tool
+                        </Button>
+                      </div>
                     )}
                   </div>
                 </CardTitle>
@@ -250,11 +253,14 @@ export default function MotorTransport() {
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                       <Input placeholder="Search facilities..." className="pl-9" />
                     </div>
-                    {canManage && (
-                      <Button variant="default" className="gap-2" onClick={() => setFacilityDialogOpen(true)}>
-                        <Plus className="h-4 w-4" />
-                        Add Facility
-                      </Button>
+{canManage && (
+                      <div className="flex gap-2">
+                        {role === 'S4' && <BulkUploadDialog module="mt_facilities" moduleName="MT Facilities" />}
+                        <Button variant="default" className="gap-2" onClick={() => setFacilityDialogOpen(true)}>
+                          <Plus className="h-4 w-4" />
+                          Add Facility
+                        </Button>
+                      </div>
                     )}
                   </div>
                 </CardTitle>

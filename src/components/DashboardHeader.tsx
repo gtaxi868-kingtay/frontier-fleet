@@ -3,7 +3,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Bell, LogOut } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import battalionEmblem from "@/assets/battalion-emblem.png";
+import battalionEmblem from "@/assets/new-project.png";
 import {
   DropdownMenu,
   DropdownMenuContent,
