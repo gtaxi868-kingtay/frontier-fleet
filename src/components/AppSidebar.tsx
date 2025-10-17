@@ -18,7 +18,8 @@ import {
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import battalionEmblem from "@/assets/new-project.png";
+import { useNavigate } from "react-router-dom";
+import battalionLogo from "@/assets/battalion-logo.png";
 
 import {
   Sidebar,
@@ -52,21 +53,25 @@ const modules = [
 
 export function AppSidebar() {
   const { role } = useAuth();
+  const navigate = useNavigate();
   
   const showRoleManagement = role === 'CO' || role === 'S4';
 
   return (
     <Sidebar collapsible="icon" className="border-r border-border/50 bg-sidebar">
       <SidebarHeader className="border-b border-border/50 p-4">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl shadow-sm">
-            <img src={battalionEmblem} alt="Battalion Emblem" className="h-10 w-10 object-contain" />
+        <button 
+          onClick={() => navigate("/")}
+          className="flex items-center gap-3 w-full hover:opacity-80 transition-opacity"
+        >
+          <div className="flex h-16 w-16 items-center justify-center rounded-xl shadow-lg">
+            <img src={battalionLogo} alt="Battalion Logo" className="h-16 w-16 object-contain" />
           </div>
-          <div className="flex flex-col group-data-[collapsible=icon]:hidden">
-            <span className="text-sm font-bold tracking-tight">IBIMS</span>
-            <span className="text-xs text-muted-foreground">1st Eng Bn</span>
+          <div className="flex flex-col group-data-[collapsible=icon]:hidden text-left">
+            <span className="text-lg font-bold tracking-tight">IBIMS</span>
+            <span className="text-sm text-muted-foreground">1st Eng Bn</span>
           </div>
-        </div>
+        </button>
       </SidebarHeader>
 
       <SidebarContent>
