@@ -67,7 +67,7 @@ export function AppSidebar() {
           <img 
             src={battalionLogo} 
             alt="Battalion Logo" 
-            className="h-20 w-20 object-contain drop-shadow-[0_0_8px_rgba(139,0,0,0.5)] group-hover:drop-shadow-[0_0_12px_rgba(255,215,0,0.6)] transition-all" 
+            className="h-40 w-40 object-contain drop-shadow-[0_0_8px_rgba(139,0,0,0.5)] group-hover:drop-shadow-[0_0_12px_rgba(255,215,0,0.6)] transition-all" 
           />
           <div className="flex flex-col group-data-[collapsible=icon]:hidden text-left">
             <span className="text-xl font-display font-black tracking-wider uppercase text-transparent bg-clip-text bg-gradient-to-r from-primary via-gold to-accent">IBIMS</span>

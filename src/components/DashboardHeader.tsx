@@ -24,7 +24,7 @@ export function DashboardHeader() {
           <img 
             src={battalionEmblem} 
             alt="Battalion Emblem" 
-            className="h-10 w-10 object-contain drop-shadow-[0_0_6px_rgba(139,0,0,0.4)]" 
+            className="h-20 w-20 object-contain drop-shadow-[0_0_6px_rgba(139,0,0,0.4)]" 
           />
           <div className="hidden md:block">
             <h2 className="text-sm font-display font-bold uppercase tracking-wider">1st Engineer Battalion</h2>
