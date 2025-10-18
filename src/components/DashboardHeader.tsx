@@ -21,9 +21,11 @@ export function DashboardHeader() {
         <SidebarTrigger className="-ml-2 hover:bg-primary/10 transition-colors" />
         
         <div className="flex items-center gap-3">
-          <div className="p-1.5 rounded-lg bg-gradient-primary shadow-glow">
-            <img src={battalionEmblem} alt="Battalion Emblem" className="h-6 w-6 object-contain" />
-          </div>
+          <img 
+            src={battalionEmblem} 
+            alt="Battalion Emblem" 
+            className="h-10 w-10 object-contain drop-shadow-[0_0_6px_rgba(139,0,0,0.4)]" 
+          />
           <div className="hidden md:block">
             <h2 className="text-sm font-display font-bold uppercase tracking-wider">1st Engineer Battalion</h2>
             <p className="text-xs text-muted-foreground font-tactical">TTDF Inventory Management</p>
