@@ -48,6 +48,14 @@ export default {
           DEFAULT: "hsl(var(--accent))",
           foreground: "hsl(var(--accent-foreground))",
         },
+        gold: {
+          DEFAULT: "hsl(var(--gold))",
+          foreground: "hsl(var(--gold-foreground))",
+        },
+        silver: {
+          DEFAULT: "hsl(var(--silver))",
+          foreground: "hsl(var(--silver-foreground))",
+        },
         popover: {
           DEFAULT: "hsl(var(--popover))",
           foreground: "hsl(var(--popover-foreground))",
@@ -69,12 +77,17 @@ export default {
       },
       backgroundImage: {
         'gradient-primary': 'var(--gradient-primary)',
+        'gradient-metallic': 'var(--gradient-metallic)',
+        'gradient-gold': 'var(--gradient-gold)',
+        'gradient-blue': 'var(--gradient-blue)',
         'gradient-hero': 'var(--gradient-hero)',
         'gradient-card': 'var(--gradient-card)',
         'gradient-glow': 'var(--gradient-glow)',
       },
       boxShadow: {
         'glow': 'var(--shadow-glow)',
+        'glow-blue': 'var(--shadow-glow-blue)',
+        'glow-gold': 'var(--shadow-glow-gold)',
         'card': 'var(--shadow-card)',
         'sm': 'var(--shadow-sm)',
         'md': 'var(--shadow-md)',
@@ -82,7 +95,9 @@ export default {
         'xl': 'var(--shadow-xl)',
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['Space Grotesk', 'Inter', 'system-ui', 'sans-serif'],
+        display: ['Orbitron', 'sans-serif'],
+        tactical: ['Rajdhani', 'sans-serif'],
         mono: ['JetBrains Mono', 'monospace'],
       },
       borderRadius: {

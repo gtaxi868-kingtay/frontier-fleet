@@ -21,30 +21,30 @@ export function StatCard({
   variant = "default",
 }: StatCardProps) {
   const variantStyles = {
-    default: "border-border/50",
-    success: "border-success/20 bg-success/5",
-    warning: "border-warning/20 bg-warning/5",
-    danger: "border-destructive/20 bg-destructive/5",
+    default: "border-primary/20 bg-gradient-to-br from-card to-background",
+    success: "border-success/30 bg-gradient-to-br from-success/10 to-background",
+    warning: "border-warning/30 bg-gradient-to-br from-warning/10 to-background",
+    danger: "border-destructive/30 bg-gradient-to-br from-destructive/10 to-background",
   };
 
   const iconStyles = {
-    default: "bg-primary/10 text-primary",
-    success: "bg-success/10 text-success",
-    warning: "bg-warning/10 text-warning",
-    danger: "bg-destructive/10 text-destructive",
+    default: "bg-gradient-primary text-primary-foreground shadow-glow",
+    success: "bg-success text-success-foreground shadow-md",
+    warning: "bg-warning text-warning-foreground shadow-md",
+    danger: "bg-destructive text-destructive-foreground shadow-md",
   };
 
   return (
-    <Card className={`${variantStyles[variant]} border`}>
+    <Card className={`${variantStyles[variant]} border hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 command-border`}>
       <CardContent className="p-6">
         <div className="flex items-start justify-between">
           <div className="space-y-2 flex-1">
-            <p className="text-sm font-medium text-muted-foreground">{title}</p>
+            <p className="text-sm font-tactical font-semibold text-muted-foreground uppercase tracking-wider">{title}</p>
             <div className="flex items-baseline gap-2">
-              <h3 className="text-3xl font-bold tracking-tight">{value}</h3>
+              <h3 className="text-4xl font-display font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-primary via-gold to-accent">{value}</h3>
               {trendValue && (
                 <span
-                  className={`text-sm font-semibold ${
+                  className={`text-sm font-tactical font-bold uppercase tracking-wide ${
                     trend === "up"
                       ? "text-success"
                       : trend === "down"
@@ -57,10 +57,10 @@ export function StatCard({
               )}
             </div>
             {subtitle && (
-              <p className="text-xs text-muted-foreground">{subtitle}</p>
+              <p className="text-xs text-muted-foreground font-tactical">{subtitle}</p>
             )}
           </div>
-          <div className={`p-3 rounded-xl ${iconStyles[variant]}`}>
+          <div className={`p-3 rounded-lg ${iconStyles[variant]} beveled`}>
             <Icon className="h-6 w-6" />
           </div>
         </div>

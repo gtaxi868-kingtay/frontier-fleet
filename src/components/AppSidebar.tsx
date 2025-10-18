@@ -58,25 +58,25 @@ export function AppSidebar() {
   const showRoleManagement = role === 'CO' || role === 'S4';
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-border/50 bg-sidebar">
-      <SidebarHeader className="border-b border-border/50 p-4">
+    <Sidebar collapsible="icon" className="border-r border-primary/20 bg-sidebar/95 backdrop-blur-xl">
+      <SidebarHeader className="border-b border-primary/20 p-4">
         <button 
           onClick={() => navigate("/")}
-          className="flex items-center gap-3 w-full hover:opacity-80 transition-opacity"
+          className="flex items-center gap-3 w-full hover:opacity-90 transition-all group"
         >
-          <div className="flex h-16 w-16 items-center justify-center rounded-xl shadow-lg">
-            <img src={battalionLogo} alt="Battalion Logo" className="h-16 w-16 object-contain" />
+          <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-gradient-primary shadow-glow group-hover:shadow-glow-gold transition-all beveled">
+            <img src={battalionLogo} alt="Battalion Logo" className="h-14 w-14 object-contain" />
           </div>
           <div className="flex flex-col group-data-[collapsible=icon]:hidden text-left">
-            <span className="text-lg font-bold tracking-tight">IBIMS</span>
-            <span className="text-sm text-muted-foreground">1st Eng Bn</span>
+            <span className="text-xl font-display font-black tracking-wider uppercase text-transparent bg-clip-text bg-gradient-to-r from-primary via-gold to-accent">IBIMS</span>
+            <span className="text-sm font-tactical text-muted-foreground uppercase tracking-wide">1st Eng Bn</span>
           </div>
         </button>
       </SidebarHeader>
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Modules</SidebarGroupLabel>
+          <SidebarGroupLabel className="font-tactical uppercase tracking-wider text-xs text-muted-foreground">Modules</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {modules.map((item) => (
@@ -86,12 +86,12 @@ export function AppSidebar() {
                       to={item.url}
                       className={({ isActive }) =>
                         isActive 
-                          ? "bg-primary/10 text-primary font-medium" 
-                          : "hover:bg-muted/50"
+                          ? "bg-gradient-primary text-primary-foreground font-tactical font-bold shadow-glow beveled" 
+                          : "hover:bg-primary/10 hover:text-primary font-tactical transition-all"
                       }
                     >
                       <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
+                      <span className="uppercase tracking-wide text-xs">{item.title}</span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -102,7 +102,7 @@ export function AppSidebar() {
 
         {showRoleManagement && (
           <SidebarGroup>
-            <SidebarGroupLabel>Administration</SidebarGroupLabel>
+            <SidebarGroupLabel className="font-tactical uppercase tracking-wider text-xs text-muted-foreground">Administration</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 <SidebarMenuItem>
@@ -111,12 +111,12 @@ export function AppSidebar() {
                       to="/role-management"
                       className={({ isActive }) =>
                         isActive 
-                          ? "bg-primary/10 text-primary font-medium" 
-                          : "hover:bg-muted/50"
+                          ? "bg-gradient-primary text-primary-foreground font-tactical font-bold shadow-glow beveled" 
+                          : "hover:bg-primary/10 hover:text-primary font-tactical transition-all"
                       }
                     >
                       <UserCog className="h-4 w-4" />
-                      <span>Role Management</span>
+                      <span className="uppercase tracking-wide text-xs">Role Management</span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
