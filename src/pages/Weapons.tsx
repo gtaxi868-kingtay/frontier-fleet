@@ -36,6 +36,9 @@ import * as z from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { useEffect } from "react";
+import { ItemDetailDialog } from "@/components/ItemDetailDialog";
+import { Badge } from "@/components/ui/badge";
 
 const weaponSchema = z.object({
   weapon_id: z.string().min(1, "Weapon ID is required"),
@@ -55,6 +58,9 @@ export default function Weapons() {
   const { toast } = useToast();
   const { session } = useAuth();
   const [hasS4Role, setHasS4Role] = useState(false);
+  const [weapons, setWeapons] = useState<any[]>([]);
+  const [selectedWeapon, setSelectedWeapon] = useState<any>(null);
+  const [detailDialogOpen, setDetailDialogOpen] = useState(false);
 
   const form = useForm<WeaponFormData>({
     resolver: zodResolver(weaponSchema),
@@ -69,8 +75,14 @@ export default function Weapons() {
     },
   });
 
+  // Fetch weapons data
+  const fetchWeapons = async () => {
+    const { data, error } = await supabase.from("weapons").select("*");
+    if (data) setWeapons(data);
+  };
+
   // Check if user has S4 role
-  useState(() => {
+  useEffect(() => {
     const checkRole = async () => {
       if (!session?.user?.id) return;
       const { data } = await supabase
@@ -83,7 +95,8 @@ export default function Weapons() {
       setHasS4Role(!!data);
     };
     checkRole();
-  });
+    fetchWeapons();
+  }, [session]);
 
   const handleQRScan = (data: string) => {
     try {
@@ -132,6 +145,7 @@ export default function Weapons() {
       
       setDialogOpen(false);
       form.reset();
+      fetchWeapons();
     } catch (error: any) {
       toast({
         title: "Error",
@@ -420,11 +434,62 @@ export default function Weapons() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground text-center py-8">
-              No weapons data available. Connect to backend to load inventory.
-            </p>
+            {weapons.length === 0 ? (
+              <p className="text-muted-foreground text-center py-8">
+                No weapons data available. Add weapons to get started.
+              </p>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {weapons.map((weapon) => (
+                  <Card 
+                    key={weapon.id} 
+                    className="cursor-pointer hover:shadow-glow transition-all duration-300 border-border/50 hover:border-primary/50"
+                    onClick={() => {
+                      setSelectedWeapon(weapon);
+                      setDetailDialogOpen(true);
+                    }}
+                  >
+                    <CardHeader>
+                      <CardTitle className="text-lg font-display uppercase tracking-wider">
+                        {weapon.weapon_id}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-tactical uppercase text-muted-foreground">Type</span>
+                        <span className="font-medium">{weapon.weapon_type}</span>
+                      </div>
+                      {weapon.serial_number && (
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm font-tactical uppercase text-muted-foreground">Serial</span>
+                          <span className="font-medium text-sm">{weapon.serial_number}</span>
+                        </div>
+                      )}
+                      {weapon.rack_number && (
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm font-tactical uppercase text-muted-foreground">Rack</span>
+                          <span className="font-medium">{weapon.rack_number}</span>
+                        </div>
+                      )}
+                      <div className="pt-2">
+                        <Badge variant={weapon.serviceable ? 'default' : 'destructive'} className="w-full justify-center">
+                          {weapon.serviceable ? 'Serviceable' : 'Unserviceable'}
+                        </Badge>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
+
+        <ItemDetailDialog
+          open={detailDialogOpen}
+          onOpenChange={setDetailDialogOpen}
+          title={selectedWeapon ? `${selectedWeapon.weapon_id} - ${selectedWeapon.weapon_type}` : ''}
+          data={selectedWeapon}
+        />
       </main>
     </div>
   );

@@ -12,6 +12,7 @@ import { BulkUploadDialog } from "@/components/BulkUploadDialog";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { ItemDetailDialog } from "@/components/ItemDetailDialog";
 
 export default function MotorTransport() {
   const { role } = useAuth();
@@ -22,6 +23,10 @@ export default function MotorTransport() {
   const [vehicles, setVehicles] = useState<any[]>([]);
   const [tools, setTools] = useState<any[]>([]);
   const [facilities, setFacilities] = useState<any[]>([]);
+  
+  const [selectedItem, setSelectedItem] = useState<any>(null);
+  const [detailDialogOpen, setDetailDialogOpen] = useState(false);
+  const [detailTitle, setDetailTitle] = useState('');
 
   const canManage = role === 'S4' || role === 'SQMS';
 
@@ -172,21 +177,45 @@ export default function MotorTransport() {
                     No vehicles registered. Add vehicles to track fleet inventory and fuel consumption.
                   </p>
                 ) : (
-                  <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {vehicles.map((vehicle) => (
-                      <div key={vehicle.id} className="border rounded-lg p-4">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <h3 className="font-semibold">{vehicle.vehicle_id} - {vehicle.vehicle_type}</h3>
-                            <p className="text-sm text-muted-foreground">{vehicle.make_model}</p>
-                            <p className="text-sm">Reg: {vehicle.registration_number}</p>
-                            {vehicle.location && <p className="text-sm text-muted-foreground">Location: {vehicle.location}</p>}
+                      <Card 
+                        key={vehicle.id} 
+                        className="cursor-pointer hover:shadow-glow transition-all duration-300 border-border/50 hover:border-primary/50"
+                        onClick={() => {
+                          setSelectedItem(vehicle);
+                          setDetailTitle(`${vehicle.vehicle_id} - ${vehicle.vehicle_type}`);
+                          setDetailDialogOpen(true);
+                        }}
+                      >
+                        <CardHeader>
+                          <CardTitle className="text-lg font-display uppercase tracking-wider">
+                            {vehicle.vehicle_id}
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-2">
+                          <p className="font-medium">{vehicle.vehicle_type}</p>
+                          <div className="flex justify-between items-center text-sm">
+                            <span className="font-tactical uppercase text-muted-foreground">Model</span>
+                            <span className="font-medium text-xs">{vehicle.make_model}</span>
                           </div>
-                          <Badge variant={vehicle.serviceability === 'Serviceable' ? 'default' : 'destructive'}>
-                            {vehicle.serviceability}
-                          </Badge>
-                        </div>
-                      </div>
+                          <div className="flex justify-between items-center text-sm">
+                            <span className="font-tactical uppercase text-muted-foreground">Reg</span>
+                            <span className="font-medium">{vehicle.registration_number}</span>
+                          </div>
+                          {vehicle.location && (
+                            <div className="flex justify-between items-center text-sm">
+                              <span className="font-tactical uppercase text-muted-foreground">Location</span>
+                              <span className="font-medium">{vehicle.location}</span>
+                            </div>
+                          )}
+                          <div className="pt-2">
+                            <Badge variant={vehicle.serviceability === 'Serviceable' ? 'default' : 'destructive'} className="w-full justify-center">
+                              {vehicle.serviceability}
+                            </Badge>
+                          </div>
+                        </CardContent>
+                      </Card>
                     ))}
                   </div>
                 )}
@@ -222,20 +251,43 @@ export default function MotorTransport() {
                     No tools registered. Add mechanics tools to track specialized equipment.
                   </p>
                 ) : (
-                  <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {tools.map((tool) => (
-                      <div key={tool.id} className="border rounded-lg p-4">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <h3 className="font-semibold">{tool.tool_id} - {tool.tool_name}</h3>
-                            <p className="text-sm text-muted-foreground">{tool.category}</p>
-                            <p className="text-sm">Qty on Hand: {tool.qty_on_hand} | Issued: {tool.qty_issued}</p>
+                      <Card 
+                        key={tool.id} 
+                        className="cursor-pointer hover:shadow-glow transition-all duration-300 border-border/50 hover:border-accent/50"
+                        onClick={() => {
+                          setSelectedItem(tool);
+                          setDetailTitle(`${tool.tool_id} - ${tool.tool_name}`);
+                          setDetailDialogOpen(true);
+                        }}
+                      >
+                        <CardHeader>
+                          <CardTitle className="text-lg font-display uppercase tracking-wider">
+                            {tool.tool_id}
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-2">
+                          <p className="font-medium">{tool.tool_name}</p>
+                          <div className="flex justify-between items-center text-sm">
+                            <span className="font-tactical uppercase text-muted-foreground">Category</span>
+                            <span className="font-medium">{tool.category}</span>
                           </div>
-                          <Badge variant={tool.serviceable ? 'default' : 'destructive'}>
-                            {tool.serviceable ? 'Serviceable' : 'Unserviceable'}
-                          </Badge>
-                        </div>
-                      </div>
+                          <div className="flex justify-between items-center text-sm">
+                            <span className="font-tactical uppercase text-muted-foreground">On Hand</span>
+                            <span className="font-medium">{tool.qty_on_hand}</span>
+                          </div>
+                          <div className="flex justify-between items-center text-sm">
+                            <span className="font-tactical uppercase text-muted-foreground">Issued</span>
+                            <span className="font-medium">{tool.qty_issued}</span>
+                          </div>
+                          <div className="pt-2">
+                            <Badge variant={tool.serviceable ? 'default' : 'destructive'} className="w-full justify-center">
+                              {tool.serviceable ? 'Serviceable' : 'Unserviceable'}
+                            </Badge>
+                          </div>
+                        </CardContent>
+                      </Card>
                     ))}
                   </div>
                 )}
@@ -271,21 +323,45 @@ export default function MotorTransport() {
                     No facilities registered. Add workshops and maintenance areas to track MT spaces.
                   </p>
                 ) : (
-                  <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {facilities.map((facility) => (
-                      <div key={facility.id} className="border rounded-lg p-4">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <h3 className="font-semibold">{facility.facility_id} - {facility.facility_name}</h3>
-                            <p className="text-sm text-muted-foreground">{facility.facility_type}</p>
-                            <p className="text-sm">Location: {facility.location || 'Not specified'}</p>
-                            {facility.capacity && <p className="text-sm text-muted-foreground">Capacity: {facility.capacity}</p>}
+                      <Card 
+                        key={facility.id} 
+                        className="cursor-pointer hover:shadow-glow transition-all duration-300 border-border/50 hover:border-secondary/50"
+                        onClick={() => {
+                          setSelectedItem(facility);
+                          setDetailTitle(`${facility.facility_id} - ${facility.facility_name}`);
+                          setDetailDialogOpen(true);
+                        }}
+                      >
+                        <CardHeader>
+                          <CardTitle className="text-lg font-display uppercase tracking-wider">
+                            {facility.facility_id}
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-2">
+                          <p className="font-medium">{facility.facility_name}</p>
+                          <div className="flex justify-between items-center text-sm">
+                            <span className="font-tactical uppercase text-muted-foreground">Type</span>
+                            <span className="font-medium">{facility.facility_type}</span>
                           </div>
-                          <Badge variant={facility.status === 'Operational' ? 'default' : 'destructive'}>
-                            {facility.status}
-                          </Badge>
-                        </div>
-                      </div>
+                          <div className="flex justify-between items-center text-sm">
+                            <span className="font-tactical uppercase text-muted-foreground">Location</span>
+                            <span className="font-medium">{facility.location || 'Not specified'}</span>
+                          </div>
+                          {facility.capacity && (
+                            <div className="flex justify-between items-center text-sm">
+                              <span className="font-tactical uppercase text-muted-foreground">Capacity</span>
+                              <span className="font-medium">{facility.capacity}</span>
+                            </div>
+                          )}
+                          <div className="pt-2">
+                            <Badge variant={facility.status === 'Operational' ? 'default' : 'destructive'} className="w-full justify-center">
+                              {facility.status}
+                            </Badge>
+                          </div>
+                        </CardContent>
+                      </Card>
                     ))}
                   </div>
                 )}
@@ -309,6 +385,13 @@ export default function MotorTransport() {
         open={facilityDialogOpen} 
         onOpenChange={setFacilityDialogOpen}
         onSuccess={fetchData}
+      />
+      
+      <ItemDetailDialog
+        open={detailDialogOpen}
+        onOpenChange={setDetailDialogOpen}
+        title={detailTitle}
+        data={selectedItem}
       />
     </div>
   );
