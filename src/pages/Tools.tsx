@@ -18,6 +18,7 @@ export default function Tools() {
   const [tools, setTools] = useState<any[]>([]);
   const [selectedTool, setSelectedTool] = useState<any>(null);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const fetchTools = async () => {
     const { data } = await supabase.from("tools").select("*");
@@ -58,18 +59,33 @@ export default function Tools() {
               <span>Tools Inventory</span>
               <div className="relative w-64">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input placeholder="Search tools..." className="pl-9" />
+                <Input 
+                  placeholder="Search tools..." 
+                  className="pl-9"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
               </div>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {tools.length === 0 ? (
-              <p className="text-muted-foreground text-center py-8">
-                No tools data available. Add tools to get started.
-              </p>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {tools.map((tool) => (
+            {(() => {
+              const filteredTools = tools.filter(tool => {
+                const searchLower = searchTerm.toLowerCase();
+                return (
+                  tool.tool_id?.toLowerCase().includes(searchLower) ||
+                  tool.tool_name?.toLowerCase().includes(searchLower) ||
+                  tool.category?.toLowerCase().includes(searchLower)
+                );
+              });
+              
+              return filteredTools.length === 0 ? (
+                <p className="text-muted-foreground text-center py-8">
+                  {searchTerm ? "No tools match your search." : "No tools data available. Add tools to get started."}
+                </p>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {filteredTools.map((tool) => (
                   <Card 
                     key={tool.id} 
                     className="cursor-pointer hover:shadow-glow transition-all duration-300 border-border/50 hover:border-accent/50"
@@ -100,9 +116,10 @@ export default function Tools() {
                       </div>
                     </CardContent>
                   </Card>
-                ))}
-              </div>
-            )}
+                  ))}
+                </div>
+              );
+            })()}
           </CardContent>
         </Card>
 

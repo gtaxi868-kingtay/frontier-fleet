@@ -18,6 +18,7 @@ export default function PPE() {
   const [ppeItems, setPpeItems] = useState<any[]>([]);
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const fetchPPE = async () => {
     const { data } = await supabase.from("ppe").select("*");
@@ -58,18 +59,33 @@ export default function PPE() {
               <span>PPE Inventory</span>
               <div className="relative w-64">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input placeholder="Search PPE..." className="pl-9" />
+                <Input 
+                  placeholder="Search PPE..." 
+                  className="pl-9"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
               </div>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {ppeItems.length === 0 ? (
-              <p className="text-muted-foreground text-center py-8">
-                No PPE data available. Add items to get started.
-              </p>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {ppeItems.map((item) => (
+            {(() => {
+              const filteredPPE = ppeItems.filter(item => {
+                const searchLower = searchTerm.toLowerCase();
+                return (
+                  item.ppe_id?.toLowerCase().includes(searchLower) ||
+                  item.item?.toLowerCase().includes(searchLower) ||
+                  item.category?.toLowerCase().includes(searchLower)
+                );
+              });
+              
+              return filteredPPE.length === 0 ? (
+                <p className="text-muted-foreground text-center py-8">
+                  {searchTerm ? "No PPE items match your search." : "No PPE data available. Add items to get started."}
+                </p>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {filteredPPE.map((item) => (
                   <Card 
                     key={item.id} 
                     className="cursor-pointer hover:shadow-glow transition-all duration-300 border-border/50 hover:border-secondary/50"
@@ -100,9 +116,10 @@ export default function PPE() {
                       </div>
                     </CardContent>
                   </Card>
-                ))}
-              </div>
-            )}
+                  ))}
+                </div>
+              );
+            })()}
           </CardContent>
         </Card>
 

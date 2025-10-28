@@ -27,6 +27,9 @@ export default function MotorTransport() {
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const [detailTitle, setDetailTitle] = useState('');
+  const [vehicleSearchTerm, setVehicleSearchTerm] = useState('');
+  const [toolSearchTerm, setToolSearchTerm] = useState('');
+  const [facilitySearchTerm, setFacilitySearchTerm] = useState('');
 
   const canManage = role === 'S4' || role === 'SQMS';
 
@@ -157,7 +160,12 @@ export default function MotorTransport() {
                   <div className="flex items-center gap-2">
                     <div className="relative w-64">
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input placeholder="Search vehicles..." className="pl-9" />
+                      <Input 
+                        placeholder="Search vehicles..." 
+                        className="pl-9"
+                        value={vehicleSearchTerm}
+                        onChange={(e) => setVehicleSearchTerm(e.target.value)}
+                      />
                     </div>
 {canManage && (
                       <div className="flex gap-2">
@@ -172,13 +180,24 @@ export default function MotorTransport() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {vehicles.length === 0 ? (
-                  <p className="text-muted-foreground text-center py-8">
-                    No vehicles registered. Add vehicles to track fleet inventory and fuel consumption.
-                  </p>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {vehicles.map((vehicle) => (
+                {(() => {
+                  const filteredVehicles = vehicles.filter(vehicle => {
+                    const searchLower = vehicleSearchTerm.toLowerCase();
+                    return (
+                      vehicle.vehicle_id?.toLowerCase().includes(searchLower) ||
+                      vehicle.vehicle_type?.toLowerCase().includes(searchLower) ||
+                      vehicle.make_model?.toLowerCase().includes(searchLower) ||
+                      vehicle.registration_number?.toLowerCase().includes(searchLower)
+                    );
+                  });
+                  
+                  return filteredVehicles.length === 0 ? (
+                    <p className="text-muted-foreground text-center py-8">
+                      {vehicleSearchTerm ? "No vehicles match your search." : "No vehicles registered. Add vehicles to track fleet inventory and fuel consumption."}
+                    </p>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {filteredVehicles.map((vehicle) => (
                       <Card 
                         key={vehicle.id} 
                         className="cursor-pointer hover:shadow-glow transition-all duration-300 border-border/50 hover:border-primary/50"
@@ -216,9 +235,10 @@ export default function MotorTransport() {
                           </div>
                         </CardContent>
                       </Card>
-                    ))}
-                  </div>
-                )}
+                      ))}
+                    </div>
+                  );
+                })()}
               </CardContent>
             </Card>
           </TabsContent>
@@ -231,7 +251,12 @@ export default function MotorTransport() {
                   <div className="flex items-center gap-2">
                     <div className="relative w-64">
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input placeholder="Search tools..." className="pl-9" />
+                      <Input 
+                        placeholder="Search tools..." 
+                        className="pl-9"
+                        value={toolSearchTerm}
+                        onChange={(e) => setToolSearchTerm(e.target.value)}
+                      />
                     </div>
 {canManage && (
                       <div className="flex gap-2">
@@ -246,13 +271,23 @@ export default function MotorTransport() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {tools.length === 0 ? (
-                  <p className="text-muted-foreground text-center py-8">
-                    No tools registered. Add mechanics tools to track specialized equipment.
-                  </p>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {tools.map((tool) => (
+                {(() => {
+                  const filteredTools = tools.filter(tool => {
+                    const searchLower = toolSearchTerm.toLowerCase();
+                    return (
+                      tool.tool_id?.toLowerCase().includes(searchLower) ||
+                      tool.tool_name?.toLowerCase().includes(searchLower) ||
+                      tool.category?.toLowerCase().includes(searchLower)
+                    );
+                  });
+                  
+                  return filteredTools.length === 0 ? (
+                    <p className="text-muted-foreground text-center py-8">
+                      {toolSearchTerm ? "No tools match your search." : "No tools registered. Add mechanics tools to track specialized equipment."}
+                    </p>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {filteredTools.map((tool) => (
                       <Card 
                         key={tool.id} 
                         className="cursor-pointer hover:shadow-glow transition-all duration-300 border-border/50 hover:border-accent/50"
@@ -288,9 +323,10 @@ export default function MotorTransport() {
                           </div>
                         </CardContent>
                       </Card>
-                    ))}
-                  </div>
-                )}
+                      ))}
+                    </div>
+                  );
+                })()}
               </CardContent>
             </Card>
           </TabsContent>
@@ -303,7 +339,12 @@ export default function MotorTransport() {
                   <div className="flex items-center gap-2">
                     <div className="relative w-64">
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input placeholder="Search facilities..." className="pl-9" />
+                      <Input 
+                        placeholder="Search facilities..." 
+                        className="pl-9"
+                        value={facilitySearchTerm}
+                        onChange={(e) => setFacilitySearchTerm(e.target.value)}
+                      />
                     </div>
 {canManage && (
                       <div className="flex gap-2">
@@ -318,13 +359,24 @@ export default function MotorTransport() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {facilities.length === 0 ? (
-                  <p className="text-muted-foreground text-center py-8">
-                    No facilities registered. Add workshops and maintenance areas to track MT spaces.
-                  </p>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {facilities.map((facility) => (
+                {(() => {
+                  const filteredFacilities = facilities.filter(facility => {
+                    const searchLower = facilitySearchTerm.toLowerCase();
+                    return (
+                      facility.facility_id?.toLowerCase().includes(searchLower) ||
+                      facility.facility_name?.toLowerCase().includes(searchLower) ||
+                      facility.facility_type?.toLowerCase().includes(searchLower) ||
+                      facility.location?.toLowerCase().includes(searchLower)
+                    );
+                  });
+                  
+                  return filteredFacilities.length === 0 ? (
+                    <p className="text-muted-foreground text-center py-8">
+                      {facilitySearchTerm ? "No facilities match your search." : "No facilities registered. Add workshops and maintenance areas to track MT spaces."}
+                    </p>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {filteredFacilities.map((facility) => (
                       <Card 
                         key={facility.id} 
                         className="cursor-pointer hover:shadow-glow transition-all duration-300 border-border/50 hover:border-secondary/50"
@@ -362,9 +414,10 @@ export default function MotorTransport() {
                           </div>
                         </CardContent>
                       </Card>
-                    ))}
-                  </div>
-                )}
+                      ))}
+                    </div>
+                  );
+                })()}
               </CardContent>
             </Card>
           </TabsContent>

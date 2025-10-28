@@ -74,12 +74,22 @@ export function BulkUploadDialog({ module, moduleName }: BulkUploadDialogProps) 
   };
 
   const downloadTemplate = () => {
-    // Create a sample template based on the module
+    // Create comprehensive templates for all modules
     const templates: Record<string, any[]> = {
-      weapons: [{ weapon_id: 'W001', weapon_type: 'Rifle', serial_number: 'SN12345', serviceable: true, rack_number: 'R1' }],
+      weapons: [{ weapon_id: 'W001', weapon_type: 'Rifle', serial_number: 'SN12345', serviceable: true, rack_number: 'R1', condition_issue: 'Good' }],
       tools: [{ tool_id: 'T001', tool_name: 'Hammer', category: 'Hand Tools', qty_on_hand: 10, serviceable: true }],
-      vehicles: [{ vehicle_id: 'V001', vehicle_type: 'Truck', make_model: 'Toyota Hilux', registration_number: 'ABC123', serviceability: 'Serviceable' }],
-      // Add more templates as needed
+      vehicles: [{ vehicle_id: 'V001', vehicle_type: 'Truck', make_model: 'Toyota Hilux', registration_number: 'ABC123', serviceability: 'Serviceable', fuel_type: 'Diesel', mileage: 50000 }],
+      engineer_equipment: [{ equip_id: 'EE001', equipment_name: 'Excavator', type: 'Heavy Equipment', qty_on_hand: 2, serviceable: true }],
+      plant_machinery: [{ plant_id: 'PM001', type: 'Generator', make_model: 'CAT 100kW', serial_number: 'SN789', serviceability: 'Serviceable', fuel_type: 'Diesel' }],
+      mechanics_tools: [{ tool_id: 'MT001', tool_name: 'Impact Wrench', category: 'Power Tools', qty_on_hand: 5, serviceable: true }],
+      mt_facilities: [{ facility_id: 'MTF001', facility_name: 'Workshop A', facility_type: 'Maintenance Bay', capacity: 4, status: 'Operational', location: 'Main Base' }],
+      ppe: [{ ppe_id: 'PPE001', item: 'Safety Helmet', category: 'Head Protection', qty_on_hand: 50, serviceable: true }],
+      uniforms: [{ uniform_id: 'U001', item_name: 'Combat Uniform', size: 'Medium', serviceable: true }],
+      explosives: [{ explosive_id: 'EXP001', type: 'Training Explosive', lot_number: 'LOT123', quantity_received: 100, storage_location: 'Bunker 1', authority: 'Order #123' }],
+      facilities: [{ facility_id: 'FAC001', facility_name: 'Barracks A', element: 'Accommodation', working: 10, not_working: 0, quantity: 10 }],
+      works_materials: [{ voucher_id: 'VM001', material: 'Cement', project_task: 'Road Repair', quantity_received: 100, quantity_issued: 20, authority: 'Order #456' }],
+      general_inventory: [{ item_id: 'GI001', item_name: 'A4 Paper', category: 'Stationery', qty_on_hand: 500, reorder_level: 100 }],
+      room_inventory: [{ room_id: 'R001', room_type: 'Barracks', inventory_item: 'Bed', expected_qty: 20, present_qty: 20, platoon_company: 'A Company' }],
     };
 
     const template = templates[module] || [{ id: 'Sample data - modify columns as needed' }];

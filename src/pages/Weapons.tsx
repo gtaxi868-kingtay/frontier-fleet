@@ -61,6 +61,7 @@ export default function Weapons() {
   const [weapons, setWeapons] = useState<any[]>([]);
   const [selectedWeapon, setSelectedWeapon] = useState<any>(null);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const form = useForm<WeaponFormData>({
     resolver: zodResolver(weaponSchema),
@@ -429,18 +430,34 @@ export default function Weapons() {
               <span>Weapons Inventory</span>
               <div className="relative w-64">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input placeholder="Search weapons..." className="pl-9" />
+                <Input 
+                  placeholder="Search weapons..." 
+                  className="pl-9" 
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
               </div>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {weapons.length === 0 ? (
-              <p className="text-muted-foreground text-center py-8">
-                No weapons data available. Add weapons to get started.
-              </p>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {weapons.map((weapon) => (
+            {(() => {
+              const filteredWeapons = weapons.filter(weapon => {
+                const searchLower = searchTerm.toLowerCase();
+                return (
+                  weapon.weapon_id?.toLowerCase().includes(searchLower) ||
+                  weapon.weapon_type?.toLowerCase().includes(searchLower) ||
+                  weapon.serial_number?.toLowerCase().includes(searchLower) ||
+                  weapon.rack_number?.toLowerCase().includes(searchLower)
+                );
+              });
+              
+              return filteredWeapons.length === 0 ? (
+                <p className="text-muted-foreground text-center py-8">
+                  {searchTerm ? "No weapons match your search." : "No weapons data available. Add weapons to get started."}
+                </p>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {filteredWeapons.map((weapon) => (
                   <Card 
                     key={weapon.id} 
                     className="cursor-pointer hover:shadow-glow transition-all duration-300 border-border/50 hover:border-primary/50"
@@ -478,9 +495,10 @@ export default function Weapons() {
                       </div>
                     </CardContent>
                   </Card>
-                ))}
-              </div>
-            )}
+                  ))}
+                </div>
+              );
+            })()}
           </CardContent>
         </Card>
 
