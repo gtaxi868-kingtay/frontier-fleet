@@ -76,7 +76,15 @@ export function BulkUploadDialog({ module, moduleName }: BulkUploadDialogProps) 
   const downloadTemplate = () => {
     // Create comprehensive templates for all modules
     const templates: Record<string, any[]> = {
-      weapons: [{ weapon_id: 'W001', weapon_type: 'Rifle', serial_number: 'SN12345', serviceable: true, rack_number: 'R1', condition_issue: 'Good' }],
+      weapons: [{ 
+        weapon_id: 'W001', 
+        weapon_type: 'GALIL AR', 
+        serial_number: '38161438', 
+        rack_number: '1', 
+        serviceable: true, 
+        condition_issue: 'SERVICEABLE',
+        notes: 'Alpha Coy'
+      }],
       tools: [{ tool_id: 'T001', tool_name: 'Hammer', category: 'Hand Tools', qty_on_hand: 10, serviceable: true }],
       vehicles: [{ vehicle_id: 'V001', vehicle_type: 'Truck', make_model: 'Toyota Hilux', registration_number: 'ABC123', serviceability: 'Serviceable', fuel_type: 'Diesel', mileage: 50000 }],
       engineer_equipment: [{ equip_id: 'EE001', equipment_name: 'Excavator', type: 'Heavy Equipment', qty_on_hand: 2, serviceable: true }],

@@ -70,7 +70,7 @@ export default function Weapons() {
       weapon_type: "",
       serial_number: "",
       rack_number: "",
-      condition_issue: "Good",
+      condition_issue: "SERVICEABLE",
       serviceable: true,
       notes: "",
     },
@@ -225,12 +225,20 @@ export default function Weapons() {
                                     <SelectValue placeholder="Select weapon type" />
                                   </SelectTrigger>
                                 </FormControl>
-                                <SelectContent>
-                                  <SelectItem value="Rifle">Rifle</SelectItem>
-                                  <SelectItem value="Pistol">Pistol</SelectItem>
-                                  <SelectItem value="Machine Gun">Machine Gun</SelectItem>
-                                  <SelectItem value="Grenade Launcher">Grenade Launcher</SelectItem>
-                                  <SelectItem value="Sniper Rifle">Sniper Rifle</SelectItem>
+                                 <SelectContent>
+                                  <SelectItem value="GALIL AR">GALIL AR</SelectItem>
+                                  <SelectItem value="GALIL ARM">GALIL ARM</SelectItem>
+                                  <SelectItem value="GALIL SAR">GALIL SAR</SelectItem>
+                                  <SelectItem value="PISTOL: SIG SAUER (P226)">PISTOL: SIG SAUER (P226)</SelectItem>
+                                  <SelectItem value="PISTOL: BDA BROWNING">PISTOL: BDA BROWNING</SelectItem>
+                                  <SelectItem value="SLR L1A1 7.62">SLR L1A1 7.62</SelectItem>
+                                  <SelectItem value="SLR L2 A1">SLR L2 A1</SelectItem>
+                                  <SelectItem value="MOSSBERG SHOT GUN">MOSSBERG SHOT GUN</SelectItem>
+                                  <SelectItem value="GPMG (LMG)">GPMG (LMG)</SelectItem>
+                                  <SelectItem value="NEGEV (LMG)">NEGEV (LMG)</SelectItem>
+                                  <SelectItem value="UMP">UMP</SelectItem>
+                                  <SelectItem value="ROCKET LAUNCHER (B300)">ROCKET LAUNCHER (B300)</SelectItem>
+                                  <SelectItem value="G36">G36</SelectItem>
                                 </SelectContent>
                               </Select>
                               <FormMessage />
@@ -278,11 +286,9 @@ export default function Weapons() {
                                     <SelectValue placeholder="Select condition" />
                                   </SelectTrigger>
                                 </FormControl>
-                                <SelectContent>
-                                  <SelectItem value="Excellent">Excellent</SelectItem>
-                                  <SelectItem value="Good">Good</SelectItem>
-                                  <SelectItem value="Fair">Fair</SelectItem>
-                                  <SelectItem value="Poor">Poor</SelectItem>
+                                 <SelectContent>
+                                  <SelectItem value="SERVICEABLE">SERVICEABLE</SelectItem>
+                                  <SelectItem value="UNSERVICEABLE">UNSERVICEABLE</SelectItem>
                                 </SelectContent>
                               </Select>
                               <FormMessage />
