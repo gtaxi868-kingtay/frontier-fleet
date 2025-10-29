@@ -39,6 +39,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { useEffect } from "react";
 import { ItemDetailDialog } from "@/components/ItemDetailDialog";
 import { Badge } from "@/components/ui/badge";
+import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
+import { RealtimeInventorySync } from "@/components/RealtimeInventorySync";
 
 const weaponSchema = z.object({
   weapon_id: z.string().min(1, "Weapon ID is required"),
@@ -158,6 +160,11 @@ export default function Weapons() {
 
   return (
     <div className="min-h-screen bg-background">
+      <RealtimeInventorySync 
+        module="weapons" 
+        onDataChange={fetchWeapons}
+        showToasts={true}
+      />
       <DashboardHeader />
       <main className="container mx-auto p-6 space-y-6">
         <div className="flex items-center justify-between">
