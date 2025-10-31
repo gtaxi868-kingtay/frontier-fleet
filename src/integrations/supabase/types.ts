@@ -1089,13 +1089,19 @@ export type Database = {
           issue_date: string | null
           issued_to: string | null
           last_inspection_date: string | null
+          mag_amount: number | null
+          name: string | null
           next_inspection_due: string | null
           notes: string | null
+          page_64_no: string | null
           rack_number: string | null
+          rank: string | null
           return_date: string | null
           serial_number: string | null
+          service_number: string | null
           serviceable: boolean | null
           squadron_id: string | null
+          store_location: string | null
           survey_report_filed: boolean | null
           updated_at: string | null
           weapon_id: string
@@ -1108,13 +1114,19 @@ export type Database = {
           issue_date?: string | null
           issued_to?: string | null
           last_inspection_date?: string | null
+          mag_amount?: number | null
+          name?: string | null
           next_inspection_due?: string | null
           notes?: string | null
+          page_64_no?: string | null
           rack_number?: string | null
+          rank?: string | null
           return_date?: string | null
           serial_number?: string | null
+          service_number?: string | null
           serviceable?: boolean | null
           squadron_id?: string | null
+          store_location?: string | null
           survey_report_filed?: boolean | null
           updated_at?: string | null
           weapon_id: string
@@ -1127,13 +1139,19 @@ export type Database = {
           issue_date?: string | null
           issued_to?: string | null
           last_inspection_date?: string | null
+          mag_amount?: number | null
+          name?: string | null
           next_inspection_due?: string | null
           notes?: string | null
+          page_64_no?: string | null
           rack_number?: string | null
+          rank?: string | null
           return_date?: string | null
           serial_number?: string | null
+          service_number?: string | null
           serviceable?: boolean | null
           squadron_id?: string | null
+          store_location?: string | null
           survey_report_filed?: boolean | null
           updated_at?: string | null
           weapon_id?: string

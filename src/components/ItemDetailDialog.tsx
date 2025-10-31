@@ -20,7 +20,7 @@ export function ItemDetailDialog({
   onOpenChange, 
   title, 
   data,
-  excludeFields = ['id', 'created_at', 'updated_at', 'squadron_id', 'unit_id', 'issued_to', 'assigned_to', 'operator_assigned', 'inspector', 'created_by', 'created_for']
+  excludeFields = ['id', 'created_at', 'updated_at', 'squadron_id', 'unit_id', 'issued_to', 'assigned_to', 'operator_assigned', 'inspector', 'created_by', 'created_for', 'survey_report_filed']
 }: ItemDetailDialogProps) {
   if (!data) return null;
 
