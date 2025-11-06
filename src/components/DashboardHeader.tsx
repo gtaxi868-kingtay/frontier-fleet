@@ -1,9 +1,10 @@
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Bell, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import battalionEmblem from "@/assets/new-project.png";
+import { NotificationCenter } from "@/components/NotificationCenter";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,10 +36,7 @@ export function DashboardHeader() {
         <div className="flex-1" />
 
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" className="relative rounded-lg hover:bg-primary/10 hover:shadow-glow transition-all">
-            <Bell className="h-5 w-5" />
-            <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-primary shadow-glow pulse-active" />
-          </Button>
+          <NotificationCenter />
 
           <div className="flex items-center gap-3 pl-3 border-l border-primary/20">
             <DropdownMenu>
