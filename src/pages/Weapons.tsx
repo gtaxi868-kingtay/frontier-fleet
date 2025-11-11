@@ -34,13 +34,12 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { useEffect } from "react";
 import { ItemDetailDialog } from "@/components/ItemDetailDialog";
 import { Badge } from "@/components/ui/badge";
-import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
 import { RealtimeInventorySync } from "@/components/RealtimeInventorySync";
+import { useInventoryData } from "@/hooks/useInventoryData";
 
 const weaponSchema = z.object({
   weapon_id: z.string().min(1, "Weapon ID is required"),
@@ -57,13 +56,13 @@ type WeaponFormData = z.infer<typeof weaponSchema>;
 export default function Weapons() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [scanMode, setScanMode] = useState(false);
-  const { toast } = useToast();
   const { session } = useAuth();
   const [hasS4Role, setHasS4Role] = useState(false);
-  const [weapons, setWeapons] = useState<any[]>([]);
   const [selectedWeapon, setSelectedWeapon] = useState<any>(null);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  
+  const { data: weapons = [], isLoading, refetch, create } = useInventoryData('weapons');
 
   const form = useForm<WeaponFormData>({
     resolver: zodResolver(weaponSchema),
@@ -77,12 +76,6 @@ export default function Weapons() {
       notes: "",
     },
   });
-
-  // Fetch weapons data
-  const fetchWeapons = async () => {
-    const { data, error } = await supabase.from("weapons").select("*");
-    if (data) setWeapons(data);
-  };
 
   // Check if user has S4 role
   useEffect(() => {
@@ -98,7 +91,6 @@ export default function Weapons() {
       setHasS4Role(!!data);
     };
     checkRole();
-    fetchWeapons();
   }, [session]);
 
   const handleQRScan = (data: string) => {
@@ -111,59 +103,34 @@ export default function Weapons() {
         if (parts[2]) form.setValue("serial_number", parts[2]);
         if (parts[3]) form.setValue("rack_number", parts[3]);
         setScanMode(false);
-        toast({
-          title: "QR Code Scanned",
-          description: "Weapon details loaded successfully",
-        });
       }
     } catch (error) {
-      toast({
-        title: "Scan Error",
-        description: "Invalid QR code format",
-        variant: "destructive",
-      });
+      console.error("QR scan error:", error);
     }
   };
 
-  const onSubmit = async (data: WeaponFormData) => {
-    try {
-      const weaponData = {
-        weapon_id: data.weapon_id,
-        weapon_type: data.weapon_type,
-        serial_number: data.serial_number || null,
-        rack_number: data.rack_number || null,
-        condition_issue: data.condition_issue || null,
-        serviceable: data.serviceable,
-        notes: data.notes || null,
-      };
+  const onSubmit = (data: WeaponFormData) => {
+    const weaponData = {
+      weapon_id: data.weapon_id,
+      weapon_type: data.weapon_type,
+      serial_number: data.serial_number || null,
+      rack_number: data.rack_number || null,
+      condition_issue: data.condition_issue || null,
+      serviceable: data.serviceable,
+      notes: data.notes || null,
+    };
 
-      const { error } = await supabase.from("weapons").insert([weaponData]);
-      
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Weapon added successfully",
-      });
-      
-      setDialogOpen(false);
-      form.reset();
-      fetchWeapons();
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
+    create(weaponData);
+    setDialogOpen(false);
+    form.reset();
   };
 
   return (
     <div className="min-h-screen bg-background">
       <RealtimeInventorySync 
         module="weapons" 
-        onDataChange={fetchWeapons}
-        showToasts={true}
+        onDataChange={refetch}
+        showToasts={false}
       />
       <DashboardHeader />
       <main className="container mx-auto p-6 space-y-6">
