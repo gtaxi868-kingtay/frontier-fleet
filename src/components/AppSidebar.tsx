@@ -14,7 +14,8 @@ import {
   FileText,
   Home,
   UserCog,
-  Car
+  Car,
+  ClipboardList
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -47,6 +48,7 @@ const modules = [
   { title: "Works Materials", url: "/works-materials", icon: Hammer },
   { title: "Inventory", url: "/inventory", icon: Package },
   { title: "Room Inventory", url: "/room-inventory", icon: Building },
+  { title: "Inventory Requests", url: "/inventory-requests", icon: ClipboardList },
   { title: "Analytics", url: "/analytics", icon: BarChart3 },
   { title: "Reports", url: "/reports", icon: FileText },
 ];

@@ -24,6 +24,7 @@ import Facilities from "./pages/Facilities";
 import WorksMaterials from "./pages/WorksMaterials";
 import Inventory from "./pages/Inventory";
 import RoomInventory from "./pages/RoomInventory";
+import InventoryRequests from "./pages/InventoryRequests";
 import Analytics from "./pages/Analytics";
 import Reports from "./pages/Reports";
 import RoleManagement from "./pages/RoleManagement";
@@ -93,7 +94,15 @@ const App = () => {
                           <Route path="/inventory" element={<Inventory />} />
                           <Route path="/room-inventory" element={<RoomInventory />} />
                           <Route 
-                            path="/analytics" 
+                            path="/inventory-requests" 
+                            element={
+                              <ProtectedRoute allowedRoles={['CO', 'S1', 'S4', 'S4_ADMIN', 'OC', 'SQMS']}>
+                                <InventoryRequests />
+                              </ProtectedRoute>
+                            } 
+                          />
+                          <Route 
+                            path="/analytics"
                             element={
                               <ProtectedRoute allowedRoles={['CO', 'S4', 'OC']}>
                                 <Analytics />
