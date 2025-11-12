@@ -4,7 +4,7 @@ import { LoadingSpinner } from '@/components/LoadingSpinner';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  allowedRoles?: Array<'CO' | 'S4' | 'OC' | 'SQMS' | 'Soldier'>;
+  allowedRoles?: Array<'CO' | 'S1' | 'S4' | 'S4_ADMIN' | 'OC' | 'SQMS' | 'STOREMAN' | 'Soldier'>;
 }
 
 export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {

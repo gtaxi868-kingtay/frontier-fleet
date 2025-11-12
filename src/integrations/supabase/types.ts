@@ -17,31 +17,46 @@ export type Database = {
       alerts: {
         Row: {
           acknowledged: boolean | null
+          action_required: boolean | null
+          action_url: string | null
+          alert_type: string | null
           created_at: string | null
           id: string
           message: string
           priority: string | null
           recipient_role: Database["public"]["Enums"]["app_role"] | null
+          related_item_id: string | null
+          related_item_type: string | null
           sender_role: Database["public"]["Enums"]["app_role"] | null
           unit_id: string | null
         }
         Insert: {
           acknowledged?: boolean | null
+          action_required?: boolean | null
+          action_url?: string | null
+          alert_type?: string | null
           created_at?: string | null
           id?: string
           message: string
           priority?: string | null
           recipient_role?: Database["public"]["Enums"]["app_role"] | null
+          related_item_id?: string | null
+          related_item_type?: string | null
           sender_role?: Database["public"]["Enums"]["app_role"] | null
           unit_id?: string | null
         }
         Update: {
           acknowledged?: boolean | null
+          action_required?: boolean | null
+          action_url?: string | null
+          alert_type?: string | null
           created_at?: string | null
           id?: string
           message?: string
           priority?: string | null
           recipient_role?: Database["public"]["Enums"]["app_role"] | null
+          related_item_id?: string | null
+          related_item_type?: string | null
           sender_role?: Database["public"]["Enums"]["app_role"] | null
           unit_id?: string | null
         }
@@ -51,6 +66,57 @@ export type Database = {
             columns: ["unit_id"]
             isOneToOne: false
             referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      approvals_queue: {
+        Row: {
+          approval_level: string
+          approved_by: string | null
+          created_at: string | null
+          id: string
+          notes: string | null
+          request_id: string | null
+          required_role: Database["public"]["Enums"]["app_role"]
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          approval_level: string
+          approved_by?: string | null
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          request_id?: string | null
+          required_role: Database["public"]["Enums"]["app_role"]
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          approval_level?: string
+          approved_by?: string | null
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          request_id?: string | null
+          required_role?: Database["public"]["Enums"]["app_role"]
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "approvals_queue_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "approvals_queue_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_requests"
             referencedColumns: ["id"]
           },
         ]
@@ -366,6 +432,107 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "inventory_items_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inventory_requests: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string | null
+          id: string
+          item_id: string | null
+          item_name: string | null
+          item_type: string
+          justification: string
+          quantity: number | null
+          rejected_at: string | null
+          rejected_by: string | null
+          rejection_reason: string | null
+          report_generated: boolean | null
+          report_url: string | null
+          request_type: string
+          requester_id: string
+          requester_role: Database["public"]["Enums"]["app_role"]
+          specifications: string | null
+          status: string | null
+          unit_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string | null
+          id?: string
+          item_id?: string | null
+          item_name?: string | null
+          item_type: string
+          justification: string
+          quantity?: number | null
+          rejected_at?: string | null
+          rejected_by?: string | null
+          rejection_reason?: string | null
+          report_generated?: boolean | null
+          report_url?: string | null
+          request_type: string
+          requester_id: string
+          requester_role: Database["public"]["Enums"]["app_role"]
+          specifications?: string | null
+          status?: string | null
+          unit_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string | null
+          id?: string
+          item_id?: string | null
+          item_name?: string | null
+          item_type?: string
+          justification?: string
+          quantity?: number | null
+          rejected_at?: string | null
+          rejected_by?: string | null
+          rejection_reason?: string | null
+          report_generated?: boolean | null
+          report_url?: string | null
+          request_type?: string
+          requester_id?: string
+          requester_role?: Database["public"]["Enums"]["app_role"]
+          specifications?: string | null
+          status?: string | null
+          unit_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_requests_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_requests_rejected_by_fkey"
+            columns: ["rejected_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_requests_requester_id_fkey"
+            columns: ["requester_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_requests_unit_id_fkey"
             columns: ["unit_id"]
             isOneToOne: false
             referencedRelation: "units"
@@ -910,6 +1077,89 @@ export type Database = {
           },
         ]
       }
+      transactions_detailed: {
+        Row: {
+          condition_issue: string | null
+          condition_return: string | null
+          created_at: string | null
+          from_user_id: string | null
+          id: string
+          issued_by_id: string | null
+          item_id: string
+          item_name: string | null
+          item_table: string
+          notes: string | null
+          quantity: number | null
+          serviceability: string | null
+          to_user_id: string | null
+          transaction_type: string
+          unit_id: string | null
+        }
+        Insert: {
+          condition_issue?: string | null
+          condition_return?: string | null
+          created_at?: string | null
+          from_user_id?: string | null
+          id?: string
+          issued_by_id?: string | null
+          item_id: string
+          item_name?: string | null
+          item_table: string
+          notes?: string | null
+          quantity?: number | null
+          serviceability?: string | null
+          to_user_id?: string | null
+          transaction_type: string
+          unit_id?: string | null
+        }
+        Update: {
+          condition_issue?: string | null
+          condition_return?: string | null
+          created_at?: string | null
+          from_user_id?: string | null
+          id?: string
+          issued_by_id?: string | null
+          item_id?: string
+          item_name?: string | null
+          item_table?: string
+          notes?: string | null
+          quantity?: number | null
+          serviceability?: string | null
+          to_user_id?: string | null
+          transaction_type?: string
+          unit_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_detailed_from_user_id_fkey"
+            columns: ["from_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_detailed_issued_by_id_fkey"
+            columns: ["issued_by_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_detailed_to_user_id_fkey"
+            columns: ["to_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_detailed_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       uniforms: {
         Row: {
           condition_issue: string | null
@@ -1235,6 +1485,10 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
+        Returns: boolean
+      }
+      user_has_unit_access: {
+        Args: { check_unit_id: string }
         Returns: boolean
       }
     }

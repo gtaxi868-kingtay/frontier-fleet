@@ -75,7 +75,7 @@ export default function Auth() {
       signUpData.password,
       signUpData.name,
       signUpData.rank,
-      signUpData.role as 'CO' | 'S4' | 'OC' | 'SQMS' | 'Soldier'
+      signUpData.role as 'CO' | 'S1' | 'S4' | 'S4_ADMIN' | 'OC' | 'SQMS' | 'STOREMAN' | 'Soldier'
     );
     
     if (error) {
@@ -210,9 +210,12 @@ export default function Auth() {
                       </SelectTrigger>
                       <SelectContent className="bg-popover z-50">
                         <SelectItem value="CO">Commanding Officer (CO)</SelectItem>
+                        <SelectItem value="S1">Adjutant (S1)</SelectItem>
                         <SelectItem value="S4">Logistics Officer (S4)</SelectItem>
+                        <SelectItem value="S4_ADMIN">S4 Staff Member (S4 Admin)</SelectItem>
                         <SelectItem value="OC">Officer Commanding (OC)</SelectItem>
-                        <SelectItem value="SQMS">Storeman (SQMS)</SelectItem>
+                        <SelectItem value="SQMS">Unit Quartermaster (SQMS)</SelectItem>
+                        <SelectItem value="STOREMAN">Storeman</SelectItem>
                         <SelectItem value="Soldier">Soldier</SelectItem>
                       </SelectContent>
                     </Select>
