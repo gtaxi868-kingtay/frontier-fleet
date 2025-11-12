@@ -1239,7 +1239,15 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "CO" | "S4" | "OC" | "SQMS" | "Soldier"
+      app_role:
+        | "CO"
+        | "S4"
+        | "OC"
+        | "SQMS"
+        | "Soldier"
+        | "S1"
+        | "S4_ADMIN"
+        | "STOREMAN"
       approval_status: "pending" | "approved" | "rejected"
     }
     CompositeTypes: {
@@ -1368,7 +1376,16 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["CO", "S4", "OC", "SQMS", "Soldier"],
+      app_role: [
+        "CO",
+        "S4",
+        "OC",
+        "SQMS",
+        "Soldier",
+        "S1",
+        "S4_ADMIN",
+        "STOREMAN",
+      ],
       approval_status: ["pending", "approved", "rejected"],
     },
   },
