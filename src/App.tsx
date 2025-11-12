@@ -25,6 +25,7 @@ import WorksMaterials from "./pages/WorksMaterials";
 import Inventory from "./pages/Inventory";
 import RoomInventory from "./pages/RoomInventory";
 import InventoryRequests from "./pages/InventoryRequests";
+import Transactions from "./pages/Transactions";
 import Analytics from "./pages/Analytics";
 import Reports from "./pages/Reports";
 import RoleManagement from "./pages/RoleManagement";
@@ -98,6 +99,14 @@ const App = () => {
                             element={
                               <ProtectedRoute allowedRoles={['CO', 'S1', 'S4', 'S4_ADMIN', 'OC', 'SQMS']}>
                                 <InventoryRequests />
+                              </ProtectedRoute>
+                            } 
+                          />
+                          <Route 
+                            path="/transactions" 
+                            element={
+                              <ProtectedRoute allowedRoles={['CO', 'S1', 'S4', 'S4_ADMIN', 'OC', 'SQMS', 'STOREMAN']}>
+                                <Transactions />
                               </ProtectedRoute>
                             } 
                           />
