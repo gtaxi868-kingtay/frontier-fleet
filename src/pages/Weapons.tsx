@@ -5,9 +5,6 @@ import { Plus, Search, QrCode, Scan } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 import { BulkUploadDialog } from "@/components/BulkUploadDialog";
-import { QRScannerDialog } from "@/components/QRScannerDialog";
-import { QRCodeGenerator } from "@/components/QRCodeGenerator";
-import { ItemLookupDialog } from "@/components/ItemLookupDialog";
 import {
   Dialog,
   DialogContent,
@@ -54,9 +51,6 @@ type WeaponFormData = z.infer<typeof weaponSchema>;
 
 export default function Weapons() {
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [scannerOpen, setScannerOpen] = useState(false);
-  const [qrGenOpen, setQrGenOpen] = useState(false);
-  const [lookupOpen, setLookupOpen] = useState(false);
   const { session } = useAuth();
   const [hasS4Role, setHasS4Role] = useState(false);
   const [selectedWeapon, setSelectedWeapon] = useState<any>(null);
@@ -146,13 +140,10 @@ export default function Weapons() {
               <Plus className="mr-2 h-4 w-4" />
               Add Weapon
             </Button>
-            <Button onClick={() => setLookupOpen(true)} variant="outline">
-              <Scan className="mr-2 h-4 w-4" />
-              Quick Lookup
-            </Button>
             {hasS4Role && (
               <BulkUploadDialog
-                tableName="weapons"
+                module="weapons"
+                moduleName="Weapons"
                 onSuccess={refetch}
               />
             )}
@@ -221,16 +212,6 @@ export default function Weapons() {
                         >
                           View Details
                         </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            setSelectedWeapon(weapon);
-                            setQrGenOpen(true);
-                          }}
-                        >
-                          <QrCode className="h-4 w-4" />
-                        </Button>
                       </div>
                     </CardContent>
                   </Card>
@@ -248,15 +229,6 @@ export default function Weapons() {
           </DialogHeader>
 
           <div className="space-y-4">
-            <Button
-              onClick={() => setScannerOpen(true)}
-              variant="outline"
-              className="w-full"
-            >
-              <Scan className="mr-2 h-4 w-4" />
-              Scan QR Code to Auto-Fill
-            </Button>
-
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <FormField
@@ -385,34 +357,16 @@ export default function Weapons() {
         </DialogContent>
       </Dialog>
 
-      <QRScannerDialog
-        open={scannerOpen}
-        onOpenChange={setScannerOpen}
-        onScan={handleQRScan}
-        title="Scan Weapon QR Code"
-        description="Scan the QR code to auto-fill weapon details"
-      />
-
       {selectedWeapon && (
-        <>
-          <ItemDetailDialog
-            open={detailDialogOpen}
-            onOpenChange={setDetailDialogOpen}
-            title={`${selectedWeapon.weapon_type} - ${selectedWeapon.weapon_id}`}
-            data={selectedWeapon}
-          />
-          <QRCodeGenerator
-            open={qrGenOpen}
-            onOpenChange={setQrGenOpen}
-            data={selectedWeapon}
-            itemType="weapons"
-          />
-        </>
+        <ItemDetailDialog
+          open={detailDialogOpen}
+          onOpenChange={setDetailDialogOpen}
+          title={`${selectedWeapon.weapon_type} - ${selectedWeapon.weapon_id}`}
+          data={selectedWeapon}
+        />
       )}
-
-      <ItemLookupDialog open={lookupOpen} onOpenChange={setLookupOpen} />
       
-      <RealtimeInventorySync tableName="weapons" onUpdate={refetch} />
+      <RealtimeInventorySync module="weapons" onDataChange={refetch} />
     </div>
   );
 }
