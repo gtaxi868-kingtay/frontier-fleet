@@ -16,7 +16,8 @@ import {
   UserCog,
   Car,
   ClipboardList,
-  ArrowLeftRight
+  ArrowLeftRight,
+  ScrollText
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -60,6 +61,7 @@ export function AppSidebar() {
   const navigate = useNavigate();
   
   const showRoleManagement = role === 'CO' || role === 'S4';
+  const showAuditTrail = ['CO', 'S1', 'S4', 'S4_ADMIN'].includes(role || '');
 
   return (
     <Sidebar collapsible="icon" className="border-r border-primary/20 bg-sidebar/95 backdrop-blur-xl">
@@ -106,26 +108,45 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {showRoleManagement && (
+        {(showRoleManagement || showAuditTrail) && (
           <SidebarGroup>
             <SidebarGroupLabel className="font-tactical uppercase tracking-wider text-xs text-muted-foreground">Administration</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
-                    <NavLink 
-                      to="/role-management"
-                      className={({ isActive }) =>
-                        isActive 
-                          ? "bg-gradient-primary text-primary-foreground font-tactical font-bold shadow-glow beveled" 
-                          : "hover:bg-primary/10 hover:text-primary font-tactical transition-all"
-                      }
-                    >
-                      <UserCog className="h-4 w-4" />
-                      <span className="uppercase tracking-wide text-xs">Role Management</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
+                {showRoleManagement && (
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild>
+                      <NavLink 
+                        to="/role-management"
+                        className={({ isActive }) =>
+                          isActive 
+                            ? "bg-gradient-primary text-primary-foreground font-tactical font-bold shadow-glow beveled" 
+                            : "hover:bg-primary/10 hover:text-primary font-tactical transition-all"
+                        }
+                      >
+                        <UserCog className="h-4 w-4" />
+                        <span className="uppercase tracking-wide text-xs">Role Management</span>
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )}
+                {showAuditTrail && (
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild>
+                      <NavLink 
+                        to="/audit-trail"
+                        className={({ isActive }) =>
+                          isActive 
+                            ? "bg-gradient-primary text-primary-foreground font-tactical font-bold shadow-glow beveled" 
+                            : "hover:bg-primary/10 hover:text-primary font-tactical transition-all"
+                        }
+                      >
+                        <ScrollText className="h-4 w-4" />
+                        <span className="uppercase tracking-wide text-xs">Audit Trail</span>
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>

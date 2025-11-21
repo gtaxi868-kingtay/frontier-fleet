@@ -29,6 +29,7 @@ import Transactions from "./pages/Transactions";
 import Analytics from "./pages/Analytics";
 import Reports from "./pages/Reports";
 import RoleManagement from "./pages/RoleManagement";
+import AuditTrail from "./pages/AuditTrail";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -131,6 +132,14 @@ const App = () => {
                             element={
                               <ProtectedRoute allowedRoles={['CO', 'S4']}>
                                 <RoleManagement />
+                              </ProtectedRoute>
+                            } 
+                          />
+                          <Route 
+                            path="/audit-trail" 
+                            element={
+                              <ProtectedRoute allowedRoles={['CO', 'S1', 'S4', 'S4_ADMIN']}>
+                                <AuditTrail />
                               </ProtectedRoute>
                             } 
                           />
