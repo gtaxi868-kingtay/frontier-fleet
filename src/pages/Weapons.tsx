@@ -1,7 +1,7 @@
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Search, QrCode, Scan } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 import { BulkUploadDialog } from "@/components/BulkUploadDialog";
@@ -86,20 +86,6 @@ export default function Weapons() {
     };
     checkRole();
   }, [session]);
-
-  const handleQRScan = (data: string) => {
-    try {
-      const parts = data.split("|");
-      if (parts.length >= 2) {
-        form.setValue("weapon_id", parts[0]);
-        form.setValue("weapon_type", parts[1]);
-        if (parts[2]) form.setValue("serial_number", parts[2]);
-        if (parts[3]) form.setValue("rack_number", parts[3]);
-      }
-    } catch (error) {
-      console.error("QR scan error:", error);
-    }
-  };
 
   const onSubmit = (data: WeaponFormData) => {
     const weaponData = {
@@ -205,7 +191,8 @@ export default function Weapons() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.stopPropagation();
                             setSelectedWeapon(weapon);
                             setDetailDialogOpen(true);
                           }}
