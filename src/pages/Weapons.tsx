@@ -1,7 +1,7 @@
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, QrCode, Scan } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 import { BulkUploadDialog } from "@/components/BulkUploadDialog";
@@ -36,6 +36,11 @@ import { ItemDetailDialog } from "@/components/ItemDetailDialog";
 import { Badge } from "@/components/ui/badge";
 import { RealtimeInventorySync } from "@/components/RealtimeInventorySync";
 import { useInventoryData } from "@/hooks/useInventoryData";
+import { QRScannerDialog } from "@/components/QRScannerDialog";
+import { QRCodeLabel } from "@/components/QRCodeLabel";
+import { useItemLookup } from "@/hooks/useItemLookup";
+import { decodeQRData, type QRCodeData } from "@/lib/qr-utils";
+import { toast } from "sonner";
 
 const weaponSchema = z.object({
   weapon_id: z.string().min(1, "Weapon ID is required"),
@@ -56,8 +61,12 @@ export default function Weapons() {
   const [selectedWeapon, setSelectedWeapon] = useState<any>(null);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [scannerOpen, setScannerOpen] = useState(false);
+  const [labelOpen, setLabelOpen] = useState(false);
+  const [labelData, setLabelData] = useState<QRCodeData | null>(null);
   
   const { data: weapons = [], isLoading, refetch, create } = useInventoryData('weapons');
+  const { lookupItem } = useItemLookup();
 
   const form = useForm<WeaponFormData>({
     resolver: zodResolver(weaponSchema),
@@ -86,6 +95,31 @@ export default function Weapons() {
     };
     checkRole();
   }, [session]);
+
+  const handleQRScan = async (qrString: string) => {
+    const decoded = decodeQRData(qrString);
+    if (!decoded || decoded.module !== 'weapons') {
+      toast.error('Invalid QR code for weapons');
+      return;
+    }
+
+    const result = await lookupItem('weapons', decoded.id);
+    if (result.found && result.item) {
+      setSelectedWeapon(result.item);
+      setDetailDialogOpen(true);
+    }
+  };
+
+  const handleGenerateLabel = (weapon: any) => {
+    const labelData: QRCodeData = {
+      module: 'weapons',
+      id: weapon.weapon_id,
+      name: weapon.weapon_type,
+      additionalInfo: weapon.serial_number || undefined,
+    };
+    setLabelData(labelData);
+    setLabelOpen(true);
+  };
 
   const onSubmit = (data: WeaponFormData) => {
     const weaponData = {
@@ -122,6 +156,13 @@ export default function Weapons() {
             <p className="text-muted-foreground">Manage battalion weapons inventory</p>
           </div>
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 flex-wrap">
+            <Button
+              variant="outline"
+              onClick={() => setScannerOpen(true)}
+            >
+              <Scan className="mr-2 h-4 w-4" />
+              Scan QR Code
+            </Button>
             <Button onClick={() => setDialogOpen(true)}>
               <Plus className="mr-2 h-4 w-4" />
               Add Weapon
@@ -198,6 +239,16 @@ export default function Weapons() {
                           }}
                         >
                           View Details
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleGenerateLabel(weapon);
+                          }}
+                        >
+                          <QrCode className="h-4 w-4" />
                         </Button>
                       </div>
                     </CardContent>
@@ -350,6 +401,22 @@ export default function Weapons() {
           onOpenChange={setDetailDialogOpen}
           title={`${selectedWeapon.weapon_type} - ${selectedWeapon.weapon_id}`}
           data={selectedWeapon}
+        />
+      )}
+
+      <QRScannerDialog
+        open={scannerOpen}
+        onOpenChange={setScannerOpen}
+        onScan={handleQRScan}
+        title="Scan Weapon QR Code"
+        description="Scan a weapon QR code to quickly look up item details"
+      />
+
+      {labelData && (
+        <QRCodeLabel
+          open={labelOpen}
+          onOpenChange={setLabelOpen}
+          data={labelData}
         />
       )}
       

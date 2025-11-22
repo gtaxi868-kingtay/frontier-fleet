@@ -1,7 +1,7 @@
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, QrCode, Scan } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 import { AddToolDialog } from "@/components/AddToolDialog";
@@ -10,6 +10,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { ItemDetailDialog } from "@/components/ItemDetailDialog";
 import { Badge } from "@/components/ui/badge";
+import { QRScannerDialog } from "@/components/QRScannerDialog";
+import { QRCodeLabel } from "@/components/QRCodeLabel";
+import { useItemLookup } from "@/hooks/useItemLookup";
+import { decodeQRData, type QRCodeData } from "@/lib/qr-utils";
+import { toast } from "sonner";
 
 export default function Tools() {
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -19,6 +24,36 @@ export default function Tools() {
   const [selectedTool, setSelectedTool] = useState<any>(null);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [scannerOpen, setScannerOpen] = useState(false);
+  const [labelOpen, setLabelOpen] = useState(false);
+  const [labelData, setLabelData] = useState<QRCodeData | null>(null);
+  
+  const { lookupItem } = useItemLookup();
+
+  const handleQRScan = async (qrString: string) => {
+    const decoded = decodeQRData(qrString);
+    if (!decoded || decoded.module !== 'tools') {
+      toast.error('Invalid QR code for tools');
+      return;
+    }
+
+    const result = await lookupItem('tools', decoded.id);
+    if (result.found && result.item) {
+      setSelectedTool(result.item);
+      setDetailDialogOpen(true);
+    }
+  };
+
+  const handleGenerateLabel = (tool: any) => {
+    const labelData: QRCodeData = {
+      module: 'tools',
+      id: tool.tool_id,
+      name: tool.tool_name,
+      additionalInfo: tool.category || undefined,
+    };
+    setLabelData(labelData);
+    setLabelOpen(true);
+  };
 
   const fetchTools = async () => {
     const { data } = await supabase.from("tools").select("*");
@@ -42,15 +77,24 @@ export default function Tools() {
               Track hand tools, engineer kits, and specialized equipment
             </p>
           </div>
-          {canManage && (
-            <div className="flex gap-2">
-              {role === 'S4' && <BulkUploadDialog module="tools" moduleName="Tools" />}
-              <Button variant="default" className="gap-2" onClick={() => setDialogOpen(true)}>
-                <Plus className="h-4 w-4" />
-                Add Tool
-              </Button>
-            </div>
-          )}
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setScannerOpen(true)}
+            >
+              <Scan className="mr-2 h-4 w-4" />
+              Scan QR Code
+            </Button>
+            {canManage && (
+              <>
+                {role === 'S4' && <BulkUploadDialog module="tools" moduleName="Tools" />}
+                <Button variant="default" className="gap-2" onClick={() => setDialogOpen(true)}>
+                  <Plus className="h-4 w-4" />
+                  Add Tool
+                </Button>
+              </>
+            )}
+          </div>
         </div>
 
         <Card className="border-border/50 backdrop-blur-sm">
@@ -109,10 +153,22 @@ export default function Tools() {
                         <span className="font-tactical uppercase text-muted-foreground">On Hand</span>
                         <span className="font-medium">{tool.qty_on_hand}</span>
                       </div>
-                      <div className="pt-2">
+                      <div className="pt-2 space-y-2">
                         <Badge variant={tool.serviceable ? 'default' : 'destructive'} className="w-full justify-center">
                           {tool.serviceable ? 'Serviceable' : 'Unserviceable'}
                         </Badge>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleGenerateLabel(tool);
+                          }}
+                        >
+                          <QrCode className="h-4 w-4 mr-2" />
+                          Generate Label
+                        </Button>
                       </div>
                     </CardContent>
                   </Card>
@@ -135,6 +191,22 @@ export default function Tools() {
           title={selectedTool ? `${selectedTool.tool_id} - ${selectedTool.tool_name}` : ''}
           data={selectedTool}
         />
+
+        <QRScannerDialog
+          open={scannerOpen}
+          onOpenChange={setScannerOpen}
+          onScan={handleQRScan}
+          title="Scan Tool QR Code"
+          description="Scan a tool QR code to quickly look up item details"
+        />
+
+        {labelData && (
+          <QRCodeLabel
+            open={labelOpen}
+            onOpenChange={setLabelOpen}
+            data={labelData}
+          />
+        )}
       </main>
     </div>
   );
