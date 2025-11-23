@@ -41,6 +41,7 @@ import { QRCodeLabel } from "@/components/QRCodeLabel";
 import { useItemLookup } from "@/hooks/useItemLookup";
 import { decodeQRData, type QRCodeData } from "@/lib/qr-utils";
 import { toast } from "sonner";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 
 const weaponSchema = z.object({
   weapon_id: z.string().min(1, "Weapon ID is required"),
@@ -64,8 +65,10 @@ export default function Weapons() {
   const [scannerOpen, setScannerOpen] = useState(false);
   const [labelOpen, setLabelOpen] = useState(false);
   const [labelData, setLabelData] = useState<QRCodeData | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [pendingUpdate, setPendingUpdate] = useState<{ id: string; updates: any } | null>(null);
   
-  const { data: weapons = [], isLoading, refetch, create } = useInventoryData('weapons');
+  const { data: weapons = [], isLoading, refetch, create, update } = useInventoryData('weapons');
   const { lookupItem } = useItemLookup();
 
   const form = useForm<WeaponFormData>({
@@ -419,6 +422,20 @@ export default function Weapons() {
           data={labelData}
         />
       )}
+
+      <ConfirmDialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        onConfirm={() => {
+          if (pendingUpdate) {
+            update(pendingUpdate);
+            setPendingUpdate(null);
+          }
+          setConfirmOpen(false);
+        }}
+        title="Confirm Update"
+        description="Are you sure you want to update this weapon? This action will be logged in the audit trail with your user details and timestamp."
+      />
       
       <RealtimeInventorySync module="weapons" onDataChange={refetch} />
     </div>

@@ -3,11 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, Search, QrCode, Scan } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { AddToolDialog } from "@/components/AddToolDialog";
 import { BulkUploadDialog } from "@/components/BulkUploadDialog";
 import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
 import { ItemDetailDialog } from "@/components/ItemDetailDialog";
 import { Badge } from "@/components/ui/badge";
 import { QRScannerDialog } from "@/components/QRScannerDialog";
@@ -15,20 +14,25 @@ import { QRCodeLabel } from "@/components/QRCodeLabel";
 import { useItemLookup } from "@/hooks/useItemLookup";
 import { decodeQRData, type QRCodeData } from "@/lib/qr-utils";
 import { toast } from "sonner";
+import { useInventoryData } from "@/hooks/useInventoryData";
+import { RealtimeInventorySync } from "@/components/RealtimeInventorySync";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 
 export default function Tools() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const { role } = useAuth();
   const canManage = role === 'S4' || role === 'SQMS';
-  const [tools, setTools] = useState<any[]>([]);
   const [selectedTool, setSelectedTool] = useState<any>(null);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [scannerOpen, setScannerOpen] = useState(false);
   const [labelOpen, setLabelOpen] = useState(false);
   const [labelData, setLabelData] = useState<QRCodeData | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [pendingUpdate, setPendingUpdate] = useState<{ id: string; updates: any } | null>(null);
   
   const { lookupItem } = useItemLookup();
+  const { data: tools = [], isLoading, refetch, update } = useInventoryData('tools');
 
   const handleQRScan = async (qrString: string) => {
     const decoded = decodeQRData(qrString);
@@ -54,15 +58,6 @@ export default function Tools() {
     setLabelData(labelData);
     setLabelOpen(true);
   };
-
-  const fetchTools = async () => {
-    const { data } = await supabase.from("tools").select("*");
-    if (data) setTools(data);
-  };
-
-  useEffect(() => {
-    fetchTools();
-  }, []);
 
   return (
     <div className="min-h-screen bg-background">
@@ -182,7 +177,7 @@ export default function Tools() {
         <AddToolDialog
           open={dialogOpen}
           onOpenChange={setDialogOpen}
-          onSuccess={fetchTools}
+          onSuccess={refetch}
         />
         
         <ItemDetailDialog
@@ -207,6 +202,22 @@ export default function Tools() {
             data={labelData}
           />
         )}
+
+        <ConfirmDialog
+          open={confirmOpen}
+          onOpenChange={setConfirmOpen}
+          onConfirm={() => {
+            if (pendingUpdate) {
+              update(pendingUpdate);
+              setPendingUpdate(null);
+            }
+            setConfirmOpen(false);
+          }}
+          title="Confirm Update"
+          description="Are you sure you want to update this tool? This action will be logged in the audit trail with your user details and timestamp."
+        />
+
+        <RealtimeInventorySync module="tools" onDataChange={refetch} />
       </main>
     </div>
   );
