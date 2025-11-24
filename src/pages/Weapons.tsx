@@ -26,6 +26,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Textarea } from "@/components/ui/textarea";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -67,6 +73,14 @@ export default function Weapons() {
   const [labelData, setLabelData] = useState<QRCodeData | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [pendingUpdate, setPendingUpdate] = useState<{ id: string; updates: any } | null>(null);
+
+  const handleStatusChange = (weapon: any, newServiceable: boolean) => {
+    setPendingUpdate({
+      id: weapon.id,
+      updates: { serviceable: newServiceable }
+    });
+    setConfirmOpen(true);
+  };
   
   const { data: weapons = [], isLoading, refetch, create, update } = useInventoryData('weapons');
   const { lookupItem } = useItemLookup();
@@ -215,9 +229,30 @@ export default function Weapons() {
                             ID: {weapon.weapon_id}
                           </p>
                         </div>
-                        <Badge variant={weapon.serviceable ? "default" : "destructive"}>
-                          {weapon.serviceable ? "Serviceable" : "Unserviceable"}
-                        </Badge>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Badge 
+                              variant={weapon.serviceable ? "default" : "destructive"}
+                              className="cursor-pointer hover:opacity-80"
+                            >
+                              {weapon.serviceable ? "Serviceable" : "Unserviceable"}
+                            </Badge>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="bg-background">
+                            <DropdownMenuItem 
+                              onClick={() => handleStatusChange(weapon, true)}
+                              disabled={weapon.serviceable}
+                            >
+                              Mark as Serviceable
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => handleStatusChange(weapon, false)}
+                              disabled={!weapon.serviceable}
+                            >
+                              Mark as Unserviceable
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
                     </CardHeader>
                     <CardContent className="space-y-2">
