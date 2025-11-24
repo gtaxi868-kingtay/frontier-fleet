@@ -10,23 +10,33 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { ItemDetailDialog } from "@/components/ItemDetailDialog";
 import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { useInventoryData } from "@/hooks/useInventoryData";
 
 export default function Uniforms() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const { role } = useAuth();
-  const canManage = role === 'S4' || role === 'SQMS';
-  const [uniforms, setUniforms] = useState<any[]>([]);
+  const canManage = role === 'S4' || role === 'SQMS' || role === 'S4_ADMIN' || role === 'STOREMAN';
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [pendingUpdate, setPendingUpdate] = useState<{ id: string; updates: any } | null>(null);
+  
+  const { data: uniforms = [], refetch, update } = useInventoryData('uniforms');
 
-  const fetchUniforms = async () => {
-    const { data } = await supabase.from("uniforms").select("*");
-    if (data) setUniforms(data);
+  const handleStatusChange = (item: any, newServiceable: boolean) => {
+    setPendingUpdate({
+      id: item.id,
+      updates: { serviceable: newServiceable }
+    });
+    setConfirmOpen(true);
   };
-
-  useEffect(() => {
-    fetchUniforms();
-  }, []);
 
   return (
     <div className="min-h-screen bg-background">
@@ -92,9 +102,42 @@ export default function Uniforms() {
                         </div>
                       )}
                       <div className="pt-2">
-                        <Badge variant={item.serviceable ? 'default' : 'destructive'} className="w-full justify-center">
-                          {item.serviceable ? 'Serviceable' : 'Unserviceable'}
-                        </Badge>
+                        {canManage ? (
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                              <Badge 
+                                variant={item.serviceable ? 'default' : 'destructive'} 
+                                className="w-full justify-center cursor-pointer hover:opacity-80"
+                              >
+                                {item.serviceable ? 'Serviceable' : 'Unserviceable'}
+                              </Badge>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="center" className="bg-background">
+                              <DropdownMenuItem 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleStatusChange(item, true);
+                                }}
+                                disabled={item.serviceable}
+                              >
+                                Mark as Serviceable
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleStatusChange(item, false);
+                                }}
+                                disabled={!item.serviceable}
+                              >
+                                Mark as Unserviceable
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        ) : (
+                          <Badge variant={item.serviceable ? 'default' : 'destructive'} className="w-full justify-center">
+                            {item.serviceable ? 'Serviceable' : 'Unserviceable'}
+                          </Badge>
+                        )}
                       </div>
                     </CardContent>
                   </Card>
@@ -107,7 +150,7 @@ export default function Uniforms() {
         <AddUniformDialog
           open={dialogOpen}
           onOpenChange={setDialogOpen}
-          onSuccess={fetchUniforms}
+          onSuccess={refetch}
         />
 
         <ItemDetailDialog
@@ -115,6 +158,20 @@ export default function Uniforms() {
           onOpenChange={setDetailDialogOpen}
           title={selectedItem ? `${selectedItem.uniform_id} - ${selectedItem.item_name}` : ''}
           data={selectedItem}
+        />
+        
+        <ConfirmDialog
+          open={confirmOpen}
+          onOpenChange={setConfirmOpen}
+          onConfirm={() => {
+            if (pendingUpdate) {
+              update(pendingUpdate);
+              setPendingUpdate(null);
+            }
+            setConfirmOpen(false);
+          }}
+          title="Confirm Status Update"
+          description="Are you sure you want to update this item's status? This action will be logged in the audit trail."
         />
       </main>
     </div>

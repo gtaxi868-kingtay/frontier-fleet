@@ -10,23 +10,33 @@ import { BulkUploadDialog } from "@/components/BulkUploadDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { ItemDetailDialog } from "@/components/ItemDetailDialog";
 import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { useInventoryData } from "@/hooks/useInventoryData";
 
 export default function PlantMachinery() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const { role } = useAuth();
-  const canManage = role === 'S4' || role === 'SQMS';
-  const [machinery, setMachinery] = useState<any[]>([]);
+  const canManage = role === 'S4' || role === 'SQMS' || role === 'S4_ADMIN' || role === 'STOREMAN';
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [pendingUpdate, setPendingUpdate] = useState<{ id: string; updates: any } | null>(null);
+  
+  const { data: machinery = [], refetch, update } = useInventoryData('plant_machinery');
 
-  const fetchMachinery = async () => {
-    const { data } = await supabase.from("plant_machinery").select("*");
-    if (data) setMachinery(data);
+  const handleStatusChange = (item: any, newServiceability: string) => {
+    setPendingUpdate({
+      id: item.id,
+      updates: { serviceability: newServiceability }
+    });
+    setConfirmOpen(true);
   };
-
-  useEffect(() => {
-    fetchMachinery();
-  }, []);
 
   return (
     <div className="min-h-screen bg-background">
@@ -96,9 +106,42 @@ export default function PlantMachinery() {
                         </div>
                       )}
                       <div className="pt-2">
-                        <Badge variant={item.serviceability === 'Serviceable' ? 'default' : 'destructive'} className="w-full justify-center">
-                          {item.serviceability || 'Unknown'}
-                        </Badge>
+                        {canManage ? (
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                              <Badge 
+                                variant={item.serviceability === 'Serviceable' ? 'default' : 'destructive'} 
+                                className="w-full justify-center cursor-pointer hover:opacity-80"
+                              >
+                                {item.serviceability || 'Unknown'}
+                              </Badge>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="center" className="bg-background">
+                              <DropdownMenuItem 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleStatusChange(item, 'Serviceable');
+                                }}
+                                disabled={item.serviceability === 'Serviceable'}
+                              >
+                                Mark as Serviceable
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleStatusChange(item, 'Unserviceable');
+                                }}
+                                disabled={item.serviceability === 'Unserviceable'}
+                              >
+                                Mark as Unserviceable
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        ) : (
+                          <Badge variant={item.serviceability === 'Serviceable' ? 'default' : 'destructive'} className="w-full justify-center">
+                            {item.serviceability || 'Unknown'}
+                          </Badge>
+                        )}
                       </div>
                     </CardContent>
                   </Card>
@@ -111,7 +154,7 @@ export default function PlantMachinery() {
         <AddPlantMachineryDialog
           open={dialogOpen}
           onOpenChange={setDialogOpen}
-          onSuccess={fetchMachinery}
+          onSuccess={refetch}
         />
 
         <ItemDetailDialog
@@ -119,6 +162,20 @@ export default function PlantMachinery() {
           onOpenChange={setDetailDialogOpen}
           title={selectedItem ? `${selectedItem.plant_id} - ${selectedItem.type}` : ''}
           data={selectedItem}
+        />
+        
+        <ConfirmDialog
+          open={confirmOpen}
+          onOpenChange={setConfirmOpen}
+          onConfirm={() => {
+            if (pendingUpdate) {
+              update(pendingUpdate);
+              setPendingUpdate(null);
+            }
+            setConfirmOpen(false);
+          }}
+          title="Confirm Status Update"
+          description="Are you sure you want to update this item's status? This action will be logged in the audit trail."
         />
       </main>
     </div>
