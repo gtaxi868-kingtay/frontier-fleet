@@ -16,6 +16,12 @@ import { decodeQRData, type QRCodeData } from "@/lib/qr-utils";
 import { toast } from "sonner";
 import { useInventoryData } from "@/hooks/useInventoryData";
 import { RealtimeInventorySync } from "@/components/RealtimeInventorySync";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 
 export default function Tools() {
@@ -30,6 +36,14 @@ export default function Tools() {
   const [labelData, setLabelData] = useState<QRCodeData | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [pendingUpdate, setPendingUpdate] = useState<{ id: string; updates: any } | null>(null);
+
+  const handleStatusChange = (tool: any, newServiceable: boolean) => {
+    setPendingUpdate({
+      id: tool.id,
+      updates: { serviceable: newServiceable }
+    });
+    setConfirmOpen(true);
+  };
   
   const { lookupItem } = useItemLookup();
   const { data: tools = [], isLoading, refetch, update } = useInventoryData('tools');
@@ -149,9 +163,36 @@ export default function Tools() {
                         <span className="font-medium">{tool.qty_on_hand}</span>
                       </div>
                       <div className="pt-2 space-y-2">
-                        <Badge variant={tool.serviceable ? 'default' : 'destructive'} className="w-full justify-center">
-                          {tool.serviceable ? 'Serviceable' : 'Unserviceable'}
-                        </Badge>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Badge 
+                              variant={tool.serviceable ? 'default' : 'destructive'} 
+                              className="w-full justify-center cursor-pointer hover:opacity-80"
+                            >
+                              {tool.serviceable ? 'Serviceable' : 'Unserviceable'}
+                            </Badge>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="center" className="bg-background">
+                            <DropdownMenuItem 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleStatusChange(tool, true);
+                              }}
+                              disabled={tool.serviceable}
+                            >
+                              Mark as Serviceable
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleStatusChange(tool, false);
+                              }}
+                              disabled={!tool.serviceable}
+                            >
+                              Mark as Unserviceable
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                         <Button
                           variant="outline"
                           size="sm"
