@@ -1,7 +1,7 @@
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Search, Wrench, Car, Building } from "lucide-react";
+import { Plus, Search, Wrench, Car, Building, MoreVertical } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -9,10 +9,18 @@ import { AddVehicleDialog } from "@/components/AddVehicleDialog";
 import { AddMechanicsToolDialog } from "@/components/AddMechanicsToolDialog";
 import { AddMTFacilityDialog } from "@/components/AddMTFacilityDialog";
 import { BulkUploadDialog } from "@/components/BulkUploadDialog";
-import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { ItemDetailDialog } from "@/components/ItemDetailDialog";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { useInventoryData } from "@/hooks/useInventoryData";
+import { RealtimeInventorySync } from "@/components/RealtimeInventorySync";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export default function MotorTransport() {
   const { role } = useAuth();
@@ -20,34 +28,44 @@ export default function MotorTransport() {
   const [toolDialogOpen, setToolDialogOpen] = useState(false);
   const [facilityDialogOpen, setFacilityDialogOpen] = useState(false);
   
-  const [vehicles, setVehicles] = useState<any[]>([]);
-  const [tools, setTools] = useState<any[]>([]);
-  const [facilities, setFacilities] = useState<any[]>([]);
-  
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const [detailTitle, setDetailTitle] = useState('');
   const [vehicleSearchTerm, setVehicleSearchTerm] = useState('');
   const [toolSearchTerm, setToolSearchTerm] = useState('');
   const [facilitySearchTerm, setFacilitySearchTerm] = useState('');
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [pendingUpdate, setPendingUpdate] = useState<{ id: string; field: string; value: any; module: string } | null>(null);
 
-  const canManage = role === 'S4' || role === 'SQMS';
+  const canManage = role === 'S4' || role === 'S4_ADMIN' || role === 'SQMS' || role === 'STOREMAN';
 
-  const fetchData = async () => {
-    const [vehiclesRes, toolsRes, facilitiesRes] = await Promise.all([
-      supabase.from("vehicles").select("*"),
-      supabase.from("mechanics_tools").select("*"),
-      supabase.from("mt_facilities").select("*"),
-    ]);
+  const vehiclesData = useInventoryData('vehicles');
+  const toolsData = useInventoryData('mechanics_tools');
+  const facilitiesData = useInventoryData('mt_facilities');
 
-    if (vehiclesRes.data) setVehicles(vehiclesRes.data);
-    if (toolsRes.data) setTools(toolsRes.data);
-    if (facilitiesRes.data) setFacilities(facilitiesRes.data);
+  const vehicles = vehiclesData.data || [];
+  const tools = toolsData.data || [];
+  const facilities = facilitiesData.data || [];
+
+  const handleStatusChange = (id: string, field: string, newValue: any, module: string) => {
+    setPendingUpdate({ id, field, value: newValue, module });
+    setConfirmDialogOpen(true);
   };
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  const confirmStatusChange = () => {
+    if (pendingUpdate) {
+      const updateFn = pendingUpdate.module === 'vehicles' ? vehiclesData.update :
+                      pendingUpdate.module === 'mechanics_tools' ? toolsData.update :
+                      facilitiesData.update;
+      
+      updateFn({
+        id: pendingUpdate.id,
+        updates: { [pendingUpdate.field]: pendingUpdate.value }
+      });
+    }
+    setConfirmDialogOpen(false);
+    setPendingUpdate(null);
+  };
 
   const serviceableVehicles = vehicles.filter(v => v.serviceability === 'Serviceable').length;
   const serviceableTools = tools.filter(t => t.serviceable).length;
@@ -228,10 +246,34 @@ export default function MotorTransport() {
                               <span className="font-medium">{vehicle.location}</span>
                             </div>
                           )}
-                          <div className="pt-2">
-                            <Badge variant={vehicle.serviceability === 'Serviceable' ? 'default' : 'destructive'} className="w-full justify-center">
-                              {vehicle.serviceability}
-                            </Badge>
+                          <div className="pt-2 flex items-center gap-2">
+                            {canManage ? (
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                                  <Button variant="ghost" size="sm" className="h-auto p-0 w-full">
+                                    <Badge variant={vehicle.serviceability === 'Serviceable' ? 'default' : 'destructive'} className="w-full justify-center cursor-pointer hover:opacity-80">
+                                      {vehicle.serviceability}
+                                      <MoreVertical className="ml-2 h-3 w-3" />
+                                    </Badge>
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="w-48">
+                                  <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleStatusChange(vehicle.id, 'serviceability', 'Serviceable', 'vehicles'); }}>
+                                    Mark as Serviceable
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleStatusChange(vehicle.id, 'serviceability', 'Unserviceable', 'vehicles'); }}>
+                                    Mark as Unserviceable
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleStatusChange(vehicle.id, 'serviceability', 'Under Repair', 'vehicles'); }}>
+                                    Mark as Under Repair
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            ) : (
+                              <Badge variant={vehicle.serviceability === 'Serviceable' ? 'default' : 'destructive'} className="w-full justify-center">
+                                {vehicle.serviceability}
+                              </Badge>
+                            )}
                           </div>
                         </CardContent>
                       </Card>
@@ -317,9 +359,30 @@ export default function MotorTransport() {
                             <span className="font-medium">{tool.qty_issued}</span>
                           </div>
                           <div className="pt-2">
-                            <Badge variant={tool.serviceable ? 'default' : 'destructive'} className="w-full justify-center">
-                              {tool.serviceable ? 'Serviceable' : 'Unserviceable'}
-                            </Badge>
+                            {canManage ? (
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                                  <Button variant="ghost" size="sm" className="h-auto p-0 w-full">
+                                    <Badge variant={tool.serviceable ? 'default' : 'destructive'} className="w-full justify-center cursor-pointer hover:opacity-80">
+                                      {tool.serviceable ? 'Serviceable' : 'Unserviceable'}
+                                      <MoreVertical className="ml-2 h-3 w-3" />
+                                    </Badge>
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="w-48">
+                                  <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleStatusChange(tool.id, 'serviceable', true, 'mechanics_tools'); }}>
+                                    Mark as Serviceable
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleStatusChange(tool.id, 'serviceable', false, 'mechanics_tools'); }}>
+                                    Mark as Unserviceable
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            ) : (
+                              <Badge variant={tool.serviceable ? 'default' : 'destructive'} className="w-full justify-center">
+                                {tool.serviceable ? 'Serviceable' : 'Unserviceable'}
+                              </Badge>
+                            )}
                           </div>
                         </CardContent>
                       </Card>
@@ -408,9 +471,33 @@ export default function MotorTransport() {
                             </div>
                           )}
                           <div className="pt-2">
-                            <Badge variant={facility.status === 'Operational' ? 'default' : 'destructive'} className="w-full justify-center">
-                              {facility.status}
-                            </Badge>
+                            {canManage ? (
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                                  <Button variant="ghost" size="sm" className="h-auto p-0 w-full">
+                                    <Badge variant={facility.status === 'Operational' ? 'default' : 'destructive'} className="w-full justify-center cursor-pointer hover:opacity-80">
+                                      {facility.status}
+                                      <MoreVertical className="ml-2 h-3 w-3" />
+                                    </Badge>
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="w-48">
+                                  <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleStatusChange(facility.id, 'status', 'Operational', 'mt_facilities'); }}>
+                                    Mark as Operational
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleStatusChange(facility.id, 'status', 'Under Maintenance', 'mt_facilities'); }}>
+                                    Mark as Under Maintenance
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleStatusChange(facility.id, 'status', 'Closed', 'mt_facilities'); }}>
+                                    Mark as Closed
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            ) : (
+                              <Badge variant={facility.status === 'Operational' ? 'default' : 'destructive'} className="w-full justify-center">
+                                {facility.status}
+                              </Badge>
+                            )}
                           </div>
                         </CardContent>
                       </Card>
@@ -427,17 +514,17 @@ export default function MotorTransport() {
       <AddVehicleDialog 
         open={vehicleDialogOpen} 
         onOpenChange={setVehicleDialogOpen}
-        onSuccess={fetchData}
+        onSuccess={() => vehiclesData.refetch()}
       />
       <AddMechanicsToolDialog 
         open={toolDialogOpen} 
         onOpenChange={setToolDialogOpen}
-        onSuccess={fetchData}
+        onSuccess={() => toolsData.refetch()}
       />
       <AddMTFacilityDialog 
         open={facilityDialogOpen} 
         onOpenChange={setFacilityDialogOpen}
-        onSuccess={fetchData}
+        onSuccess={() => facilitiesData.refetch()}
       />
       
       <ItemDetailDialog
@@ -446,6 +533,18 @@ export default function MotorTransport() {
         title={detailTitle}
         data={selectedItem}
       />
+
+      <ConfirmDialog
+        open={confirmDialogOpen}
+        onOpenChange={setConfirmDialogOpen}
+        onConfirm={confirmStatusChange}
+        title="Confirm Status Change"
+        description={`Are you sure you want to update this item's status? This action will be logged in the audit trail.`}
+      />
+
+      <RealtimeInventorySync module="vehicles" onDataChange={() => vehiclesData.refetch()} />
+      <RealtimeInventorySync module="mechanics_tools" onDataChange={() => toolsData.refetch()} />
+      <RealtimeInventorySync module="mt_facilities" onDataChange={() => facilitiesData.refetch()} />
     </div>
   );
 }
