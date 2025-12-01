@@ -9,6 +9,8 @@ import { BulkUploadDialog } from "@/components/BulkUploadDialog";
 import { useAuth } from "@/hooks/useAuth";
 import { ItemDetailDialog } from "@/components/ItemDetailDialog";
 import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/StatusBadge";
+import { formatIssuedTo, getItemStatus } from "@/lib/statusUtils";
 import { QRScannerDialog } from "@/components/QRScannerDialog";
 import { QRCodeLabel } from "@/components/QRCodeLabel";
 import { useItemLookup } from "@/hooks/useItemLookup";
@@ -16,6 +18,9 @@ import { decodeQRData, type QRCodeData } from "@/lib/qr-utils";
 import { toast } from "sonner";
 import { useInventoryData } from "@/hooks/useInventoryData";
 import { RealtimeInventorySync } from "@/components/RealtimeInventorySync";
+import { QuickIssueDialog } from "@/components/QuickIssueDialog";
+import { QuickReturnDialog } from "@/components/QuickReturnDialog";
+import { Package, CheckCircle2 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,6 +41,9 @@ export default function Tools() {
   const [labelData, setLabelData] = useState<QRCodeData | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [pendingUpdate, setPendingUpdate] = useState<{ id: string; updates: any } | null>(null);
+  const [issueDialogOpen, setIssueDialogOpen] = useState(false);
+  const [returnDialogOpen, setReturnDialogOpen] = useState(false);
+  const [selectedToolForAction, setSelectedToolForAction] = useState<any>(null);
 
   const handleStatusChange = (tool: any, newServiceable: boolean) => {
     setPendingUpdate({
@@ -163,36 +171,91 @@ export default function Tools() {
                         <span className="font-medium">{tool.qty_on_hand}</span>
                       </div>
                       <div className="pt-2 space-y-2">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Badge 
-                              variant={tool.serviceable ? 'default' : 'destructive'} 
-                              className="w-full justify-center cursor-pointer hover:opacity-80"
-                            >
-                              {tool.serviceable ? 'Serviceable' : 'Unserviceable'}
-                            </Badge>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="center" className="bg-background">
-                            <DropdownMenuItem 
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleStatusChange(tool, true);
-                              }}
-                              disabled={tool.serviceable}
-                            >
-                              Mark as Serviceable
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleStatusChange(tool, false);
-                              }}
-                              disabled={!tool.serviceable}
-                            >
-                              Mark as Unserviceable
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                        {/* Status Badge */}
+                        {(() => {
+                          const itemStatus = getItemStatus(tool);
+                          return (
+                            <div className="flex items-center justify-center">
+                              <StatusBadge 
+                                status={tool.issued_to ? 'issued' : (tool.serviceable ? 'serviceable' : 'unserviceable')}
+                                type={tool.issued_to ? 'availability' : 'serviceability'}
+                                className="w-full justify-center"
+                              />
+                            </div>
+                          );
+                        })()}
+
+                        {/* Serviceability Toggle */}
+                        {canManage && !tool.issued_to && (
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Badge 
+                                variant={tool.serviceable ? 'default' : 'destructive'} 
+                                className="w-full justify-center cursor-pointer hover:opacity-80"
+                              >
+                                {tool.serviceable ? 'Serviceable' : 'Unserviceable'}
+                              </Badge>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="center" className="bg-background">
+                              <DropdownMenuItem 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleStatusChange(tool, true);
+                                }}
+                                disabled={tool.serviceable}
+                              >
+                                Mark as Serviceable
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleStatusChange(tool, false);
+                                }}
+                                disabled={!tool.serviceable}
+                              >
+                                Mark as Unserviceable
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        )}
+
+                        {/* Issued Status */}
+                        {tool.issued_to && (
+                          <div className="text-xs text-muted-foreground text-center py-1">
+                            Issued to: {formatIssuedTo(tool.issued_to_profile)}
+                          </div>
+                        )}
+
+                        {/* Quick Action Buttons */}
+                        {!tool.issued_to && tool.serviceable && canManage && (
+                          <Button
+                            size="sm"
+                            className="w-full"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedToolForAction(tool);
+                              setIssueDialogOpen(true);
+                            }}
+                          >
+                            <Package className="h-4 w-4 mr-2" />
+                            Issue Item
+                          </Button>
+                        )}
+                        {tool.issued_to && canManage && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="w-full"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedToolForAction(tool);
+                              setReturnDialogOpen(true);
+                            }}
+                          >
+                            <CheckCircle2 className="h-4 w-4 mr-2" />
+                            Return Item
+                          </Button>
+                        )}
                         <Button
                           variant="outline"
                           size="sm"
@@ -259,6 +322,38 @@ export default function Tools() {
         />
 
         <RealtimeInventorySync module="tools" onDataChange={refetch} />
+
+        {/* Quick Issue Dialog */}
+        <QuickIssueDialog
+          open={issueDialogOpen}
+          onOpenChange={(open) => {
+            setIssueDialogOpen(open);
+            if (!open) setSelectedToolForAction(null);
+          }}
+          item={selectedToolForAction}
+          module="tools"
+          onSuccess={() => {
+            refetch();
+            setIssueDialogOpen(false);
+            setSelectedToolForAction(null);
+          }}
+        />
+
+        {/* Quick Return Dialog */}
+        <QuickReturnDialog
+          open={returnDialogOpen}
+          onOpenChange={(open) => {
+            setReturnDialogOpen(open);
+            if (!open) setSelectedToolForAction(null);
+          }}
+          item={selectedToolForAction}
+          module="tools"
+          onSuccess={() => {
+            refetch();
+            setReturnDialogOpen(false);
+            setSelectedToolForAction(null);
+          }}
+        />
       </main>
     </div>
   );

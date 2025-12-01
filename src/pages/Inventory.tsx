@@ -10,9 +10,11 @@ import { BulkUploadDialog } from "@/components/BulkUploadDialog";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useUnitFilter } from "@/hooks/useUnitFilter";
 
 export default function Inventory() {
   const { role } = useAuth();
+  const { applyUnitFilter, canSeeAllUnits, userUnitId } = useUnitFilter();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [items, setItems] = useState<any[]>([]);
   const [selectedItem, setSelectedItem] = useState<any>(null);
@@ -22,13 +24,19 @@ export default function Inventory() {
   const canManage = role === 'S4' || role === 'SQMS';
 
   const fetchItems = async () => {
-    const { data, error } = await supabase.from("general_inventory").select("*");
-    if (data) setItems(data);
+    let query = supabase.from("general_inventory").select("*");
+    query = applyUnitFilter(query, { columnName: 'squadron_id' });
+    const { data, error } = await query;
+    if (error) {
+      console.error('Error fetching inventory:', error);
+    } else if (data) {
+      setItems(data);
+    }
   };
 
   useEffect(() => {
     fetchItems();
-  }, []);
+  }, [userUnitId, canSeeAllUnits]);
 
   const filteredItems = items.filter(item => {
     const searchLower = searchTerm.toLowerCase();

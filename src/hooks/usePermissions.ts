@@ -136,6 +136,34 @@ const rolePermissions: Record<string, RolePermissionConfig> = {
     canEditInventory: false,
     canApproveWeaponTransfers: false,
   },
+  MTO: {
+    permissions: [
+      'view_all', // MT operates independently but needs to see all unit data for vehicle management
+      'manage_inventory', // Vehicle and MT equipment management
+      'view_analytics',
+      'generate_reports',
+      'edit_serviceability',
+      'issue_items',
+      'return_items',
+    ],
+    viewScope: 'all_units', // MTO needs visibility across units for vehicle pool management
+    canEditInventory: true,
+    canApproveWeaponTransfers: false,
+  },
+  WKSP_WO: {
+    permissions: [
+      'view_all', // Workshop services all units
+      'manage_inventory', // Equipment repair and maintenance
+      'view_analytics',
+      'generate_reports',
+      'edit_serviceability',
+      'create_requests',
+      'escalate_reports',
+    ],
+    viewScope: 'all_units', // Workshop handles equipment from all units
+    canEditInventory: true,
+    canApproveWeaponTransfers: false,
+  },
 };
 
 export function usePermissions() {
@@ -192,6 +220,7 @@ export function usePermissions() {
   // Role type checks
   const isCommandRole = role && ['CO', 'S1', 'S4', 'S4_ADMIN'].includes(role);
   const isUnitRole = role && ['OC', 'SQMS', 'STOREMAN'].includes(role);
+  const isDepartmentRole = role && ['MTO', 'WKSP_WO'].includes(role);
   const canViewAllUnits = getViewScope() === 'all_units';
   const canViewOwnUnit = getViewScope() === 'own_unit' || getViewScope() === 'all_units';
 
@@ -220,6 +249,7 @@ export function usePermissions() {
     // Role type flags
     isCommandRole,
     isUnitRole,
+    isDepartmentRole,
     canViewAllUnits,
     canViewOwnUnit,
     

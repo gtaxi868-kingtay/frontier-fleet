@@ -1,8 +1,12 @@
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { StatCard } from "@/components/StatCard";
 import { ModuleCard } from "@/components/ModuleCard";
+import { ActionRequiredCard } from "@/components/ActionRequiredCard";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useUnitFilter } from "@/hooks/useUnitFilter";
+import { useAuth } from "@/hooks/useAuth";
+import { Badge } from "@/components/ui/badge";
 import { 
   Shield, 
   Package, 
@@ -44,7 +48,10 @@ interface ModuleStats {
 }
 
 const Index = () => {
+  const { applyUnitFilter, canSeeAllUnits, userUnitId } = useUnitFilter();
+  const { profile, role } = useAuth();
   const [loading, setLoading] = useState(true);
+  const [unitName, setUnitName] = useState<string | null>(null);
   const [dashboardStats, setDashboardStats] = useState<DashboardStats>({
     totalAssets: 0,
     serviceablePercentage: 0,
@@ -68,77 +75,99 @@ const Index = () => {
 
   useEffect(() => {
     fetchDashboardData();
-  }, []);
+    if (profile?.unit_id && !canSeeAllUnits) {
+      // Fetch unit name for display
+      supabase
+        .from('units')
+        .select('name')
+        .eq('id', profile.unit_id)
+        .single()
+        .then(({ data }) => {
+          if (data) setUnitName(data.name);
+        });
+    } else {
+      setUnitName(null);
+    }
+  }, [userUnitId, canSeeAllUnits, profile?.unit_id]);
 
   const fetchDashboardData = async () => {
     try {
+      // Helper function to apply unit filter to queries
+      const getUnitFilteredQuery = (tableName: string, unitColumn: string = 'squadron_id') => {
+        let query = supabase.from(tableName).select('*');
+        if (!canSeeAllUnits && userUnitId) {
+          query = query.eq(unitColumn, userUnitId);
+        }
+        return query;
+      };
+
       // Fetch weapons data
-      const { data: weapons } = await supabase.from('weapons').select('*');
+      const { data: weapons } = await getUnitFilteredQuery('weapons');
       const weaponsTotal = weapons?.length || 0;
       const weaponsServiceable = weapons?.filter(w => w.serviceable).length || 0;
       const weaponsIssued = weapons?.filter(w => w.issued_to).length || 0;
 
       // Fetch tools data
-      const { data: tools } = await supabase.from('tools').select('*');
+      const { data: tools } = await getUnitFilteredQuery('tools');
       const toolsTotal = tools?.reduce((sum, t) => sum + (t.qty_on_hand || 0), 0) || 0;
       const toolsIssued = tools?.reduce((sum, t) => sum + (t.qty_issued || 0), 0) || 0;
       const toolsServiceable = tools?.filter(t => t.serviceable).length || 0;
 
       // Fetch engineer equipment
-      const { data: engineerEquip } = await supabase.from('engineer_equipment').select('*');
+      const { data: engineerEquip } = await getUnitFilteredQuery('engineer_equipment');
       const engineerTotal = engineerEquip?.reduce((sum, e) => sum + (e.qty_on_hand || 0), 0) || 0;
       const engineerIssued = engineerEquip?.reduce((sum, e) => sum + (e.qty_issued || 0), 0) || 0;
       const engineerServiceable = engineerEquip?.filter(e => e.serviceable).length || 0;
 
       // Fetch plant machinery
-      const { data: plantMachinery } = await supabase.from('plant_machinery').select('*');
+      const { data: plantMachinery } = await getUnitFilteredQuery('plant_machinery');
       const plantTotal = plantMachinery?.length || 0;
       const plantOperational = plantMachinery?.filter(p => p.serviceability === 'Serviceable').length || 0;
       const plantDeployed = plantMachinery?.filter(p => p.operator_assigned).length || 0;
 
       // Fetch motor transport
-      const { data: vehicles } = await supabase.from('vehicles').select('*');
-      const { data: mechanicsTools } = await supabase.from('mechanics_tools').select('*');
-      const { data: mtFacilities } = await supabase.from('mt_facilities').select('*');
+      const { data: vehicles } = await getUnitFilteredQuery('vehicles');
+      const { data: mechanicsTools } = await getUnitFilteredQuery('mechanics_tools');
+      const { data: mtFacilities } = await getUnitFilteredQuery('mt_facilities');
       const vehiclesTotal = vehicles?.length || 0;
       const vehiclesServiceable = vehicles?.filter(v => v.serviceability === 'Serviceable').length || 0;
       const mechanicsToolsTotal = mechanicsTools?.reduce((sum, t) => sum + (t.qty_on_hand || 0), 0) || 0;
       const mtFacilitiesTotal = mtFacilities?.length || 0;
 
       // Fetch explosives
-      const { data: explosives } = await supabase.from('explosives').select('*');
+      const { data: explosives } = await getUnitFilteredQuery('explosives');
       const explosivesTotal = explosives?.reduce((sum, e) => sum + (e.quantity_received || 0), 0) || 0;
       const explosivesIssued = explosives?.reduce((sum, e) => sum + (e.quantity_issued || 0), 0) || 0;
 
       // Fetch uniforms
-      const { data: uniforms } = await supabase.from('uniforms').select('*');
+      const { data: uniforms } = await getUnitFilteredQuery('uniforms');
       const uniformsTotal = uniforms?.length || 0;
       const uniformsServiceable = uniforms?.filter(u => u.serviceable).length || 0;
       const uniformsIssued = uniforms?.filter(u => u.issued_to).length || 0;
 
       // Fetch PPE
-      const { data: ppe } = await supabase.from('ppe').select('*');
+      const { data: ppe } = await getUnitFilteredQuery('ppe');
       const ppeTotal = ppe?.reduce((sum, p) => sum + (p.qty_on_hand || 0), 0) || 0;
       const ppeIssued = ppe?.reduce((sum, p) => sum + (p.qty_issued || 0), 0) || 0;
       const ppeServiceable = ppe?.filter(p => p.serviceable).length || 0;
 
       // Fetch facilities
-      const { data: facilities } = await supabase.from('facilities').select('*');
+      const { data: facilities } = await getUnitFilteredQuery('facilities');
       const facilitiesTotal = facilities?.reduce((sum, f) => sum + (f.quantity || 0), 0) || 0;
       const facilitiesWorking = facilities?.reduce((sum, f) => sum + (f.working || 0), 0) || 0;
       const facilitiesInspected = facilities?.filter(f => f.last_inspection).length || 0;
 
       // Fetch works materials
-      const { data: worksMaterials } = await supabase.from('works_materials').select('*');
+      const { data: worksMaterials } = await getUnitFilteredQuery('works_materials', 'unit_id');
       const worksMaterialsTotal = worksMaterials?.length || 0;
       const worksMaterialsIssued = worksMaterials?.reduce((sum, w) => sum + (w.quantity_issued || 0), 0) || 0;
 
       // Fetch general inventory
-      const { data: generalInventory } = await supabase.from('general_inventory').select('*');
+      const { data: generalInventory } = await getUnitFilteredQuery('general_inventory');
       const generalInventoryTotal = generalInventory?.reduce((sum, g) => sum + (g.qty_on_hand || 0), 0) || 0;
       const generalInventoryLowStock = generalInventory?.filter(g => (g.qty_on_hand || 0) <= (g.reorder_level || 0)).length || 0;
 
-      // Fetch room inventory
+      // Fetch room inventory (may not have unit column, skip filter for now)
       const { data: roomInventory } = await supabase.from('room_inventory').select('*');
       const roomsTotal = roomInventory?.length || 0;
       const roomsCompliant = roomInventory?.filter(r => (r.present_qty || 0) >= (r.expected_qty || 0)).length || 0;
@@ -253,11 +282,21 @@ const Index = () => {
       <main className="flex-1 p-6 space-y-6">
         {/* Welcome Section */}
         <div className="space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight">
-            Battalion Command Center
-          </h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-3xl font-bold tracking-tight">
+              {canSeeAllUnits ? 'Battalion Command Center' : (profile?.unit_id ? 'Unit Dashboard' : 'Dashboard')}
+            </h1>
+            {!canSeeAllUnits && unitName && (
+              <Badge variant="outline" className="text-sm">
+                {unitName}
+              </Badge>
+            )}
+          </div>
           <p className="text-muted-foreground">
-            Real-time inventory oversight for 1st Engineer Battalion
+            {canSeeAllUnits 
+              ? 'Real-time inventory oversight for 1st Engineer Battalion'
+              : 'Real-time inventory oversight for your unit'
+            }
           </p>
         </div>
 
@@ -292,6 +331,9 @@ const Index = () => {
             variant="danger"
           />
         </div>
+
+        {/* Action Required Card */}
+        <ActionRequiredCard />
 
         {/* Module Overview */}
         <div className="space-y-4">

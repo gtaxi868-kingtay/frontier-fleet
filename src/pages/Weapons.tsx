@@ -39,7 +39,10 @@ import * as z from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { ItemDetailDialog } from "@/components/ItemDetailDialog";
+import { WeaponStatusEditDialog } from "@/components/WeaponStatusEditDialog";
 import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/StatusBadge";
+import { formatIssuedTo, getItemStatus } from "@/lib/statusUtils";
 import { RealtimeInventorySync } from "@/components/RealtimeInventorySync";
 import { useInventoryData } from "@/hooks/useInventoryData";
 import { QRScannerDialog } from "@/components/QRScannerDialog";
@@ -48,6 +51,10 @@ import { useItemLookup } from "@/hooks/useItemLookup";
 import { decodeQRData, type QRCodeData } from "@/lib/qr-utils";
 import { toast } from "sonner";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { lookupSoldier } from "@/hooks/useSoldierLookup";
+import { useUnitFilter } from "@/hooks/useUnitFilter";
+import { useDebouncedDuplicateCheck } from "@/hooks/useDuplicateCheck";
+import { AlertCircle, Loader2, CheckCircle2, AlertTriangle } from "lucide-react";
 
 const weaponSchema = z.object({
   weapon_id: z.string().min(1, "Weapon ID is required"),
@@ -57,6 +64,12 @@ const weaponSchema = z.object({
   condition_issue: z.string().nullable().optional(),
   serviceable: z.boolean().default(true),
   notes: z.string().nullable().optional(),
+  store_location: z.string().nullable().optional(),
+  service_number: z.string().nullable().optional(),
+  rank: z.string().nullable().optional(),
+  name: z.string().nullable().optional(),
+  mag_amount: z.number().nullable().optional(),
+  page_64_no: z.string().nullable().optional(),
 });
 
 type WeaponFormData = z.infer<typeof weaponSchema>;
@@ -73,6 +86,8 @@ export default function Weapons() {
   const [labelData, setLabelData] = useState<QRCodeData | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [pendingUpdate, setPendingUpdate] = useState<{ id: string; updates: any } | null>(null);
+  const [statusEditDialogOpen, setStatusEditDialogOpen] = useState(false);
+  const [weaponForStatusEdit, setWeaponForStatusEdit] = useState<any>(null);
 
   const handleStatusChange = (weapon: any, newServiceable: boolean) => {
     setPendingUpdate({
@@ -81,9 +96,40 @@ export default function Weapons() {
     });
     setConfirmOpen(true);
   };
+
+  const handleStatusClick = (field: string) => {
+    if (selectedWeapon) {
+      setWeaponForStatusEdit(selectedWeapon);
+      setStatusEditDialogOpen(true);
+    }
+  };
+
+  const handleStatusSave = (updates: { condition_issue: string; serviceable: boolean }) => {
+    if (!weaponForStatusEdit) return;
+    
+    update({
+      id: weaponForStatusEdit.id,
+      updates: updates,
+    });
+    
+    // Update selectedWeapon to reflect changes immediately
+    if (selectedWeapon && selectedWeapon.id === weaponForStatusEdit.id) {
+      setSelectedWeapon({
+        ...selectedWeapon,
+        ...updates,
+      });
+    }
+    
+    // Close dialog and reset state
+    setStatusEditDialogOpen(false);
+    setWeaponForStatusEdit(null);
+  };
   
   const { data: weapons = [], isLoading, refetch, create, update } = useInventoryData('weapons');
   const { lookupItem } = useItemLookup();
+  const { profile } = useAuth();
+
+  const { currentUnitId } = useUnitFilter();
 
   const form = useForm<WeaponFormData>({
     resolver: zodResolver(weaponSchema),
@@ -95,8 +141,39 @@ export default function Weapons() {
       condition_issue: "SERVICEABLE",
       serviceable: true,
       notes: "",
+      store_location: "",
+      service_number: "",
+      rank: "",
+      name: "",
+      mag_amount: null,
+      page_64_no: "",
     },
   });
+
+  // Watch weapon_id for duplicate checking
+  const weaponIdValue = form.watch("weapon_id");
+  const weaponUnitId = currentUnitId || profile?.unit_id || null;
+  
+  // Duplicate check with debounce
+  const { exists: idExists, suggestedId, isLoading: checkingDuplicate } = useDebouncedDuplicateCheck(
+    'weapons',
+    weaponIdValue || '',
+    dialogOpen && !!weaponIdValue,
+    weaponUnitId,
+    500
+  );
+
+  // Set form error if duplicate exists
+  useEffect(() => {
+    if (idExists && weaponIdValue && weaponIdValue.trim().length > 0) {
+      form.setError('weapon_id', {
+        type: 'manual',
+        message: `This weapon ID already exists. ${suggestedId ? `Suggested: ${suggestedId}` : ''}`,
+      });
+    } else if (!idExists && weaponIdValue && weaponIdValue.trim().length > 0) {
+      form.clearErrors('weapon_id');
+    }
+  }, [idExists, suggestedId, weaponIdValue, form]);
 
   useEffect(() => {
     const checkRole = async () => {
@@ -138,8 +215,32 @@ export default function Weapons() {
     setLabelOpen(true);
   };
 
-  const onSubmit = (data: WeaponFormData) => {
-    const weaponData = {
+  const onSubmit = async (data: WeaponFormData) => {
+    // Prevent submission if duplicate exists
+    if (idExists) {
+      toast.error('Cannot add weapon: This weapon ID already exists.');
+      return;
+    }
+
+    // Lookup soldier profile if name, rank, or service_number provided
+    let soldierProfile = null;
+    let weaponUnitId = currentUnitId || profile?.unit_id || null;
+
+    if (data.name || data.rank || data.service_number) {
+      const lookupResult = await lookupSoldier(
+        data.service_number || null,
+        data.rank || null,
+        data.name || null
+      );
+
+      if (lookupResult.found && lookupResult.profile) {
+        soldierProfile = lookupResult.profile;
+        // Auto-sync weapon unit to match soldier unit if found
+        weaponUnitId = soldierProfile.unit_id || weaponUnitId;
+      }
+    }
+
+    const weaponData: any = {
       weapon_id: data.weapon_id,
       weapon_type: data.weapon_type,
       serial_number: data.serial_number || null,
@@ -147,21 +248,38 @@ export default function Weapons() {
       condition_issue: data.condition_issue || "SERVICEABLE",
       serviceable: data.serviceable,
       notes: data.notes || null,
+      store_location: data.store_location || null,
+      service_number: data.service_number || null,
+      rank: data.rank || null,
+      name: data.name || null,
+      mag_amount: data.mag_amount || null,
+      page_64_no: data.page_64_no || null,
+      squadron_id: weaponUnitId,
+      // Link to soldier profile if found
+      issued_to: soldierProfile?.id || null,
     };
 
     create(weaponData, {
       onSuccess: () => {
         setDialogOpen(false);
         form.reset();
+        toast.success('Weapon added successfully' + (soldierProfile ? ` and linked to ${soldierProfile.name}` : ''));
       },
     });
   };
 
-  const filteredWeapons = weapons.filter((weapon: any) =>
-    weapon.weapon_id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    weapon.weapon_type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    weapon.serial_number?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredWeapons = weapons.filter((weapon: any) => {
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      weapon.weapon_id?.toLowerCase().includes(searchLower) ||
+      weapon.weapon_type?.toLowerCase().includes(searchLower) ||
+      weapon.serial_number?.toLowerCase().includes(searchLower) ||
+      weapon.store_location?.toLowerCase().includes(searchLower) ||
+      weapon.name?.toLowerCase().includes(searchLower) ||
+      weapon.service_number?.toLowerCase().includes(searchLower) ||
+      weapon.rack_number?.toLowerCase().includes(searchLower)
+    );
+  });
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -229,33 +347,25 @@ export default function Weapons() {
                             ID: {weapon.weapon_id}
                           </p>
                         </div>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Badge 
-                              variant={weapon.serviceable ? "default" : "destructive"}
-                              className="cursor-pointer hover:opacity-80"
-                            >
-                              {weapon.serviceable ? "Serviceable" : "Unserviceable"}
-                            </Badge>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="bg-background">
-                            <DropdownMenuItem 
-                              onClick={() => handleStatusChange(weapon, true)}
-                              disabled={weapon.serviceable}
-                            >
-                              Mark as Serviceable
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                              onClick={() => handleStatusChange(weapon, false)}
-                              disabled={!weapon.serviceable}
-                            >
-                              Mark as Unserviceable
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                        <div className="flex items-center gap-2">
+                          <StatusBadge
+                            status={weapon.issued_to ? 'issued' : (weapon.condition_issue?.toLowerCase().replace('_', '') || (weapon.serviceable ? 'serviceable' : 'unserviceable'))}
+                            type={weapon.issued_to ? 'availability' : 'serviceability'}
+                          />
+                        </div>
                       </div>
                     </CardHeader>
                     <CardContent className="space-y-2">
+                      {weapon.unit && (
+                        <p className="text-sm font-medium">
+                          <span className="text-muted-foreground">Unit:</span> {typeof weapon.unit === 'object' ? weapon.unit?.name : weapon.unit}
+                        </p>
+                      )}
+                      {weapon.store_location && (
+                        <p className="text-sm">
+                          <span className="text-muted-foreground">Store:</span> {weapon.store_location}
+                        </p>
+                      )}
                       {weapon.serial_number && (
                         <p className="text-sm">
                           <span className="text-muted-foreground">Serial:</span> {weapon.serial_number}
@@ -265,6 +375,17 @@ export default function Weapons() {
                         <p className="text-sm">
                           <span className="text-muted-foreground">Rack:</span> {weapon.rack_number}
                         </p>
+                      )}
+                      {(weapon.name || weapon.rank || weapon.service_number) && (
+                        <div className="pt-2 border-t">
+                          <p className="text-xs text-muted-foreground mb-1">Issued To:</p>
+                          {weapon.rank && (
+                            <p className="text-sm font-medium">{weapon.rank} {weapon.name || ''}</p>
+                          )}
+                          {weapon.service_number && (
+                            <p className="text-xs text-muted-foreground">SN: {weapon.service_number}</p>
+                          )}
+                        </div>
                       )}
                       <div className="flex gap-2">
                         <Button
@@ -311,12 +432,39 @@ export default function Weapons() {
                   control={form.control}
                   name="weapon_id"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="relative">
                       <FormLabel>Weapon ID</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input 
+                          {...field} 
+                          className={weaponIdValue && weaponIdValue.trim().length > 0 ? "pr-10" : ""}
+                        />
                       </FormControl>
+                      {weaponIdValue && weaponIdValue.trim().length > 0 && (
+                        <div className="absolute right-3 top-8 pointer-events-none">
+                          {checkingDuplicate ? (
+                            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                          ) : idExists ? (
+                            <AlertCircle className="h-4 w-4 text-destructive" />
+                          ) : (
+                            <CheckCircle2 className="h-4 w-4 text-green-500" />
+                          )}
+                        </div>
+                      )}
                       <FormMessage />
+                      {idExists && suggestedId && (
+                        <p className="text-sm text-muted-foreground mt-1 flex items-center gap-1">
+                          <AlertTriangle className="h-4 w-4 text-orange-500" />
+                          This ID exists. Suggestion:{' '}
+                          <button
+                            type="button"
+                            onClick={() => form.setValue('weapon_id', suggestedId, { shouldValidate: true })}
+                            className="text-primary hover:underline font-medium"
+                          >
+                            {suggestedId}
+                          </button>
+                        </p>
+                      )}
                     </FormItem>
                   )}
                 />
@@ -379,25 +527,118 @@ export default function Weapons() {
 
                 <FormField
                   control={form.control}
+                  name="store_location"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Store / Location</FormLabel>
+                      <FormControl>
+                        <Input {...field} value={field.value || ""} placeholder="e.g., Alpha Coy" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="service_number"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Service Number (NO.)</FormLabel>
+                        <FormControl>
+                          <Input {...field} value={field.value || ""} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="rank"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Rank</FormLabel>
+                        <FormControl>
+                          <Input {...field} value={field.value || ""} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Name</FormLabel>
+                      <FormControl>
+                        <Input {...field} value={field.value || ""} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="mag_amount"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>MAG Amt</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="number"
+                            {...field} 
+                            value={field.value || ""} 
+                            onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : null)}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="page_64_no"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>64 PAGE NO</FormLabel>
+                        <FormControl>
+                          <Input {...field} value={field.value || ""} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <FormField
+                  control={form.control}
                   name="condition_issue"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Condition</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value || "SERVICEABLE"}
-                      >
-                        <FormControl>
+                      <FormControl>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value || "SERVICEABLE"}
+                        >
                           <SelectTrigger>
                             <SelectValue />
                           </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="SERVICEABLE">Serviceable</SelectItem>
-                          <SelectItem value="UNSERVICEABLE">Unserviceable</SelectItem>
-                          <SelectItem value="UNDER_REPAIR">Under Repair</SelectItem>
-                        </SelectContent>
-                      </Select>
+                          <SelectContent>
+                            <SelectItem value="SERVICEABLE">Serviceable</SelectItem>
+                            <SelectItem value="UNSERVICEABLE">Unserviceable</SelectItem>
+                            <SelectItem value="UNDER_REPAIR">Under Repair</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -425,7 +666,9 @@ export default function Weapons() {
                   >
                     Cancel
                   </Button>
-                  <Button type="submit">Add Weapon</Button>
+                  <Button type="submit" disabled={checkingDuplicate || idExists}>
+                    Add Weapon
+                  </Button>
                 </div>
               </form>
             </Form>
@@ -439,8 +682,22 @@ export default function Weapons() {
           onOpenChange={setDetailDialogOpen}
           title={`${selectedWeapon.weapon_type} - ${selectedWeapon.weapon_id}`}
           data={selectedWeapon}
+          module="weapons"
+          onStatusClick={handleStatusClick}
         />
       )}
+
+      <WeaponStatusEditDialog
+        open={statusEditDialogOpen}
+        onOpenChange={(open) => {
+          setStatusEditDialogOpen(open);
+          if (!open) {
+            setWeaponForStatusEdit(null);
+          }
+        }}
+        weapon={weaponForStatusEdit}
+        onSave={handleStatusSave}
+      />
 
       <QRScannerDialog
         open={scannerOpen}

@@ -30,7 +30,14 @@ import Analytics from "./pages/Analytics";
 import Reports from "./pages/Reports";
 import RoleManagement from "./pages/RoleManagement";
 import AuditTrail from "./pages/AuditTrail";
+import SelfApprove from "./pages/SelfApprove";
 import NotFound from "./pages/NotFound";
+import MTODashboard from "./pages/MTODashboard";
+import WorkshopDashboard from "./pages/WorkshopDashboard";
+import POLManagement from "./pages/POLManagement";
+import BarracksStores from "./pages/BarracksStores";
+import ClothingEquipment from "./pages/ClothingEquipment";
+import CompanyStores from "./pages/CompanyStores";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -73,6 +80,14 @@ const App = () => {
           <AuthProvider>
             <Routes>
             <Route path="/auth" element={<Auth />} />
+            <Route 
+              path="/self-approve" 
+              element={
+                <ProtectedRoute>
+                  <SelfApprove />
+                </ProtectedRoute>
+              } 
+            />
             <Route
               path="/*"
               element={
@@ -143,6 +158,33 @@ const App = () => {
                               </ProtectedRoute>
                             } 
                           />
+                          <Route 
+                            path="/mto-dashboard" 
+                            element={
+                              <ProtectedRoute allowedRoles={['MTO', 'S4', 'CO', 'S4_ADMIN']}>
+                                <MTODashboard />
+                              </ProtectedRoute>
+                            } 
+                          />
+                          <Route 
+                            path="/workshop-dashboard" 
+                            element={
+                              <ProtectedRoute allowedRoles={['WKSP_WO', 'S4', 'CO', 'S4_ADMIN', 'OC']}>
+                                <WorkshopDashboard />
+                              </ProtectedRoute>
+                            } 
+                          />
+                          <Route 
+                            path="/pol-management" 
+                            element={
+                              <ProtectedRoute allowedRoles={['MTO', 'S4', 'CO', 'S4_ADMIN']}>
+                                <POLManagement />
+                              </ProtectedRoute>
+                            } 
+                          />
+                          <Route path="/barracks-stores" element={<BarracksStores />} />
+                          <Route path="/clothing-equipment" element={<ClothingEquipment />} />
+                          <Route path="/company-stores" element={<CompanyStores />} />
                           <Route path="*" element={<NotFound />} />
                         </Routes>
                       </div>

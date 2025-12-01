@@ -3,7 +3,7 @@ import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 
-type AppRole = 'CO' | 'S1' | 'S4' | 'S4_ADMIN' | 'OC' | 'SQMS' | 'STOREMAN' | 'Soldier';
+type AppRole = 'CO' | 'S1' | 'S4' | 'S4_ADMIN' | 'OC' | 'SQMS' | 'STOREMAN' | 'Soldier' | 'MTO' | 'WKSP_WO';
 
 interface Profile {
   id: string;
@@ -20,7 +20,7 @@ interface AuthContextType {
   role: AppRole | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signUp: (email: string, password: string, name: string, rank: string, role: AppRole) => Promise<{ error: any }>;
+  signUp: (email: string, password: string, name: string, rank: string, role: AppRole, unit_id: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
 }
 
@@ -116,8 +116,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return { error };
   };
 
-  const signUp = async (email: string, password: string, name: string, rank: string, role: AppRole) => {
+  const signUp = async (email: string, password: string, name: string, rank: string, role: AppRole, unit_id: string) => {
     const redirectUrl = `${window.location.origin}/`;
+    
+    if (!unit_id) {
+      return { error: { message: 'Unit selection is required' } };
+    }
     
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -131,22 +135,51 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       },
     });
     
-    if (!error && data.user) {
-      // Create role request (pending approval)
-      const { error: roleError } = await supabase
-        .from('user_roles')
-        .insert({
-          user_id: data.user.id,
-          role: role,
-          status: 'pending'
-        });
-      
-      if (roleError) {
-        console.error('Error creating role request:', roleError);
-      }
+    if (error) {
+      console.error('Sign up error:', error);
+      return { error };
     }
     
-    return { error };
+    if (!data.user) {
+      return { error: { message: 'User creation failed' } };
+    }
+
+    // Wait a moment for trigger to create profile
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    // Ensure profile exists (create if trigger didn't fire) with unit_id
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .upsert({
+        id: data.user.id,
+        name: name,
+        rank: rank,
+        unit_id: unit_id,
+      }, {
+        onConflict: 'id'
+      });
+    
+    if (profileError) {
+      console.error('Error creating/updating profile:', profileError);
+      return { error: { message: `Failed to save unit assignment: ${profileError.message}` } };
+    }
+
+    // Create role request (pending approval)
+    const { error: roleError } = await supabase
+      .from('user_roles')
+      .insert({
+        user_id: data.user.id,
+        role: role,
+        status: 'pending'
+      });
+    
+    if (roleError) {
+      console.error('Error creating role request:', roleError);
+      // Don't fail signup if role creation fails, but log it
+      return { error: { message: `Account created but role assignment failed: ${roleError.message}` } };
+    }
+    
+    return { error: null };
   };
 
   const signOut = async () => {

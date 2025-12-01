@@ -13,6 +13,8 @@ interface ItemDetailDialogProps {
   title: string;
   data: Record<string, any> | null;
   excludeFields?: string[];
+  module?: string;
+  onStatusClick?: (field: string) => void;
 }
 
 export function ItemDetailDialog({ 
@@ -20,7 +22,9 @@ export function ItemDetailDialog({
   onOpenChange, 
   title, 
   data,
-  excludeFields = ['id', 'created_at', 'updated_at', 'squadron_id', 'unit_id', 'issued_to', 'assigned_to', 'operator_assigned', 'inspector', 'created_by', 'created_for', 'survey_report_filed']
+  excludeFields = ['id', 'created_at', 'updated_at', 'squadron_id', 'unit_id', 'issued_to', 'assigned_to', 'operator_assigned', 'inspector', 'created_by', 'created_for', 'survey_report_filed'],
+  module,
+  onStatusClick,
 }: ItemDetailDialogProps) {
   if (!data) return null;
 
@@ -31,17 +35,28 @@ export function ItemDetailDialog({
       .join(' ');
   };
 
-  const formatValue = (value: any) => {
+  const formatValue = (value: any, key?: string) => {
     if (value === null || value === undefined) return 'N/A';
     if (typeof value === 'boolean') return value ? 'Yes' : 'No';
     if (value instanceof Date) return value.toLocaleDateString();
     if (typeof value === 'string' && value.match(/^\d{4}-\d{2}-\d{2}/)) {
       return new Date(value).toLocaleDateString();
     }
+    // Format condition_issue values nicely
+    if (key === 'condition_issue' && typeof value === 'string') {
+      if (value === 'SERVICEABLE') return 'Serviceable';
+      if (value === 'UNSERVICEABLE') return 'Unserviceable';
+      if (value === 'UNDER_REPAIR') return 'Under Repair';
+    }
     return String(value);
   };
 
   const getStatusBadgeVariant = (key: string, value: any) => {
+    if (key === 'condition_issue') {
+      if (value === 'SERVICEABLE') return 'default';
+      if (value === 'UNDER_REPAIR') return 'secondary';
+      return 'destructive';
+    }
     if (key.includes('serviceable') || key.includes('serviceability')) {
       if (value === true || value === 'Serviceable' || value === 'Operational') {
         return 'default';
@@ -70,25 +85,35 @@ export function ItemDetailDialog({
         </DialogHeader>
         
         <div className="space-y-4 mt-4">
-          {filteredData.map(([key, value], index) => (
-            <div key={key}>
-              <div className="flex justify-between items-start gap-4">
-                <span className="font-tactical text-sm uppercase text-muted-foreground tracking-wide">
-                  {formatFieldName(key)}
-                </span>
-                {(key.includes('serviceable') || key.includes('status') || key.includes('serviceability')) ? (
-                  <Badge variant={getStatusBadgeVariant(key, value)} className="font-tactical">
-                    {formatValue(value)}
-                  </Badge>
-                ) : (
-                  <span className="font-medium text-right max-w-[60%] break-words">
-                    {formatValue(value)}
+          {filteredData.map(([key, value], index) => {
+            const isStatusField = key === 'condition_issue' || key === 'serviceable';
+            const isClickable = module === 'weapons' && isStatusField && onStatusClick;
+            const shouldShowAsBadge = key.includes('serviceable') || key.includes('status') || key.includes('serviceability') || key === 'condition_issue';
+            
+            return (
+              <div key={key}>
+                <div className="flex justify-between items-start gap-4">
+                  <span className="font-tactical text-sm uppercase text-muted-foreground tracking-wide">
+                    {formatFieldName(key)}
                   </span>
-                )}
+                  {shouldShowAsBadge ? (
+                    <Badge 
+                      variant={getStatusBadgeVariant(key, value)} 
+                      className={`font-tactical ${isClickable ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''}`}
+                      onClick={isClickable ? () => onStatusClick(key) : undefined}
+                    >
+                      {formatValue(value, key)}
+                    </Badge>
+                  ) : (
+                    <span className="font-medium text-right max-w-[60%] break-words">
+                      {formatValue(value, key)}
+                    </span>
+                  )}
+                </div>
+                {index < filteredData.length - 1 && <Separator className="mt-4" />}
               </div>
-              {index < filteredData.length - 1 && <Separator className="mt-4" />}
-            </div>
-          ))}
+            );
+          })}
         </div>
       </DialogContent>
     </Dialog>

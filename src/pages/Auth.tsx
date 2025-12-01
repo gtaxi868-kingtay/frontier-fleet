@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Shield } from 'lucide-react';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 const militaryRanks = [
   'Private',
@@ -42,7 +43,32 @@ export default function Auth() {
     name: '',
     rank: '',
     role: '',
+    unit_id: '',
   });
+  const [units, setUnits] = useState<Array<{ id: string; name: string }>>([]);
+  const [loadingUnits, setLoadingUnits] = useState(false);
+
+  // Fetch units for dropdown
+  useEffect(() => {
+    const fetchUnits = async () => {
+      setLoadingUnits(true);
+      try {
+        const { data, error } = await supabase
+          .from('units')
+          .select('id, name')
+          .order('name');
+        
+        if (error) throw error;
+        setUnits(data || []);
+      } catch (error) {
+        console.error('Error fetching units:', error);
+        toast.error('Failed to load units');
+      } finally {
+        setLoadingUnits(false);
+      }
+    };
+    fetchUnits();
+  }, []);
 
   // Redirect if already logged in
   useEffect(() => {
@@ -70,19 +96,31 @@ export default function Auth() {
     e.preventDefault();
     setLoading(true);
     
+    if (!signUpData.unit_id) {
+      toast.error('Please select a unit');
+      setLoading(false);
+      return;
+    }
+
     const { error } = await signUp(
       signUpData.email,
       signUpData.password,
       signUpData.name,
       signUpData.rank,
-      signUpData.role as 'CO' | 'S1' | 'S4' | 'S4_ADMIN' | 'OC' | 'SQMS' | 'STOREMAN' | 'Soldier'
+      signUpData.role as 'CO' | 'S1' | 'S4' | 'S4_ADMIN' | 'OC' | 'SQMS' | 'STOREMAN' | 'MTO' | 'WKSP_WO' | 'Soldier',
+      signUpData.unit_id
     );
     
     if (error) {
-      toast.error(error.message);
+      toast.error(error.message || 'Failed to create account');
     } else {
-      toast.success('Account created! Awaiting role approval from CO/S4.');
-      setSignUpData({ email: '', password: '', name: '', rank: '', role: '' });
+      toast.success('Account created successfully! Profile and role request created. You can now sign in.');
+      setSignUpData({ email: '', password: '', name: '', rank: '', role: '', unit_id: '' });
+      // Optionally switch to login tab
+      setTimeout(() => {
+        const loginTab = document.querySelector('[value="signin"]') as HTMLElement;
+        if (loginTab) loginTab.click();
+      }, 1000);
     }
     
     setLoading(false);
@@ -197,6 +235,28 @@ export default function Auth() {
                     </Select>
                   </div>
                   <div className="space-y-2">
+                    <Label htmlFor="signup-unit">Unit *</Label>
+                    <Select
+                      value={signUpData.unit_id}
+                      onValueChange={(value) =>
+                        setSignUpData({ ...signUpData, unit_id: value })
+                      }
+                      required
+                      disabled={loadingUnits}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder={loadingUnits ? "Loading units..." : "Select your unit"} />
+                      </SelectTrigger>
+                      <SelectContent className="bg-popover z-50">
+                        {units.map((unit) => (
+                          <SelectItem key={unit.id} value={unit.id}>
+                            {unit.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
                     <Label htmlFor="signup-role">Role</Label>
                     <Select
                       value={signUpData.role}
@@ -216,6 +276,8 @@ export default function Auth() {
                         <SelectItem value="OC">Officer Commanding (OC)</SelectItem>
                         <SelectItem value="SQMS">Unit Quartermaster (SQMS)</SelectItem>
                         <SelectItem value="STOREMAN">Storeman</SelectItem>
+                        <SelectItem value="MTO">Mechanical Transport Officer (MTO)</SelectItem>
+                        <SelectItem value="WKSP_WO">Workshop Warrant Officer (Wksp WO)</SelectItem>
                         <SelectItem value="Soldier">Soldier</SelectItem>
                       </SelectContent>
                     </Select>

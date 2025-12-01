@@ -17,46 +17,31 @@ export type Database = {
       alerts: {
         Row: {
           acknowledged: boolean | null
-          action_required: boolean | null
-          action_url: string | null
-          alert_type: string | null
           created_at: string | null
           id: string
           message: string
           priority: string | null
           recipient_role: Database["public"]["Enums"]["app_role"] | null
-          related_item_id: string | null
-          related_item_type: string | null
           sender_role: Database["public"]["Enums"]["app_role"] | null
           unit_id: string | null
         }
         Insert: {
           acknowledged?: boolean | null
-          action_required?: boolean | null
-          action_url?: string | null
-          alert_type?: string | null
           created_at?: string | null
           id?: string
           message: string
           priority?: string | null
           recipient_role?: Database["public"]["Enums"]["app_role"] | null
-          related_item_id?: string | null
-          related_item_type?: string | null
           sender_role?: Database["public"]["Enums"]["app_role"] | null
           unit_id?: string | null
         }
         Update: {
           acknowledged?: boolean | null
-          action_required?: boolean | null
-          action_url?: string | null
-          alert_type?: string | null
           created_at?: string | null
           id?: string
           message?: string
           priority?: string | null
           recipient_role?: Database["public"]["Enums"]["app_role"] | null
-          related_item_id?: string | null
-          related_item_type?: string | null
           sender_role?: Database["public"]["Enums"]["app_role"] | null
           unit_id?: string | null
         }
@@ -69,99 +54,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      approvals_queue: {
-        Row: {
-          approval_level: string
-          approved_by: string | null
-          created_at: string | null
-          id: string
-          notes: string | null
-          request_id: string | null
-          required_role: Database["public"]["Enums"]["app_role"]
-          status: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          approval_level: string
-          approved_by?: string | null
-          created_at?: string | null
-          id?: string
-          notes?: string | null
-          request_id?: string | null
-          required_role: Database["public"]["Enums"]["app_role"]
-          status?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          approval_level?: string
-          approved_by?: string | null
-          created_at?: string | null
-          id?: string
-          notes?: string | null
-          request_id?: string | null
-          required_role?: Database["public"]["Enums"]["app_role"]
-          status?: string | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "approvals_queue_approved_by_fkey"
-            columns: ["approved_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "approvals_queue_request_id_fkey"
-            columns: ["request_id"]
-            isOneToOne: false
-            referencedRelation: "inventory_requests"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      audit_logs: {
-        Row: {
-          action: string
-          changed_fields: string[] | null
-          created_at: string
-          id: string
-          ip_address: string | null
-          new_values: Json | null
-          old_values: Json | null
-          record_id: string
-          table_name: string
-          user_agent: string | null
-          user_id: string | null
-        }
-        Insert: {
-          action: string
-          changed_fields?: string[] | null
-          created_at?: string
-          id?: string
-          ip_address?: string | null
-          new_values?: Json | null
-          old_values?: Json | null
-          record_id: string
-          table_name: string
-          user_agent?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          action?: string
-          changed_fields?: string[] | null
-          created_at?: string
-          id?: string
-          ip_address?: string | null
-          new_values?: Json | null
-          old_values?: Json | null
-          record_id?: string
-          table_name?: string
-          user_agent?: string | null
-          user_id?: string | null
-        }
-        Relationships: []
       }
       engineer_equipment: {
         Row: {
@@ -481,107 +373,6 @@ export type Database = {
           },
         ]
       }
-      inventory_requests: {
-        Row: {
-          approved_at: string | null
-          approved_by: string | null
-          created_at: string | null
-          id: string
-          item_id: string | null
-          item_name: string | null
-          item_type: string
-          justification: string
-          quantity: number | null
-          rejected_at: string | null
-          rejected_by: string | null
-          rejection_reason: string | null
-          report_generated: boolean | null
-          report_url: string | null
-          request_type: string
-          requester_id: string
-          requester_role: Database["public"]["Enums"]["app_role"]
-          specifications: string | null
-          status: string | null
-          unit_id: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          approved_at?: string | null
-          approved_by?: string | null
-          created_at?: string | null
-          id?: string
-          item_id?: string | null
-          item_name?: string | null
-          item_type: string
-          justification: string
-          quantity?: number | null
-          rejected_at?: string | null
-          rejected_by?: string | null
-          rejection_reason?: string | null
-          report_generated?: boolean | null
-          report_url?: string | null
-          request_type: string
-          requester_id: string
-          requester_role: Database["public"]["Enums"]["app_role"]
-          specifications?: string | null
-          status?: string | null
-          unit_id?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          approved_at?: string | null
-          approved_by?: string | null
-          created_at?: string | null
-          id?: string
-          item_id?: string | null
-          item_name?: string | null
-          item_type?: string
-          justification?: string
-          quantity?: number | null
-          rejected_at?: string | null
-          rejected_by?: string | null
-          rejection_reason?: string | null
-          report_generated?: boolean | null
-          report_url?: string | null
-          request_type?: string
-          requester_id?: string
-          requester_role?: Database["public"]["Enums"]["app_role"]
-          specifications?: string | null
-          status?: string | null
-          unit_id?: string | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "inventory_requests_approved_by_fkey"
-            columns: ["approved_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "inventory_requests_rejected_by_fkey"
-            columns: ["rejected_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "inventory_requests_requester_id_fkey"
-            columns: ["requester_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "inventory_requests_unit_id_fkey"
-            columns: ["unit_id"]
-            isOneToOne: false
-            referencedRelation: "units"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       mechanics_tools: {
         Row: {
           authority: string | null
@@ -646,7 +437,22 @@ export type Database = {
           tool_name?: string
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "mechanics_tools_issued_to_fkey"
+            columns: ["issued_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mechanics_tools_squadron_id_fkey"
+            columns: ["squadron_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       mt_facilities: {
         Row: {
@@ -697,7 +503,15 @@ export type Database = {
           status?: string | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "mt_facilities_squadron_id_fkey"
+            columns: ["squadron_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       plant_machinery: {
         Row: {
@@ -1119,83 +933,44 @@ export type Database = {
           },
         ]
       }
-      transactions_detailed: {
+      uniform_sets: {
         Row: {
-          condition_issue: string | null
-          condition_return: string | null
+          components: Json
           created_at: string | null
-          from_user_id: string | null
+          description: string | null
+          dress_type: string
           id: string
-          issued_by_id: string | null
-          item_id: string
-          item_name: string | null
-          item_table: string
-          notes: string | null
-          quantity: number | null
-          serviceability: string | null
-          to_user_id: string | null
-          transaction_type: string
-          unit_id: string | null
+          set_id: string
+          set_name: string
+          squadron_id: string | null
+          updated_at: string | null
         }
         Insert: {
-          condition_issue?: string | null
-          condition_return?: string | null
+          components?: Json
           created_at?: string | null
-          from_user_id?: string | null
+          description?: string | null
+          dress_type: string
           id?: string
-          issued_by_id?: string | null
-          item_id: string
-          item_name?: string | null
-          item_table: string
-          notes?: string | null
-          quantity?: number | null
-          serviceability?: string | null
-          to_user_id?: string | null
-          transaction_type: string
-          unit_id?: string | null
+          set_id: string
+          set_name: string
+          squadron_id?: string | null
+          updated_at?: string | null
         }
         Update: {
-          condition_issue?: string | null
-          condition_return?: string | null
+          components?: Json
           created_at?: string | null
-          from_user_id?: string | null
+          description?: string | null
+          dress_type?: string
           id?: string
-          issued_by_id?: string | null
-          item_id?: string
-          item_name?: string | null
-          item_table?: string
-          notes?: string | null
-          quantity?: number | null
-          serviceability?: string | null
-          to_user_id?: string | null
-          transaction_type?: string
-          unit_id?: string | null
+          set_id?: string
+          set_name?: string
+          squadron_id?: string | null
+          updated_at?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "transactions_detailed_from_user_id_fkey"
-            columns: ["from_user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "transactions_detailed_issued_by_id_fkey"
-            columns: ["issued_by_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "transactions_detailed_to_user_id_fkey"
-            columns: ["to_user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "transactions_detailed_unit_id_fkey"
-            columns: ["unit_id"]
+            foreignKeyName: "uniform_sets_squadron_id_fkey"
+            columns: ["squadron_id"]
             isOneToOne: false
             referencedRelation: "units"
             referencedColumns: ["id"]
@@ -1204,6 +979,7 @@ export type Database = {
       }
       uniforms: {
         Row: {
+          category: string | null
           condition_issue: string | null
           condition_return: string | null
           created_at: string | null
@@ -1212,6 +988,9 @@ export type Database = {
           issued_to: string | null
           item_name: string
           notes: string | null
+          qty_issued: number | null
+          qty_on_hand: number | null
+          qty_returned: number | null
           return_date: string | null
           serviceable: boolean | null
           size: string | null
@@ -1220,6 +999,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          category?: string | null
           condition_issue?: string | null
           condition_return?: string | null
           created_at?: string | null
@@ -1228,6 +1008,9 @@ export type Database = {
           issued_to?: string | null
           item_name: string
           notes?: string | null
+          qty_issued?: number | null
+          qty_on_hand?: number | null
+          qty_returned?: number | null
           return_date?: string | null
           serviceable?: boolean | null
           size?: string | null
@@ -1236,6 +1019,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          category?: string | null
           condition_issue?: string | null
           condition_return?: string | null
           created_at?: string | null
@@ -1244,6 +1028,9 @@ export type Database = {
           issued_to?: string | null
           item_name?: string
           notes?: string | null
+          qty_issued?: number | null
+          qty_on_hand?: number | null
+          qty_returned?: number | null
           return_date?: string | null
           serviceable?: boolean | null
           size?: string | null
@@ -1294,21 +1081,21 @@ export type Database = {
           created_at: string | null
           id: string
           role: Database["public"]["Enums"]["app_role"]
-          status: Database["public"]["Enums"]["approval_status"]
+          status: Database["public"]["Enums"]["approval_status"] | null
           user_id: string
         }
         Insert: {
           created_at?: string | null
           id?: string
           role: Database["public"]["Enums"]["app_role"]
-          status?: Database["public"]["Enums"]["approval_status"]
+          status?: Database["public"]["Enums"]["approval_status"] | null
           user_id: string
         }
         Update: {
           created_at?: string | null
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
-          status?: Database["public"]["Enums"]["approval_status"]
+          status?: Database["public"]["Enums"]["approval_status"] | null
           user_id?: string
         }
         Relationships: []
@@ -1316,62 +1103,99 @@ export type Database = {
       vehicles: {
         Row: {
           assigned_to: string | null
+          color: string | null
           created_at: string | null
+          driver_id: string | null
           fuel_type: string | null
           id: string
+          insurance_expiry: string | null
           last_service_date: string | null
           location: string | null
           make_model: string | null
           mileage: number | null
+          model: string | null
           next_service_due: string | null
           notes: string | null
+          plate_number: string | null
           registration_number: string | null
           serial_number: string | null
           serviceability: string | null
           squadron_id: string | null
           updated_at: string | null
-          vehicle_id: string
-          vehicle_type: string
+          vehicle_id: string | null
+          vehicle_type: string | null
         }
         Insert: {
           assigned_to?: string | null
+          color?: string | null
           created_at?: string | null
+          driver_id?: string | null
           fuel_type?: string | null
           id?: string
+          insurance_expiry?: string | null
           last_service_date?: string | null
           location?: string | null
           make_model?: string | null
           mileage?: number | null
+          model?: string | null
           next_service_due?: string | null
           notes?: string | null
+          plate_number?: string | null
           registration_number?: string | null
           serial_number?: string | null
           serviceability?: string | null
           squadron_id?: string | null
           updated_at?: string | null
-          vehicle_id: string
-          vehicle_type: string
+          vehicle_id?: string | null
+          vehicle_type?: string | null
         }
         Update: {
           assigned_to?: string | null
+          color?: string | null
           created_at?: string | null
+          driver_id?: string | null
           fuel_type?: string | null
           id?: string
+          insurance_expiry?: string | null
           last_service_date?: string | null
           location?: string | null
           make_model?: string | null
           mileage?: number | null
+          model?: string | null
           next_service_due?: string | null
           notes?: string | null
+          plate_number?: string | null
           registration_number?: string | null
           serial_number?: string | null
           serviceability?: string | null
           squadron_id?: string | null
           updated_at?: string | null
-          vehicle_id?: string
-          vehicle_type?: string
+          vehicle_id?: string | null
+          vehicle_type?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "vehicles_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vehicles_driver_id_fkey"
+            columns: ["driver_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vehicles_squadron_id_fkey"
+            columns: ["squadron_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       weapons: {
         Row: {
@@ -1521,7 +1345,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      get_user_unit_id: { Args: { uid: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1529,21 +1352,9 @@ export type Database = {
         }
         Returns: boolean
       }
-      user_has_unit_access: {
-        Args: { check_unit_id: string }
-        Returns: boolean
-      }
     }
     Enums: {
-      app_role:
-        | "CO"
-        | "S4"
-        | "OC"
-        | "SQMS"
-        | "Soldier"
-        | "S1"
-        | "S4_ADMIN"
-        | "STOREMAN"
+      app_role: "CO" | "S4" | "OC" | "SQMS" | "Soldier"
       approval_status: "pending" | "approved" | "rejected"
     }
     CompositeTypes: {
@@ -1672,16 +1483,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: [
-        "CO",
-        "S4",
-        "OC",
-        "SQMS",
-        "Soldier",
-        "S1",
-        "S4_ADMIN",
-        "STOREMAN",
-      ],
+      app_role: ["CO", "S4", "OC", "SQMS", "Soldier"],
       approval_status: ["pending", "approved", "rejected"],
     },
   },

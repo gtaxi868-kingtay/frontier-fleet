@@ -10,6 +10,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { ItemDetailDialog } from "@/components/ItemDetailDialog";
 import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/StatusBadge";
+import { formatIssuedTo, getItemStatus } from "@/lib/statusUtils";
+import { QuickIssueDialog } from "@/components/QuickIssueDialog";
+import { QuickReturnDialog } from "@/components/QuickReturnDialog";
+import { Package, CheckCircle2 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,6 +33,9 @@ export default function PPE() {
   const [searchTerm, setSearchTerm] = useState("");
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [pendingUpdate, setPendingUpdate] = useState<{ id: string; updates: any } | null>(null);
+  const [issueDialogOpen, setIssueDialogOpen] = useState(false);
+  const [returnDialogOpen, setReturnDialogOpen] = useState(false);
+  const [selectedItemForAction, setSelectedItemForAction] = useState<any>(null);
   
   const { data: ppeItems = [], refetch, update } = useInventoryData('ppe');
 
@@ -119,8 +127,56 @@ export default function PPE() {
                         <span className="font-tactical uppercase text-muted-foreground">Quantity</span>
                         <span className="font-medium">{item.qty_on_hand}</span>
                       </div>
-                      <div className="pt-2">
-                        {canManage ? (
+                      <div className="pt-2 space-y-2">
+                        {/* Status Badge */}
+                        <div className="flex items-center justify-center">
+                          <StatusBadge 
+                            status={item.issued_to ? 'issued' : (item.serviceable ? 'serviceable' : 'unserviceable')}
+                            type={item.issued_to ? 'availability' : 'serviceability'}
+                            className="w-full justify-center"
+                          />
+                        </div>
+
+                        {/* Issued Status */}
+                        {item.issued_to && (
+                          <div className="text-xs text-muted-foreground text-center py-1">
+                            Issued to: {formatIssuedTo(item.issued_to_profile)}
+                          </div>
+                        )}
+
+                        {/* Quick Action Buttons */}
+                        {!item.issued_to && item.serviceable && canManage && (
+                          <Button
+                            size="sm"
+                            className="w-full"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedItemForAction(item);
+                              setIssueDialogOpen(true);
+                            }}
+                          >
+                            <Package className="h-4 w-4 mr-2" />
+                            Issue Item
+                          </Button>
+                        )}
+                        {item.issued_to && canManage && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="w-full"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedItemForAction(item);
+                              setReturnDialogOpen(true);
+                            }}
+                          >
+                            <CheckCircle2 className="h-4 w-4 mr-2" />
+                            Return Item
+                          </Button>
+                        )}
+
+                        {/* Serviceability Toggle */}
+                        {canManage && !item.issued_to && (
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
                               <Badge 
@@ -151,10 +207,6 @@ export default function PPE() {
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
-                        ) : (
-                          <Badge variant={item.serviceable ? 'default' : 'destructive'} className="w-full justify-center">
-                            {item.serviceable ? 'Serviceable' : 'Unserviceable'}
-                          </Badge>
                         )}
                       </div>
                     </CardContent>
@@ -191,6 +243,38 @@ export default function PPE() {
           }}
           title="Confirm Status Update"
           description="Are you sure you want to update this item's status? This action will be logged in the audit trail."
+        />
+
+        {/* Quick Issue Dialog */}
+        <QuickIssueDialog
+          open={issueDialogOpen}
+          onOpenChange={(open) => {
+            setIssueDialogOpen(open);
+            if (!open) setSelectedItemForAction(null);
+          }}
+          item={selectedItemForAction}
+          module="ppe"
+          onSuccess={() => {
+            refetch();
+            setIssueDialogOpen(false);
+            setSelectedItemForAction(null);
+          }}
+        />
+
+        {/* Quick Return Dialog */}
+        <QuickReturnDialog
+          open={returnDialogOpen}
+          onOpenChange={(open) => {
+            setReturnDialogOpen(open);
+            if (!open) setSelectedItemForAction(null);
+          }}
+          item={selectedItemForAction}
+          module="ppe"
+          onSuccess={() => {
+            refetch();
+            setReturnDialogOpen(false);
+            setSelectedItemForAction(null);
+          }}
         />
       </main>
     </div>

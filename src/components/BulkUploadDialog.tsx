@@ -8,6 +8,8 @@ import * as XLSX from 'xlsx';
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/hooks/useAuth";
+import { lookupSoldier } from "@/hooks/useSoldierLookup";
 
 interface BulkUploadDialogProps {
   module: 'weapons' | 'tools' | 'engineer_equipment' | 'plant_machinery' | 'vehicles' | 'mechanics_tools' | 
@@ -31,9 +33,10 @@ export function BulkUploadDialog({ module, moduleName, onSuccess }: BulkUploadDi
   const [showPreview, setShowPreview] = useState(false);
   const [uploadResult, setUploadResult] = useState<{ success: number; failed: number; errors: string[] } | null>(null);
   const { toast } = useToast();
+  const { profile } = useAuth();
 
   const requiredFields: Record<string, string[]> = {
-    weapons: ['weapon_id', 'weapon_type', 'serial_number'],
+    weapons: ['weapon_id', 'weapon_type'],
     tools: ['tool_id', 'tool_name', 'category'],
     vehicles: ['vehicle_id', 'vehicle_type'],
     engineer_equipment: ['equip_id', 'equipment_name', 'type'],
@@ -49,32 +52,153 @@ export function BulkUploadDialog({ module, moduleName, onSuccess }: BulkUploadDi
     room_inventory: ['room_id', 'inventory_item'],
   };
 
+  // Header mapping for weapons module - maps user-friendly headers to database fields
+  const weaponsHeaderMap: Record<string, string> = {
+    'store / location': 'store_location',
+    'store/ location': 'store_location',
+    'store /location': 'store_location',
+    'store/location': 'store_location',
+    'store location': 'store_location',
+    'store_location': 'store_location',
+    'weapon type': 'weapon_type',
+    'weapon_type': 'weapon_type',
+    'weapon no.': 'weapon_id',
+    'weapon no': 'weapon_id',
+    'weapon_id': 'weapon_id',
+    'status': 'condition_issue',
+    'condition_issue': 'condition_issue',
+    'condition issue': 'condition_issue',
+    'no.': 'service_number',
+    'no': 'service_number',
+    'service number': 'service_number',
+    'service_number': 'service_number',
+    'rank': 'rank',
+    'name': 'name',
+    'rack no.': 'rack_number',
+    'rack no': 'rack_number',
+    'rack number': 'rack_number',
+    'rack_number': 'rack_number',
+    'mag amt': 'mag_amount',
+    'mag amount': 'mag_amount',
+    'mag_amount': 'mag_amount',
+    '64 page no': 'page_64_no',
+    '64 page no.': 'page_64_no',
+    '64 page number': 'page_64_no',
+    'page 64 no': 'page_64_no',
+    'page_64_no': 'page_64_no',
+    'serial number': 'serial_number',
+    'serial_number': 'serial_number',
+    'serial no': 'serial_number',
+    'serial no.': 'serial_number',
+  };
+
+  const mapWeaponsHeaders = (row: any): any => {
+    const mappedRow: any = {};
+    
+    Object.keys(row).forEach(header => {
+      // Normalize header: trim, lowercase, normalize spaces and special chars
+      let normalizedHeader = header.trim().toLowerCase();
+      
+      // First try exact match with normalized spaces
+      let normalized = normalizedHeader.replace(/\s*\/\s*/g, ' / ').trim();
+      let dbField = weaponsHeaderMap[normalized];
+      
+      // If no match, try with slash removed and spaces normalized
+      if (!dbField) {
+        normalized = normalizedHeader.replace(/\s*\/\s*/g, ' ').trim();
+        dbField = weaponsHeaderMap[normalized];
+      }
+      
+      // If still no match, try removing special chars
+      if (!dbField) {
+        normalized = normalizedHeader.replace(/[^\w\s]/g, '').trim();
+        dbField = weaponsHeaderMap[normalized];
+      }
+      
+      // If found, use mapped field name
+      if (dbField) {
+        mappedRow[dbField] = row[header];
+      } else {
+        // Fallback: convert to snake_case (preserve original for unmapped fields)
+        const snakeCase = normalizedHeader.replace(/\s+/g, '_');
+        mappedRow[snakeCase] = row[header];
+      }
+    });
+    
+    return mappedRow;
+  };
+
   const validateRow = (row: any, rowNumber: number): ParsedRow => {
+    // Map headers for weapons module
+    let processedRow = row;
+    if (module === 'weapons') {
+      processedRow = mapWeaponsHeaders(row);
+    }
+
     const errors: string[] = [];
     const required = requiredFields[module] || [];
 
     required.forEach(field => {
-      if (!row[field] || String(row[field]).trim() === '') {
+      if (!processedRow[field] || String(processedRow[field]).trim() === '') {
         errors.push(`Missing required field: ${field}`);
       }
     });
 
-    if (row.qty_on_hand !== undefined && (isNaN(Number(row.qty_on_hand)) || Number(row.qty_on_hand) < 0)) {
+    if (processedRow.qty_on_hand !== undefined && (isNaN(Number(processedRow.qty_on_hand)) || Number(processedRow.qty_on_hand) < 0)) {
       errors.push('qty_on_hand must be a positive number');
     }
-    if (row.qty_issued !== undefined && (isNaN(Number(row.qty_issued)) || Number(row.qty_issued) < 0)) {
+    if (processedRow.qty_issued !== undefined && (isNaN(Number(processedRow.qty_issued)) || Number(processedRow.qty_issued) < 0)) {
       errors.push('qty_issued must be a positive number');
     }
-    if (row.serviceable !== undefined && typeof row.serviceable === 'string') {
-      const val = row.serviceable.toLowerCase();
+    if (processedRow.mag_amount !== undefined && (isNaN(Number(processedRow.mag_amount)) || Number(processedRow.mag_amount) < 0)) {
+      errors.push('mag_amount must be a positive number');
+    }
+    
+    // Handle serviceable field conversion
+    if (processedRow.serviceable !== undefined && typeof processedRow.serviceable === 'string') {
+      const val = processedRow.serviceable.toLowerCase();
       if (val !== 'true' && val !== 'false' && val !== 'yes' && val !== 'no') {
         errors.push('serviceable must be true/false or yes/no');
       }
-      row.serviceable = val === 'true' || val === 'yes';
+      processedRow.serviceable = val === 'true' || val === 'yes';
     }
+    
+    // Handle condition_issue/status field - normalize to uppercase
+    if (processedRow.condition_issue && typeof processedRow.condition_issue === 'string') {
+      const status = processedRow.condition_issue.toUpperCase().trim().replace(/\s+/g, '_');
+      if (status === 'SERVICEABLE' || status === 'UNSERVICEABLE' || status === 'UNDER_REPAIR') {
+        processedRow.condition_issue = status;
+        // Also set serviceable based on status if not already set
+        if (processedRow.serviceable === undefined) {
+          processedRow.serviceable = status === 'SERVICEABLE';
+        }
+      } else {
+        errors.push(`Invalid status value: ${processedRow.condition_issue}. Must be SERVICEABLE, UNSERVICEABLE, or UNDER_REPAIR`);
+      }
+    }
+    
+    // Convert numeric fields
+    if (processedRow.mag_amount !== undefined && processedRow.mag_amount !== null && processedRow.mag_amount !== '') {
+      const magAmt = Number(processedRow.mag_amount);
+      if (isNaN(magAmt) || magAmt < 0) {
+        errors.push('MAG Amt must be a positive number');
+      } else {
+        processedRow.mag_amount = magAmt;
+      }
+    } else {
+      processedRow.mag_amount = null;
+    }
+    
+    // Handle empty string fields - convert to null for optional fields
+    const optionalFields = ['serial_number', 'rack_number', 'service_number', 'rank', 'name', 'store_location', 'page_64_no', 'notes'];
+    optionalFields.forEach(field => {
+      if (processedRow[field] !== undefined && processedRow[field] !== null && String(processedRow[field]).trim() === '') {
+        processedRow[field] = null;
+      }
+    });
 
     return {
-      data: row,
+      data: processedRow,
       errors,
       isValid: errors.length === 0,
       rowNumber
@@ -146,10 +270,46 @@ export function BulkUploadDialog({ module, moduleName, onSuccess }: BulkUploadDi
     const errors: string[] = [];
 
     const validRows = parsedData.filter(r => r.isValid);
+    const userUnitId = profile?.unit_id || null;
+    
+    // Determine unit column name based on module
+    // ALL inventory modules use squadron_id (including works_materials)
+    const getUnitColumnName = () => {
+      if (module === 'clothing_equipment_issues') return 'unit_id';
+      return 'squadron_id';
+    };
+    const unitColumn = getUnitColumnName();
 
     for (const row of validRows) {
       try {
-        const { error } = await supabase.from(module).insert([row.data]);
+        const rowData = { ...row.data };
+        
+        // Auto-assign unit from logged-in user's profile for all modules
+        if (userUnitId && unitColumn) {
+          rowData[unitColumn] = userUnitId;
+        }
+        
+        // For weapons module, handle soldier lookup and unit sync
+        if (module === 'weapons') {
+          if (rowData.name || rowData.rank || rowData.service_number) {
+            const lookupResult = await lookupSoldier(
+              rowData.service_number || null,
+              rowData.rank || null,
+              rowData.name || null
+            );
+            
+            if (lookupResult.found && lookupResult.profile) {
+              // Link to soldier profile
+              rowData.issued_to = lookupResult.profile.id;
+              // Auto-sync weapon unit to match soldier unit if found
+              if (lookupResult.profile.unit_id) {
+                rowData[unitColumn] = lookupResult.profile.unit_id;
+              }
+            }
+          }
+        }
+
+        const { error } = await supabase.from(module).insert([rowData]);
         if (error) {
           failedCount++;
           errors.push(`Row ${row.rowNumber}: ${error.message}`);
@@ -178,18 +338,16 @@ export function BulkUploadDialog({ module, moduleName, onSuccess }: BulkUploadDi
   const downloadTemplate = () => {
     const templates: Record<string, any[]> = {
       weapons: [{ 
-        weapon_id: 'W001',
-        weapon_type: 'GALIL AR', 
-        serial_number: '38161438',
-        serviceable: 'yes',
-        service_number: '10485',
-        rank: 'Sgt',
-        name: 'Betrand A',
-        rack_number: '10',
-        mag_amount: 7,
-        page_64_no: 'A PG 4',
-        store_location: 'Alpha Coy',
-        condition_issue: 'SERVICEABLE'
+        'STORE / LOCATION': 'Alpha Coy',
+        'WEAPON TYPE': 'GALIL AR',
+        'WEAPON NO.': 'W001',
+        'STATUS': 'SERVICEABLE',
+        'NO.': '10485',
+        'Rank': 'Sgt',
+        'Name': 'Betrand A',
+        'RACK No.': '10',
+        'MAG Amt': 7,
+        '64 PAGE NO': 'A PG 4'
       }],
       tools: [{ tool_id: 'T001', tool_name: 'Hammer', category: 'Hand Tools', qty_on_hand: 10, serviceable: 'yes' }],
       vehicles: [{ vehicle_id: 'V001', vehicle_type: 'Truck', make_model: 'Toyota Hilux', registration_number: 'ABC123', serviceability: 'Serviceable', fuel_type: 'Diesel', mileage: 50000 }],

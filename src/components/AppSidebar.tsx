@@ -50,10 +50,18 @@ const modules = [
   { title: "Works Materials", url: "/works-materials", icon: Hammer },
   { title: "Inventory", url: "/inventory", icon: Package },
   { title: "Room Inventory", url: "/room-inventory", icon: Building },
+  { title: "Barracks Stores", url: "/barracks-stores", icon: Building },
+  { title: "Clothing & Equipment", url: "/clothing-equipment", icon: Shirt },
+  { title: "Company Stores", url: "/company-stores", icon: ScrollText },
   { title: "Inventory Requests", url: "/inventory-requests", icon: ClipboardList },
   { title: "Transactions", url: "/transactions", icon: ArrowLeftRight },
   { title: "Analytics", url: "/analytics", icon: BarChart3 },
   { title: "Reports", url: "/reports", icon: FileText },
+];
+
+const departmentModules = [
+  { title: "MTO Dashboard", url: "/mto-dashboard", icon: Car, roles: ['MTO', 'S4', 'CO', 'S4_ADMIN'] },
+  { title: "Workshop Dashboard", url: "/workshop-dashboard", icon: Wrench, roles: ['WKSP_WO', 'S4', 'CO', 'S4_ADMIN'] },
 ];
 
 export function AppSidebar() {
@@ -62,6 +70,11 @@ export function AppSidebar() {
   
   const showRoleManagement = role === 'CO' || role === 'S4';
   const showAuditTrail = ['CO', 'S1', 'S4', 'S4_ADMIN'].includes(role || '');
+  
+  // Filter department modules based on role
+  const availableDepartmentModules = departmentModules.filter(module => 
+    module.roles.includes(role || '')
+  );
 
   return (
     <Sidebar collapsible="icon" className="border-r border-primary/20 bg-sidebar/95 backdrop-blur-xl">
@@ -107,6 +120,33 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {availableDepartmentModules.length > 0 && (
+          <SidebarGroup>
+            <SidebarGroupLabel className="font-tactical uppercase tracking-wider text-xs text-muted-foreground">Departments</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {availableDepartmentModules.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <NavLink 
+                        to={item.url}
+                        className={({ isActive }) =>
+                          isActive 
+                            ? "bg-gradient-primary text-primary-foreground font-tactical font-bold shadow-glow beveled" 
+                            : "hover:bg-primary/10 hover:text-primary font-tactical transition-all"
+                        }
+                      >
+                        <item.icon className="h-4 w-4" />
+                        <span className="uppercase tracking-wide text-xs">{item.title}</span>
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
 
         {(showRoleManagement || showAuditTrail) && (
           <SidebarGroup>

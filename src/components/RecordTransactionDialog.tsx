@@ -205,7 +205,7 @@ export function RecordTransactionDialog({ open, onOpenChange }: RecordTransactio
                       </SelectItem>
                     ))
                   ) : (
-                    <SelectItem value="" disabled>No items available</SelectItem>
+                    <div className="px-2 py-1.5 text-sm text-muted-foreground">No items available</div>
                   )}
                 </SelectContent>
               </Select>
@@ -240,12 +240,12 @@ export function RecordTransactionDialog({ open, onOpenChange }: RecordTransactio
 
             <div className="space-y-2">
               <Label htmlFor="from_user_id">From User</Label>
-              <Select value={formData.from_user_id} onValueChange={(value) => setFormData({ ...formData, from_user_id: value })}>
+              <Select value={formData.from_user_id || undefined} onValueChange={(value) => setFormData({ ...formData, from_user_id: value === '__none__' ? '' : value })}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select user" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">None</SelectItem>
+                  <SelectItem value="__none__">None</SelectItem>
                   {profiles?.map((profile) => (
                     <SelectItem key={profile.id} value={profile.id}>
                       {profile.rank} {profile.name}
@@ -257,12 +257,12 @@ export function RecordTransactionDialog({ open, onOpenChange }: RecordTransactio
 
             <div className="space-y-2">
               <Label htmlFor="to_user_id">To User</Label>
-              <Select value={formData.to_user_id} onValueChange={(value) => setFormData({ ...formData, to_user_id: value })}>
+              <Select value={formData.to_user_id || undefined} onValueChange={(value) => setFormData({ ...formData, to_user_id: value === '__none__' ? '' : value })}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select user" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">None</SelectItem>
+                  <SelectItem value="__none__">None</SelectItem>
                   {profiles?.map((profile) => (
                     <SelectItem key={profile.id} value={profile.id}>
                       {profile.rank} {profile.name}
@@ -297,12 +297,12 @@ export function RecordTransactionDialog({ open, onOpenChange }: RecordTransactio
 
           <div className="space-y-2">
             <Label htmlFor="serviceability">Serviceability</Label>
-            <Select value={formData.serviceability} onValueChange={(value) => setFormData({ ...formData, serviceability: value })}>
+            <Select value={formData.serviceability || undefined} onValueChange={(value) => setFormData({ ...formData, serviceability: value === '__none__' ? '' : value })}>
               <SelectTrigger>
                 <SelectValue placeholder="Select serviceability" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">None</SelectItem>
+                <SelectItem value="__none__">None</SelectItem>
                 <SelectItem value="Serviceable">Serviceable</SelectItem>
                 <SelectItem value="Unserviceable">Unserviceable</SelectItem>
                 <SelectItem value="Under Repair">Under Repair</SelectItem>
