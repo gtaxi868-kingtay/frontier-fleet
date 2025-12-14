@@ -58,14 +58,14 @@ export function MTWorkTicketDialog({ open, onOpenChange, onSuccess }: MTWorkTick
     queryFn: async () => {
       const { data: permits, error: permitsError } = await supabase
         .from('mt_driver_permits')
-        .select('driver_id, permit_number')
+        .select('soldier_id, permit_number')
         .eq('status', 'active');
       
       if (permitsError) throw permitsError;
       
       if (!permits || permits.length === 0) return [];
       
-      const driverIds = permits.map(p => p.driver_id);
+      const driverIds = permits.map(p => p.soldier_id);
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('id, name, rank')
@@ -100,21 +100,14 @@ export function MTWorkTicketDialog({ open, onOpenChange, onSuccess }: MTWorkTick
         ticket_number: formData.ticket_number,
         vehicle_id: formData.vehicle_id,
         driver_id: formData.driver_id,
-        issued_by_id: profile?.id,
-        journey_purpose: formData.journey_purpose,
+        authorized_by: profile?.id, // Changed from issued_by_id
+        purpose: formData.journey_purpose, // Changed from journey_purpose to purpose
         destination: formData.destination,
-        route: formData.route || null,
-        load_description: formData.load_description || null,
-        passenger_count: parseInt(formData.passenger_count) || 0,
-        authorized_by: formData.authorized_by,
-        issue_date: formData.issue_date,
-        issue_time: formData.issue_time || null,
-        mileage_start: formData.mileage_start ? parseInt(formData.mileage_start) : null,
-        petrol_issued: formData.petrol_issued ? parseFloat(formData.petrol_issued) : null,
-        oil_issued: formData.oil_issued ? parseFloat(formData.oil_issued) : null,
-        condition_on_issue: formData.condition_on_issue || null,
+        start_mileage: formData.mileage_start ? parseInt(formData.mileage_start) : null,
+        fuel_issued: formData.petrol_issued ? parseFloat(formData.petrol_issued) : null,
+        departure_time: formData.issue_time ? new Date(`${formData.issue_date}T${formData.issue_time}`).toISOString() : null,
         notes: formData.notes || null,
-        status: 'active',
+        status: 'Active',
       };
 
       const { error } = await supabase

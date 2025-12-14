@@ -334,8 +334,6 @@ export function QuickReturnDialog({ open, onOpenChange, onSuccess, item, module 
             setReceiptOpen(false);
             setReturnedItemData(null);
             setStep(1);
-            setSelectedItem(null);
-            setItemSearch("");
             setCondition('Serviceable');
             setNotes("");
           }}
@@ -344,8 +342,6 @@ export function QuickReturnDialog({ open, onOpenChange, onSuccess, item, module 
             setReceiptOpen(false);
             setReturnedItemData(null);
             setStep(1);
-            setSelectedItem(null);
-            setItemSearch("");
             setCondition('Serviceable');
             setNotes("");
           }}
