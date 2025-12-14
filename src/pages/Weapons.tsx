@@ -76,8 +76,8 @@ type WeaponFormData = z.infer<typeof weaponSchema>;
 
 export default function Weapons() {
   const [dialogOpen, setDialogOpen] = useState(false);
-  const { session } = useAuth();
-  const [hasS4Role, setHasS4Role] = useState(false);
+  const { session, role } = useAuth();
+  const canManage = ['S4', 'S4_ADMIN', 'SQMS', 'STOREMAN'].includes(role || '');
   const [selectedWeapon, setSelectedWeapon] = useState<any>(null);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -175,20 +175,7 @@ export default function Weapons() {
     }
   }, [idExists, suggestedId, weaponIdValue, form]);
 
-  useEffect(() => {
-    const checkRole = async () => {
-      if (!session?.user?.id) return;
-      const { data } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", session.user.id)
-        .eq("role", "S4")
-        .eq("status", "approved")
-        .single();
-      setHasS4Role(!!data);
-    };
-    checkRole();
-  }, [session]);
+  // Role check now handled via useAuth().role directly with canManage variable
 
   const handleQRScan = async (qrString: string) => {
     const decoded = decodeQRData(qrString);
@@ -302,7 +289,7 @@ export default function Weapons() {
               <Plus className="mr-2 h-4 w-4" />
               Add Weapon
             </Button>
-            {hasS4Role && (
+            {canManage && (
               <BulkUploadDialog
                 module="weapons"
                 moduleName="Weapons"

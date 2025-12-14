@@ -97,10 +97,10 @@ export function MTDriverPermitDialog({ open, onOpenChange, onSuccess, permit }: 
 
       const permitData = {
         permit_number: formData.permit_number,
-        driver_id: formData.driver_id,
+        soldier_id: formData.driver_id, // Changed from driver_id to soldier_id for db schema
         vehicle_classes: formData.vehicle_classes,
-        issued_by_id: profile?.id,
-        issued_date: formData.issued_date,
+        issued_by: profile?.id, // Changed from issued_by_id to issued_by
+        issue_date: formData.issued_date, // Changed from issued_date to issue_date
         expiry_date: formData.expiry_date,
         status: formData.status,
         notes: formData.notes || null,
