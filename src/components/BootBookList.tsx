@@ -19,10 +19,10 @@ export function BootBookList() {
           soldier:profiles!boot_book_soldier_id_fkey(name, rank, service_number),
           unit:units(name)
         `)
-        .order('handed_in_date', { ascending: false });
+        .order('issue_date', { ascending: false });
 
       if (!canSeeAllUnits && userUnitId) {
-        query = query.eq('unit_id', userUnitId);
+        query = query.eq('squadron_id', userUnitId);
       }
 
       const { data, error } = await query;
@@ -61,10 +61,10 @@ export function BootBookList() {
             <TableHead>Entry #</TableHead>
             <TableHead>Soldier</TableHead>
             <TableHead>Boot Type</TableHead>
-            <TableHead>Handed In</TableHead>
-            <TableHead>Repair Status</TableHead>
-            <TableHead>Exchange</TableHead>
-            <TableHead>Cost</TableHead>
+            <TableHead>Size</TableHead>
+            <TableHead>Issue Date</TableHead>
+            <TableHead>Condition</TableHead>
+            <TableHead>Remarks</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -79,29 +79,17 @@ export function BootBookList() {
               <TableCell>
                 <Badge variant="outline">{entry.boot_type || 'N/A'}</Badge>
               </TableCell>
+              <TableCell>{entry.boot_size || 'N/A'}</TableCell>
               <TableCell>
-                {entry.handed_in_date ? format(new Date(entry.handed_in_date), 'dd MMM yyyy') : 'N/A'}
+                {entry.issue_date ? format(new Date(entry.issue_date), 'dd MMM yyyy') : 'N/A'}
               </TableCell>
               <TableCell>
-                <Badge variant={
-                  entry.repair_status === 'completed' ? 'default' :
-                  entry.repair_status === 'condemned' || entry.repair_status === 'beyond_repair' ? 'destructive' :
-                  'secondary'
-                }>
-                  {entry.repair_status || 'pending'}
+                <Badge variant={entry.condition_issue === 'Good' ? 'default' : 'secondary'}>
+                  {entry.condition_issue || 'N/A'}
                 </Badge>
               </TableCell>
-              <TableCell>
-                {entry.exchange_requested ? (
-                  <Badge variant={entry.exchange_approved ? 'default' : 'secondary'}>
-                    {entry.exchange_approved ? 'Approved' : 'Requested'}
-                  </Badge>
-                ) : (
-                  'No'
-                )}
-              </TableCell>
-              <TableCell>
-                {entry.repair_cost ? `$${entry.repair_cost.toFixed(2)}` : 'N/A'}
+              <TableCell className="text-sm text-muted-foreground">
+                {entry.remarks || '-'}
               </TableCell>
             </TableRow>
           ))}

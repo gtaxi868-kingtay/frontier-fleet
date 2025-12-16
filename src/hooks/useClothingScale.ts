@@ -44,13 +44,11 @@ export function useClothingScale() {
     }
 
     try {
-      // Get scale for this rank and item
+      // Get scale for this item (clothing_equipment_scale doesn't have rank filter)
       const { data: scaleData, error: scaleError } = await supabase
         .from("clothing_equipment_scale")
         .select("*")
-        .eq("rank", soldierRank)
         .eq("item_name", itemName)
-        .eq("scale_type", "regular") // Default to regular scale
         .single();
 
       if (scaleError || !scaleData) {
@@ -59,16 +57,16 @@ export function useClothingScale() {
           allowed: true,
           current: 0,
           max: 0,
-          warning: `No scale defined for ${soldierRank} - ${itemName}. Issue at your discretion.`,
+          warning: `No scale defined for ${itemName}. Issue at your discretion.`,
         };
       }
 
-      const maxAllowed = scaleData.quantity_authorized || 0;
+      const maxAllowed = scaleData.authorized_quantity || 0;
 
       // Get current holdings (non-returned items)
       const { data: currentIssues, error: issuesError } = await supabase
         .from("clothing_equipment_issues")
-        .select("id, quantity_issued, return_date")
+        .select("id, quantity, return_date")
         .eq("soldier_id", soldierId)
         .eq("item_name", itemName)
         .is("return_date", null); // Only count non-returned items
@@ -78,7 +76,7 @@ export function useClothingScale() {
       }
 
       const current = (currentIssues || []).reduce(
-        (sum, issue) => sum + (issue.quantity_issued || 1),
+        (sum, issue) => sum + ((issue as any).quantity || 1),
         0
       );
 
@@ -105,10 +103,10 @@ export function useClothingScale() {
         warning,
         scaleInfo: {
           id: scaleData.id,
-          rank: scaleData.rank,
+          rank: 'all', // Scale applies to all ranks
           item_name: scaleData.item_name,
-          quantity_authorized: scaleData.quantity_authorized,
-          life_expectancy_months: scaleData.life_expectancy_months || undefined,
+          quantity_authorized: scaleData.authorized_quantity || 0,
+          life_expectancy_months: undefined,
           category: scaleData.category || undefined,
         },
       };
@@ -124,14 +122,12 @@ export function useClothingScale() {
   };
 
   /**
-   * Get all scale entries for a specific rank
+   * Get all scale entries (no rank filter - scale is global)
    */
-  const getScaleForRank = async (rank: string) => {
+  const getScaleForRank = async (_rank: string) => {
     const { data, error } = await supabase
       .from("clothing_equipment_scale")
       .select("*")
-      .eq("rank", rank)
-      .eq("scale_type", "regular")
       .order("item_name");
 
     if (error) throw error;

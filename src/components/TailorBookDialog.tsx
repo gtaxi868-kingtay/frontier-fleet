@@ -96,18 +96,15 @@ export function TailorBookDialog({ open, onOpenChange, onSuccess }: TailorBookDi
       const { error } = await supabase
         .from('tailor_book')
         .insert([{
-          entry_number: entryNumber,
           soldier_id: selectedSoldier.id,
-          unit_id: selectedSoldier.unit_id || userUnitId,
-          item_name: itemName,
-          regimental_number_verified: regimentalNumberVerified,
-          work_type: workType,
-          work_description: workDescription,
-          submitted_date: submittedDate,
-          submitted_by: submittedBy || profile?.name || 'Unknown',
-          tailor_assigned: tailorAssigned || null,
-          work_status: workStatus,
-          notes: notes || null,
+          squadron_id: selectedSoldier.unit_id || userUnitId,
+          item_type: itemName,
+          description: workDescription,
+          entry_date: submittedDate,
+          cost: null,
+          paid: false,
+          remarks: notes || null,
+          inspector_id: profile?.id,
         }]);
 
       if (error) throw error;

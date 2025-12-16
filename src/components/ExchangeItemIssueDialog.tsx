@@ -60,7 +60,7 @@ export function ExchangeItemIssueDialog({
   });
 
   // Filter soldiers based on search
-  const filteredSoldiers = soldiers.filter((s: any) => {
+  const filteredSoldiers = soldiers.filter((s: { name?: string; rank?: string; service_number?: string }) => {
     if (!soldierSearch) return false;
     const searchLower = soldierSearch.toLowerCase();
     return (
@@ -263,10 +263,10 @@ export function ExchangeItemIssueDialog({
               {soldierSearch && filteredSoldiers.length > 0 && (
                 <div className="mt-2 border rounded-md max-h-48 overflow-y-auto">
                   {filteredSoldiers
-                    .filter(s => soldiersToIssueTo.some(st => st.soldier.id === s.id))
+                    .filter((s: any) => soldiersToIssueTo.some((st: any) => st.soldier?.id === s.id))
                     .slice(0, 5)
                     .map((soldier: any) => {
-                      const alreadyIssued = issueResults.some(r => r.soldierId === soldier.id);
+                      const alreadyIssued = issueResults.some((r: any) => r.soldierId === soldier.id);
                       return (
                         <button
                           key={soldier.id}
@@ -292,15 +292,15 @@ export function ExchangeItemIssueDialog({
             </div>
 
             {issueResults.length > 0 && (
-              <div className="border-t pt-4">
+                <div className="border-t pt-4">
                 <Label className="text-sm font-medium mb-2">Issued Items:</Label>
                 <div className="space-y-2">
-                  {issueResults.map((result, idx) => {
-                    const soldierInfo = soldiersToIssueTo.find(st => st.soldier.id === result.soldierId);
+                  {issueResults.map((result: any, idx: number) => {
+                    const soldierInfo = soldiersToIssueTo.find((st: any) => st.soldier?.id === result.soldierId);
                     return (
                       <div key={idx} className="flex items-center justify-between p-2 bg-green-50 dark:bg-green-950/20 rounded">
                         <span className="text-sm">
-                          {soldierInfo?.soldier.rank} {soldierInfo?.soldier.name}
+                          {(soldierInfo as any)?.soldier?.rank} {(soldierInfo as any)?.soldier?.name}
                         </span>
                         <Badge variant="default">
                           <CheckCircle2 className="h-3 w-3 mr-1" />

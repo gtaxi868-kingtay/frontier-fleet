@@ -22,7 +22,7 @@ export function BeddingBookList() {
         .order('check_date', { ascending: false });
 
       if (!canSeeAllUnits && userUnitId) {
-        query = query.eq('unit_id', userUnitId);
+        query = query.eq('squadron_id', userUnitId);
       }
 
       const { data, error } = await query;
@@ -59,12 +59,12 @@ export function BeddingBookList() {
         <TableHeader>
           <TableRow>
             <TableHead>Check Date</TableHead>
-            <TableHead>Room</TableHead>
             <TableHead>Soldier</TableHead>
-            <TableHead>Sheets</TableHead>
-            <TableHead>Pillowcases</TableHead>
-            <TableHead>Blankets</TableHead>
-            <TableHead>Status</TableHead>
+            <TableHead>Mattress</TableHead>
+            <TableHead>Blanket</TableHead>
+            <TableHead>Pillow</TableHead>
+            <TableHead>Bedsheet</TableHead>
+            <TableHead>Remarks</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -73,7 +73,6 @@ export function BeddingBookList() {
               <TableCell>
                 {entry.check_date ? format(new Date(entry.check_date), 'dd MMM yyyy') : 'N/A'}
               </TableCell>
-              <TableCell>{entry.room_id || 'N/A'}</TableCell>
               <TableCell>
                 {entry.soldier ? (
                   <div className="font-medium">
@@ -84,30 +83,27 @@ export function BeddingBookList() {
                 )}
               </TableCell>
               <TableCell>
-                <Badge variant={entry.sheets_count >= 3 ? 'default' : 'destructive'}>
-                  {entry.sheets_count || 0}/3
+                <Badge variant={entry.mattress_condition === 'Good' ? 'default' : 'destructive'}>
+                  {entry.mattress_condition || 'N/A'}
                 </Badge>
               </TableCell>
               <TableCell>
-                <Badge variant={entry.pillowcases_count >= 2 ? 'default' : 'destructive'}>
-                  {entry.pillowcases_count || 0}/2
+                <Badge variant={entry.blanket_condition === 'Good' ? 'default' : 'destructive'}>
+                  {entry.blanket_condition || 'N/A'}
                 </Badge>
               </TableCell>
               <TableCell>
-                <div className="text-sm">
-                  Light: {entry.lightweight_blankets || 0}/1, Heavy: {entry.heavyweight_blankets || 0}/1
-                </div>
+                <Badge variant={entry.pillow_condition === 'Good' ? 'default' : 'destructive'}>
+                  {entry.pillow_condition || 'N/A'}
+                </Badge>
               </TableCell>
               <TableCell>
-                <Badge variant={
-                  entry.sheets_laundered && entry.blankets_aired ? 'default' :
-                  entry.sheets_laundered || entry.blankets_aired ? 'secondary' :
-                  'outline'
-                }>
-                  {entry.sheets_laundered && entry.blankets_aired ? 'Complete' :
-                   entry.sheets_laundered || entry.blankets_aired ? 'Partial' :
-                   'Pending'}
+                <Badge variant={entry.bedsheet_condition === 'Good' ? 'default' : 'destructive'}>
+                  {entry.bedsheet_condition || 'N/A'}
                 </Badge>
+              </TableCell>
+              <TableCell className="text-sm text-muted-foreground">
+                {entry.remarks || '-'}
               </TableCell>
             </TableRow>
           ))}

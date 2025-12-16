@@ -49,9 +49,9 @@ export function CreateRequestDialog({ open, onOpenChange }: CreateRequestDialogP
 
   const createMutation = useMutation({
     mutationFn: async (data: typeof formData) => {
-      const { error } = await supabase.from('inventory_requests').insert({
+      const { error } = await supabase.from('inventory_requests').insert([{
         requester_id: user!.id,
-        requester_role: role,
+        requester_role: role as any,
         unit_id: profile?.unit_id,
         request_type: data.request_type,
         item_type: data.item_type,
@@ -60,7 +60,7 @@ export function CreateRequestDialog({ open, onOpenChange }: CreateRequestDialogP
         specifications: data.specifications,
         justification: data.justification,
         status: 'pending',
-      });
+      }]);
       if (error) throw error;
     },
     onSuccess: () => {

@@ -98,20 +98,16 @@ export function RepairBookDialog({ open, onOpenChange, onSuccess }: RepairBookDi
       const { error } = await supabase
         .from('repair_book')
         .insert([{
-          entry_number: entryNumber,
-          unit_id: userUnitId,
-          room_id: roomId || null,
-          damage_type: damageType,
-          damage_description: damageDescription,
-          damage_date: damageDate,
-          reported_date: reportedDate,
-          caused_by_id: selectedCausedBy?.id || null,
-          caused_by_name: causedByName || null,
-          cause_type: causeType,
-          status: status,
-          repair_type: repairType || null,
-          repair_cost: repairCost ? parseFloat(repairCost) : null,
-          notes: notes || null,
+          squadron_id: userUnitId,
+          item_type: damageType,
+          item_description: damageDescription,
+          defect_description: damageDescription,
+          entry_date: damageDate,
+          sent_date: reportedDate,
+          repair_status: status,
+          cost: repairCost ? parseFloat(repairCost) : null,
+          remarks: notes || null,
+          inspector_id: profile?.id,
         }]);
 
       if (error) throw error;

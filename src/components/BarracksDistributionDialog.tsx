@@ -51,11 +51,11 @@ export function BarracksDistributionDialog({
       let query = supabase
         .from('barracks_stores')
         .select('*, unit:units(name)')
-        .gt('quantity_available', 0) // Only items with available quantity
+        .gt('qty_on_hand', 0) // Only items with available quantity
         .order('item_name');
 
       if (!canSeeAllUnits && userUnitId) {
-        query = query.eq('unit_id', userUnitId);
+        query = query.eq('squadron_id', userUnitId);
       }
 
       const { data, error } = await query;
@@ -124,8 +124,8 @@ export function BarracksDistributionDialog({
       return;
     }
 
-    if (quantity > (selectedStoreItem.quantity_available || 0)) {
-      toast.error(`Insufficient quantity. Only ${selectedStoreItem.quantity_available} available.`);
+    if (quantity > (selectedStoreItem.qty_on_hand || 0)) {
+      toast.error(`Insufficient quantity. Only ${selectedStoreItem.qty_on_hand} available.`);
       return;
     }
 
@@ -136,12 +136,12 @@ export function BarracksDistributionDialog({
         .from('barracks_stores_distribution')
         .insert([{
           barracks_store_id: selectedStoreItem.id,
-          room_id: selectedRoom.id,
-          room_identifier: selectedRoom.room_id,
+          soldier_id: null, // Room distribution - not to soldier
           quantity: quantity,
-          condition_on_issue: conditionOnIssue,
-          condition_current: conditionOnIssue,
-          issued_date: issuedDate,
+          condition_issue: conditionOnIssue,
+          issue_date: issuedDate,
+          issued_by: profile?.id,
+          squadron_id: userUnitId,
           notes: notes || null,
         }])
         .select()
@@ -150,14 +150,14 @@ export function BarracksDistributionDialog({
       if (distError) throw distError;
 
       // Update barracks stores quantities
-      const newAvailable = (selectedStoreItem.quantity_available || 0) - quantity;
-      const newIssued = (selectedStoreItem.quantity_issued || 0) + quantity;
+      const newAvailable = (selectedStoreItem.qty_on_hand || 0) - quantity;
+      const newIssued = (selectedStoreItem.qty_issued || 0) + quantity;
 
       const { error: updateError } = await supabase
         .from('barracks_stores')
         .update({
-          quantity_available: newAvailable,
-          quantity_issued: newIssued,
+          qty_on_hand: newAvailable,
+          qty_issued: newIssued,
           updated_at: new Date().toISOString(),
         })
         .eq('id', selectedStoreItem.id);
@@ -274,7 +274,7 @@ export function BarracksDistributionDialog({
                     >
                       <div className="font-medium">{item.item_name}</div>
                       <div className="text-sm text-muted-foreground">
-                        {item.item_id} • Available: {item.quantity_available || 0}
+                        {item.item_id} • Available: {item.qty_on_hand || 0}
                       </div>
                     </button>
                   ))}
@@ -289,7 +289,7 @@ export function BarracksDistributionDialog({
             <div className="bg-muted/50 p-4 rounded-lg">
               <div className="font-medium">Selected Item: {selectedStoreItem.item_name}</div>
               <div className="text-sm text-muted-foreground">
-                Available: {selectedStoreItem.quantity_available || 0}
+                Available: {selectedStoreItem.qty_on_hand || 0}
               </div>
             </div>
 
@@ -362,12 +362,12 @@ export function BarracksDistributionDialog({
                 id="quantity"
                 type="number"
                 min="1"
-                max={selectedStoreItem.quantity_available || 0}
+                max={selectedStoreItem.qty_on_hand || 0}
                 value={quantity}
                 onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
               />
               <p className="text-xs text-muted-foreground mt-1">
-                Available: {selectedStoreItem.quantity_available || 0}
+                Available: {selectedStoreItem.qty_on_hand || 0}
               </p>
             </div>
 
@@ -422,7 +422,7 @@ export function BarracksDistributionDialog({
               <Button
                 type="button"
                 onClick={handleSubmit}
-                disabled={loading || quantity <= 0 || quantity > (selectedStoreItem.quantity_available || 0)}
+                disabled={loading || quantity <= 0 || quantity > (selectedStoreItem.qty_on_hand || 0)}
                 className="flex-1"
               >
                 {loading ? "Distributing..." : "✓ Distribute Item"}
