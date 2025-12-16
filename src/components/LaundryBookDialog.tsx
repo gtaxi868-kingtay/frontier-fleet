@@ -108,16 +108,14 @@ export function LaundryBookDialog({ open, onOpenChange, onSuccess }: LaundryBook
         .from('laundry_book')
         .insert([{
           entry_date: entryDate,
-          unit_id: selectedSoldier.unit_id || userUnitId,
+          squadron_id: selectedSoldier.unit_id || userUnitId,
           soldier_id: selectedSoldier.id,
-          bundle_number: bundleNumber || null,
-          articles_count: articlesCount,
-          kd_garments_count: kdGarmentsCount > 0 ? kdGarmentsCount : null,
-          handed_in_date: handedInDate,
-          handed_in_by: handedInBy,
-          service_provider: serviceProvider || null,
-          weekly_total: weeklyTotal,
-          notes: notes || null,
+          item_type: 'laundry_bundle',
+          quantity: articlesCount,
+          sent_date: handedInDate,
+          condition: 'Good',
+          remarks: notes || null,
+          inspector_id: profile?.id,
         }]);
 
       if (error) throw error;

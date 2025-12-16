@@ -81,95 +81,11 @@ export function useActionItems() {
         });
       });
 
-      // 2. Inspections Due (next 7 days)
-      const today = new Date().toISOString().split('T')[0];
-      const nextWeek = new Date();
-      nextWeek.setDate(nextWeek.getDate() + 7);
-      const nextWeekStr = nextWeek.toISOString().split('T')[0];
-
-      // Vehicle inspections
-      let vehicleInspectionsQuery = supabase
-        .from('vehicle_inspections')
-        .select('id, inspection_number, vehicle_id, next_inspection_due, inspection_type')
-        .not('next_inspection_due', 'is', null)
-        .lte('next_inspection_due', nextWeekStr)
-        .gte('next_inspection_due', today);
-      const { data: inspectionsDue } = await vehicleInspectionsQuery;
-
-      inspectionsDue?.forEach((inspection: any) => {
-        const daysUntil = Math.ceil(
-          (new Date(inspection.next_inspection_due).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
-        );
-        items.push({
-          id: `inspection-${inspection.id}`,
-          type: 'inspection_due',
-          priority: daysUntil <= 3 ? 'urgent' : 'attention',
-          title: `Vehicle Inspection Due: ${inspection.inspection_type}`,
-          description: `Inspection due in ${daysUntil} day${daysUntil !== 1 ? 's' : ''}`,
-          module: 'vehicles',
-          itemId: inspection.vehicle_id,
-          link: '/motor-transport',
-          dueDate: inspection.next_inspection_due,
-        });
-      });
-
-      // Workshop inspections
-      let workshopInspectionsQuery = supabase
-        .from('workshop_inspections')
-        .select('id, inspection_number, equipment_name, next_inspection_due')
-        .not('next_inspection_due', 'is', null)
-        .lte('next_inspection_due', nextWeekStr)
-        .gte('next_inspection_due', today);
-      const { data: wkspInspectionsDue } = await workshopInspectionsQuery;
-
-      wkspInspectionsDue?.forEach((inspection: any) => {
-        const daysUntil = Math.ceil(
-          (new Date(inspection.next_inspection_due).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
-        );
-        items.push({
-          id: `wksp-inspection-${inspection.id}`,
-          type: 'inspection_due',
-          priority: daysUntil <= 3 ? 'urgent' : 'attention',
-          title: `Workshop Inspection Due: ${inspection.equipment_name}`,
-          description: `Bimonthly inspection due in ${daysUntil} day${daysUntil !== 1 ? 's' : ''}`,
-          module: 'workshop',
-          itemId: inspection.id,
-          link: '/workshop-dashboard',
-          dueDate: inspection.next_inspection_due,
-        });
-      });
-
-      // 3. Active Work Tickets (for MTO/S4/CO roles)
-      if (role === 'MTO' || role === 'S4' || role === 'CO' || role === 'S4_ADMIN') {
-        const { data: activeWorkTickets } = await supabase
-          .from('mt_work_tickets')
-          .select('id, ticket_number, vehicle_id, issue_date, vehicle:vehicles(vehicle_id)')
-          .eq('status', 'active')
-          .order('issue_date', { ascending: true });
-
-        activeWorkTickets?.forEach((ticket: any) => {
-          const daysOut = Math.floor(
-            (new Date().getTime() - new Date(ticket.issue_date).getTime()) / (1000 * 60 * 60 * 24)
-          );
-          items.push({
-            id: `work-ticket-${ticket.id}`,
-            type: 'work_ticket_return',
-            priority: daysOut > 7 ? 'urgent' : daysOut > 3 ? 'attention' : 'info',
-            title: `Work Ticket Active: ${ticket.ticket_number}`,
-            description: `Vehicle ${ticket.vehicle?.vehicle_id || 'N/A'} has been out for ${daysOut} day${daysOut !== 1 ? 's' : ''}`,
-            module: 'mt',
-            itemId: ticket.id,
-            link: '/mto-dashboard',
-            dueDate: ticket.issue_date,
-          });
-        });
-      }
-
-      // 4. Pending Approvals (for roles that can approve)
+      // 2. Pending Approvals (for roles that can approve)
       if (role === 'CO' || role === 'S4' || role === 'OC') {
         const { data: pendingRequests } = await supabase
           .from('inventory_requests')
-          .select('id, request_number, item_name, requested_by')
+          .select('id, item_name')
           .eq('status', 'pending')
           .order('created_at', { ascending: true });
 
@@ -187,7 +103,7 @@ export function useActionItems() {
         }
       }
 
-      // 5. Unserviceable Items (needs repair/replacement)
+      // 3. Unserviceable Items (needs repair/replacement)
       let unserviceableToolsQuery = supabase
         .from('tools')
         .select('id, tool_id, tool_name')

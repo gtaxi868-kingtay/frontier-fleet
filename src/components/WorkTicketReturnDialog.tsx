@@ -38,8 +38,8 @@ export function WorkTicketReturnDialog({ open, onOpenChange, onSuccess, ticket }
   const mileageStart = ticket?.mileage_start || 0;
   const mileageEnd = parseInt(formData.mileage_end) || mileageStart;
   const distanceTraveled = mileageEnd > mileageStart ? mileageEnd - mileageStart : 0;
-  const petrolIssued = parseFloat(ticket?.petrol_issued || 0);
-  const petrolRemaining = parseFloat(formData.petrol_remaining || 0);
+  const petrolIssued = parseFloat(String(ticket?.fuel_issued || 0));
+  const petrolRemaining = parseFloat(formData.petrol_remaining || '0');
   const petrolConsumed = petrolIssued > 0 && petrolRemaining >= 0 ? petrolIssued - petrolRemaining : 0;
   const mpgCalculated = distanceTraveled > 0 && petrolConsumed > 0 
     ? (distanceTraveled / (petrolConsumed / 3.78541)).toFixed(2) // Convert liters to gallons for MPG
@@ -103,33 +103,30 @@ export function WorkTicketReturnDialog({ open, onOpenChange, onSuccess, ticket }
 
       if (ticketError) throw ticketError;
 
-      // Create POL account entry if petrol was issued
+      // Create POL transaction entry if petrol was issued
       if (petrolIssued > 0) {
-        const currentMonth = new Date().toISOString().slice(0, 7) + '-01';
         const petrolConsumedValue = petrolConsumed > 0 ? petrolConsumed : 0;
         
-        const polAccountData = {
-          account_period_month: currentMonth,
+        const polData = {
+          fuel_type: 'petrol',
+          quantity: petrolConsumedValue,
+          transaction_type: 'issue',
           vehicle_id: ticket.vehicle_id,
           work_ticket_id: ticket.id,
-          petrol_issued: petrolIssued,
-          petrol_remaining: petrolRemaining > 0 ? petrolRemaining : null,
-          mileage_start: mileageStart,
-          mileage_end: endMileage,
-          mileage_total: totalDistance,
-          mpg_calculated: mpgCalculated ? parseFloat(mpgCalculated) : null,
-          issued_by_id: profile?.id,
-          issued_date: ticket.issue_date,
+          transaction_date: new Date().toISOString().split('T')[0],
+          authorized_by: profile?.id,
+          squadron_id: ticket.squadron_id,
+          notes: `Work ticket ${ticket.ticket_number} - Consumed ${petrolConsumedValue}L`,
         };
 
         const { error: polError } = await supabase
-          .from('pol_accounts')
-          .insert([polAccountData]);
+          .from('pol_transactions')
+          .insert([polData]);
 
         if (polError) {
-          console.error('POL account creation error:', polError);
-          // Don't fail the return if POL account creation fails - just log it
-          toast.warning("Work ticket returned, but POL account creation had an issue");
+          console.error('POL transaction creation error:', polError);
+          // Don't fail the return if POL creation fails - just log it
+          toast.warning("Work ticket returned, but POL tracking had an issue");
         }
       }
 

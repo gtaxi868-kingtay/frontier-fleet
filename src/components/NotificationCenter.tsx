@@ -52,10 +52,15 @@ export function NotificationCenter() {
   }, [role]);
 
   const fetchAlerts = async () => {
+    if (!role) return;
+    
+    // Cast role to the expected database type
+    const dbRole = role as 'CO' | 'OC' | 'S1' | 'S4' | 'S4_ADMIN' | 'SQMS' | 'STOREMAN' | 'Soldier';
+    
     const { data } = await supabase
       .from('alerts')
       .select('*')
-      .eq('recipient_role', role)
+      .eq('recipient_role', dbRole)
       .order('created_at', { ascending: false })
       .limit(20);
 
