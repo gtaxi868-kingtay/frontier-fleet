@@ -35,6 +35,7 @@ import AuditTrail from "./pages/AuditTrail";
 import ChangeNotices from "./pages/ChangeNotices";
 import SelfApprove from "./pages/SelfApprove";
 import NotFound from "./pages/NotFound";
+import Profile from "./pages/Profile";
 import MTODashboard from "./pages/MTODashboard";
 import WorkshopDashboard from "./pages/WorkshopDashboard";
 import POLManagement from "./pages/POLManagement";
@@ -211,6 +212,7 @@ const App = () => {
                           <Route path="/barracks-stores" element={<BarracksStores />} />
                           <Route path="/clothing-equipment" element={<ClothingEquipment />} />
                           <Route path="/company-stores" element={<CompanyStores />} />
+                          <Route path="/profile" element={<Profile />} />
                           <Route path="*" element={<NotFound />} />
                         </Routes>
                       </div>
