@@ -40,6 +40,7 @@ import WorkshopDashboard from "./pages/WorkshopDashboard";
 import POLManagement from "./pages/POLManagement";
 import PolFuel from "./pages/PolFuel";
 import EquipmentKits from "./pages/EquipmentKits";
+import PhysicalCheck from "./pages/PhysicalCheck";
 import BarracksStores from "./pages/BarracksStores";
 import ClothingEquipment from "./pages/ClothingEquipment";
 import CompanyStores from "./pages/CompanyStores";
@@ -206,6 +207,7 @@ const App = () => {
                             }
                           />
                           <Route path="/equipment-kits" element={<EquipmentKits />} />
+                          <Route path="/physical-check" element={<PhysicalCheck />} />
                           <Route path="/barracks-stores" element={<BarracksStores />} />
                           <Route path="/clothing-equipment" element={<ClothingEquipment />} />
                           <Route path="/company-stores" element={<CompanyStores />} />

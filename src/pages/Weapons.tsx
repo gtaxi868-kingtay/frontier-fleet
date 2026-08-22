@@ -46,6 +46,7 @@ import { formatIssuedTo, getItemStatus } from "@/lib/statusUtils";
 import { RealtimeInventorySync } from "@/components/RealtimeInventorySync";
 import { useInventoryData } from "@/hooks/useInventoryData";
 import { QRScannerDialog } from "@/components/QRScannerDialog";
+import { SensitiveField } from "@/components/SensitiveField";
 import { QRCodeLabel } from "@/components/QRCodeLabel";
 import { useItemLookup } from "@/hooks/useItemLookup";
 import { decodeQRData, type QRCodeData } from "@/lib/qr-utils";
@@ -355,7 +356,8 @@ export default function Weapons() {
                       )}
                       {weapon.serial_number && (
                         <p className="text-sm">
-                          <span className="text-muted-foreground">Serial:</span> {weapon.serial_number}
+                          <span className="text-muted-foreground">Serial:</span>{" "}
+                          <SensitiveField value={weapon.serial_number} context="weapons" />
                         </p>
                       )}
                       {weapon.rack_number && (

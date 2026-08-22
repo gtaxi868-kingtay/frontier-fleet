@@ -21,7 +21,8 @@ import {
   Warehouse,
   BellRing,
   Fuel,
-  Boxes
+  Boxes,
+  ClipboardCheck
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -62,6 +63,7 @@ const assetModules = [
   { title: "Clothing & Equipment", url: "/clothing-equipment", icon: Shirt },
   { title: "Company Stores", url: "/company-stores", icon: ScrollText },
   { title: "Equipment Kits", url: "/equipment-kits", icon: Boxes },
+  { title: "Physical Check", url: "/physical-check", icon: ClipboardCheck },
 ];
 
 const personnelModules = [
@@ -85,7 +87,7 @@ export function AppSidebar() {
   const navigate = useNavigate();
   
   const showRoleManagement = role === 'CO' || role === 'S4';
-  const showAuditTrail = ['CO', 'S1', 'S4', 'S4_ADMIN'].includes(role || '');
+  const showAuditTrail = ['CO', 'S1', 'S4', 'S4_ADMIN', 'RSM'].includes(role || '');
   const showChangeNotices = ['CO', 'S1', 'S4'].includes(role || '');
   
   // Filter department modules based on role

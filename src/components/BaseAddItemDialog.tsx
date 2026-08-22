@@ -120,6 +120,23 @@ export function BaseAddItemDialog({
         }
       });
 
+      if (tableName === 'explosives') {
+        // Ammunition changes require CO approval before they hit the real
+        // record — this submits a pending request instead of writing directly.
+        const { data: result, error: rpcError } = await supabase.rpc('submit_explosives_change', {
+          p_action_type: 'INSERT',
+          p_changes: insertData,
+        });
+        if (rpcError) throw rpcError;
+        if (!(result as any)?.success) throw new Error((result as any)?.error || 'Failed to submit request');
+
+        toast.success('Submitted for CO approval');
+        form.reset();
+        onSuccess();
+        onOpenChange(false);
+        return;
+      }
+
       const { error } = await supabase.from(tableName).insert(insertData);
 
       if (error) throw error;

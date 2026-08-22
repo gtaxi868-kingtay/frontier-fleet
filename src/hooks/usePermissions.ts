@@ -48,6 +48,16 @@ const rolePermissions: Record<string, RolePermissionConfig> = {
     canEditInventory: false, // CO doesn't directly edit
     canApproveWeaponTransfers: true,
   },
+  RSM: {
+    permissions: [
+      'view_all',
+      'view_analytics',
+      'generate_reports',
+    ],
+    viewScope: 'all_units',
+    canEditInventory: false,
+    canApproveWeaponTransfers: false,
+  },
   S1: {
     permissions: [
       'view_all',

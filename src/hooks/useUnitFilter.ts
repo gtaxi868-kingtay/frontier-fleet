@@ -20,7 +20,7 @@ export function useUnitFilter() {
   const overrideUnitId = searchParams.get('unit');
 
   // MTO and WKSP_WO see all units for their department operations
-  const canSeeAllUnits = role === 'CO' || role === 'S4' || role === 'S4_ADMIN' || role === 'MTO' || role === 'WKSP_WO';
+  const canSeeAllUnits = role === 'CO' || role === 'S1' || role === 'S4' || role === 'S4_ADMIN' || role === 'RSM' || role === 'MTO' || role === 'WKSP_WO';
   const userUnitId = profile?.unit_id || null;
 
   // Command roles honor the store-scope override; unit-scoped roles never do.

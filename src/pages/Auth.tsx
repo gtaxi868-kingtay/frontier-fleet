@@ -134,7 +134,7 @@ export default function Auth() {
       signUpData.password,
       signUpData.name,
       signUpData.rank,
-      signUpData.role as 'CO' | 'S1' | 'S4' | 'S4_ADMIN' | 'OC' | 'SQMS' | 'STOREMAN' | 'MTO' | 'WKSP_WO' | 'Soldier',
+      signUpData.role as 'CO' | 'S1' | 'S4' | 'S4_ADMIN' | 'OC' | 'SQMS' | 'STOREMAN' | 'MTO' | 'WKSP_WO' | 'RSM' | 'Soldier',
       signUpData.unit_id
     );
     
@@ -339,6 +339,7 @@ export default function Auth() {
                       </SelectTrigger>
                       <SelectContent className="bg-popover z-50">
                         <SelectItem value="CO">Commanding Officer (CO)</SelectItem>
+                        <SelectItem value="RSM">Regimental Sergeant Major (RSM)</SelectItem>
                         <SelectItem value="S1">Adjutant (S1)</SelectItem>
                         <SelectItem value="S4">Logistics Officer (S4)</SelectItem>
                         <SelectItem value="S4_ADMIN">S4 Staff Member (S4 Admin)</SelectItem>
