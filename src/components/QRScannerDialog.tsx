@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { QrCode, Camera, X } from 'lucide-react';
-import { QrReader } from 'react-qr-reader';
+import { Scanner, type IDetectedBarcode } from '@yudiel/react-qr-scanner';
 import { toast } from 'sonner';
 
 interface QRScannerDialogProps {
@@ -25,20 +25,18 @@ export function QRScannerDialog({
   const [manualInput, setManualInput] = useState('');
   const [scannerActive, setScannerActive] = useState(false);
 
-  const handleScan = (result: any) => {
-    if (result) {
-      const scannedText = result?.text || result;
-      if (scannedText) {
-        toast.success('QR Code scanned successfully');
-        onScan(scannedText);
-        setScannerActive(false);
-        onOpenChange(false);
-        setManualInput('');
-      }
+  const handleScan = (detectedCodes: IDetectedBarcode[]) => {
+    const scannedText = detectedCodes[0]?.rawValue;
+    if (scannedText) {
+      toast.success('QR Code scanned successfully');
+      onScan(scannedText);
+      setScannerActive(false);
+      onOpenChange(false);
+      setManualInput('');
     }
   };
 
-  const handleError = (error: any) => {
+  const handleError = (error: unknown) => {
     console.error('QR Scanner error:', error);
     toast.error('Camera error. Please try manual input.');
   };
@@ -91,13 +89,10 @@ export function QRScannerDialog({
 
             {scannerActive && (
               <div className="border rounded-lg overflow-hidden bg-black">
-                <QrReader
+                <Scanner
                   constraints={{ facingMode: 'environment' }}
-                  onResult={handleScan}
-                  // @ts-ignore - react-qr-reader types are outdated
+                  onScan={handleScan}
                   onError={handleError}
-                  containerStyle={{ width: '100%' }}
-                  videoContainerStyle={{ paddingTop: '100%' }}
                 />
               </div>
             )}

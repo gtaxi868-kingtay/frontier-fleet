@@ -1,7 +1,7 @@
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Fuel, TrendingUp, AlertTriangle } from "lucide-react";
+import { Plus, Fuel, TrendingUp, AlertTriangle, FileText, Send } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -9,9 +9,13 @@ import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { format } from "date-fns";
+import { toast } from "sonner";
+import { generateForm1A, downloadPdf, todayFormatted, type Form1ARow } from "@/lib/pdfForms";
+import { RoutingSlipDialog } from "@/components/RoutingSlipDialog";
 
 export default function POLManagement() {
   const { role } = useAuth();
+  const [routingSlipOpen, setRoutingSlipOpen] = useState(false);
   const [stats, setStats] = useState({
     totalConsumption: 0,
     monthlyConsumption: 0,
@@ -31,8 +35,12 @@ export default function POLManagement() {
         .from('pol_accounts')
         .select(`
           *,
-          vehicle:vehicles(vehicle_id, vehicle_type),
-          work_ticket:mt_work_tickets(ticket_number)
+          vehicle:vehicles(vehicle_id, vehicle_type, make_model),
+          work_ticket:mt_work_tickets(
+            ticket_number,
+            journey_purpose,
+            driver:profiles!mt_work_tickets_driver_id_fkey(name, rank, service_number, unit:units(name))
+          )
         `)
         .order('issued_date', { ascending: false })
         .limit(100);
@@ -99,6 +107,29 @@ export default function POLManagement() {
     });
   };
 
+  const handleGenerateForm1A = () => {
+    if (polAccounts.length === 0) {
+      toast.error("No POL accounts to include on the form.");
+      return;
+    }
+
+    const rows: Form1ARow[] = polAccounts.map((account: any) => ({
+      regimentalNumber: account.work_ticket?.driver?.service_number || "",
+      rank: account.work_ticket?.driver?.rank || "",
+      name: account.work_ticket?.driver?.name || "",
+      vehicleNumber: account.vehicle?.vehicle_id || "",
+      makeOfVehicle: account.vehicle?.make_model || account.vehicle?.vehicle_type || "",
+      formation: account.work_ticket?.driver?.unit?.name || "",
+      natureOfDetail: account.work_ticket?.journey_purpose || "",
+      oil: account.oil_issued ? String(account.oil_issued) : "",
+      diesel: account.petrol_issued ? String(account.petrol_issued) : "",
+    }));
+
+    const doc = generateForm1A({ sheet: "1", date: todayFormatted(), rows });
+    downloadPdf(doc, `Form-1A-POL-Issue-Voucher-${format(new Date(), "yyyy-MM-dd")}`);
+    toast.success("Form 1A generated");
+  };
+
   if (!isMTO) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -116,11 +147,23 @@ export default function POLManagement() {
     <div className="min-h-screen flex flex-col">
       <DashboardHeader />
       <main className="flex-1 p-6 space-y-6">
-        <div className="space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight">POL Management</h1>
-          <p className="text-muted-foreground">
-            Petrol, Oil, and Lubricants tracking and accounting (TTR Form 14)
-          </p>
+        <div className="flex items-start justify-between">
+          <div className="space-y-2">
+            <h1 className="text-3xl font-bold tracking-tight">POL Management</h1>
+            <p className="text-muted-foreground">
+              Petrol, Oil, and Lubricants tracking and accounting (Form 1A Revised)
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setRoutingSlipOpen(true)}>
+              <Send className="mr-2 h-4 w-4" />
+              Routing Slip
+            </Button>
+            <Button onClick={handleGenerateForm1A}>
+              <FileText className="mr-2 h-4 w-4" />
+              Generate Form 1A
+            </Button>
+          </div>
         </div>
 
         {/* Stats Cards */}
@@ -168,7 +211,7 @@ export default function POLManagement() {
         {/* POL Accounts Table */}
         <Card>
           <CardHeader>
-            <CardTitle>POL Accounts (TTR Form 14)</CardTitle>
+            <CardTitle>POL Accounts (Form 1A Revised)</CardTitle>
             <CardDescription>Fuel consumption tracking and accounting</CardDescription>
           </CardHeader>
           <CardContent>
@@ -276,6 +319,8 @@ export default function POLManagement() {
             )}
           </CardContent>
         </Card>
+
+        <RoutingSlipDialog open={routingSlipOpen} onOpenChange={setRoutingSlipOpen} />
       </main>
     </div>
   );

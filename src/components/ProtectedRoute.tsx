@@ -1,4 +1,4 @@
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { useEffect, useState } from 'react';
@@ -11,12 +11,13 @@ interface ProtectedRouteProps {
 
 export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
   const { user, role, loading } = useAuth();
+  const location = useLocation();
   const [checkingSelfApprove, setCheckingSelfApprove] = useState(false);
   const [canSelfApprove, setCanSelfApprove] = useState(false);
 
   useEffect(() => {
     // Check if user can self-approve (first S4)
-    if (!role && user && allowedRoles) {
+    if (!role && user) {
       const checkSelfApprove = async () => {
         try {
           // Check if there's any approved S4
@@ -62,12 +63,12 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
   }
 
   // Check if user has no approved role yet
-  if (!role && allowedRoles) {
+  if (!role && location.pathname !== '/self-approve') {
     // If they can self-approve, redirect to self-approve page
     if (canSelfApprove) {
       return <Navigate to="/self-approve" replace />;
     }
-    
+
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="text-center space-y-3">

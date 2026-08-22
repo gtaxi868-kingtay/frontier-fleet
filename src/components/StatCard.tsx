@@ -41,7 +41,7 @@ export function StatCard({
           <div className="space-y-2 flex-1">
             <p className="text-sm font-tactical font-semibold text-muted-foreground uppercase tracking-wider">{title}</p>
             <div className="flex items-baseline gap-2">
-              <h3 className="text-4xl font-display font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-primary via-gold to-accent">{value}</h3>
+              <h3 className="text-4xl font-display font-black tracking-tight text-foreground">{value}</h3>
               {trendValue && (
                 <span
                   className={`text-sm font-tactical font-bold uppercase tracking-wide ${

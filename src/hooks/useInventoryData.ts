@@ -42,11 +42,11 @@ const getUnitColumnName = (tableName: TableName): string | null => {
 
 export function useInventoryData<T = any>(tableName: TableName) {
   const queryClient = useQueryClient();
-  const { applyUnitFilter, canSeeAllUnits, userUnitId } = useUnitFilter();
+  const { applyUnitFilter, canSeeAllUnits, userUnitId, currentUnitId } = useUnitFilter();
   const unitColumn = getUnitColumnName(tableName);
 
   const query = useQuery({
-    queryKey: [tableName, userUnitId, canSeeAllUnits],
+    queryKey: [tableName, userUnitId, canSeeAllUnits, currentUnitId],
     queryFn: async () => {
       // Build select query with relationships
       let selectQuery = '*';

@@ -14,7 +14,7 @@ import { useUnitFilter } from "@/hooks/useUnitFilter";
 
 export default function Inventory() {
   const { role } = useAuth();
-  const { applyUnitFilter, canSeeAllUnits, userUnitId } = useUnitFilter();
+  const { applyUnitFilter, canSeeAllUnits, userUnitId, currentUnitId } = useUnitFilter();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [items, setItems] = useState<any[]>([]);
   const [selectedItem, setSelectedItem] = useState<any>(null);
@@ -36,7 +36,7 @@ export default function Inventory() {
 
   useEffect(() => {
     fetchItems();
-  }, [userUnitId, canSeeAllUnits]);
+  }, [userUnitId, canSeeAllUnits, currentUnitId]);
 
   const filteredItems = items.filter(item => {
     const searchLower = searchTerm.toLowerCase();

@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 import { AddFacilityDialog } from "@/components/AddFacilityDialog";
 import { useAuth } from "@/hooks/useAuth";
+import { useUnitFilter } from "@/hooks/useUnitFilter";
 import { BulkUploadDialog } from "@/components/BulkUploadDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { ItemDetailDialog } from "@/components/ItemDetailDialog";
@@ -14,19 +15,22 @@ import { Badge } from "@/components/ui/badge";
 export default function Facilities() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const { role } = useAuth();
+  const { applyUnitFilter, currentUnitId, canSeeAllUnits } = useUnitFilter();
   const canManage = role === 'S4' || role === 'CO';
   const [facilities, setFacilities] = useState<any[]>([]);
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
 
   const fetchFacilities = async () => {
-    const { data } = await supabase.from("facilities").select("*");
+    let query = supabase.from("facilities").select("*");
+    query = applyUnitFilter(query, { columnName: 'squadron_id' });
+    const { data } = await query;
     if (data) setFacilities(data);
   };
 
   useEffect(() => {
     fetchFacilities();
-  }, []);
+  }, [currentUnitId, canSeeAllUnits]);
 
   return (
     <div className="min-h-screen bg-background">

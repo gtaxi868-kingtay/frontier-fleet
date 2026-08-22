@@ -11,6 +11,8 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { SplashScreen } from "@/components/SplashScreen";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import Index from "./pages/Index";
+import Stores from "./pages/Stores";
+import StoreDetail from "./pages/StoreDetail";
 import Auth from "./pages/Auth";
 import Weapons from "./pages/Weapons";
 import Tools from "./pages/Tools";
@@ -30,11 +32,14 @@ import Analytics from "./pages/Analytics";
 import Reports from "./pages/Reports";
 import RoleManagement from "./pages/RoleManagement";
 import AuditTrail from "./pages/AuditTrail";
+import ChangeNotices from "./pages/ChangeNotices";
 import SelfApprove from "./pages/SelfApprove";
 import NotFound from "./pages/NotFound";
 import MTODashboard from "./pages/MTODashboard";
 import WorkshopDashboard from "./pages/WorkshopDashboard";
 import POLManagement from "./pages/POLManagement";
+import PolFuel from "./pages/PolFuel";
+import EquipmentKits from "./pages/EquipmentKits";
 import BarracksStores from "./pages/BarracksStores";
 import ClothingEquipment from "./pages/ClothingEquipment";
 import CompanyStores from "./pages/CompanyStores";
@@ -98,6 +103,8 @@ const App = () => {
               <div className="flex-1 flex flex-col">
                         <Routes>
                           <Route path="/" element={<Index />} />
+                          <Route path="/stores" element={<Stores />} />
+                          <Route path="/stores/:unitId" element={<StoreDetail />} />
                           <Route path="/weapons" element={<Weapons />} />
                           <Route path="/tools" element={<Tools />} />
                           <Route path="/engineer-equipment" element={<EngineerEquipment />} />
@@ -150,13 +157,21 @@ const App = () => {
                               </ProtectedRoute>
                             } 
                           />
-                          <Route 
-                            path="/audit-trail" 
+                          <Route
+                            path="/audit-trail"
                             element={
                               <ProtectedRoute allowedRoles={['CO', 'S1', 'S4', 'S4_ADMIN']}>
                                 <AuditTrail />
                               </ProtectedRoute>
-                            } 
+                            }
+                          />
+                          <Route
+                            path="/notices"
+                            element={
+                              <ProtectedRoute allowedRoles={['CO', 'S1', 'S4']}>
+                                <ChangeNotices />
+                              </ProtectedRoute>
+                            }
                           />
                           <Route 
                             path="/mto-dashboard" 
@@ -174,14 +189,23 @@ const App = () => {
                               </ProtectedRoute>
                             } 
                           />
-                          <Route 
-                            path="/pol-management" 
+                          <Route
+                            path="/pol-management"
                             element={
                               <ProtectedRoute allowedRoles={['MTO', 'S4', 'CO', 'S4_ADMIN']}>
                                 <POLManagement />
                               </ProtectedRoute>
-                            } 
+                            }
                           />
+                          <Route
+                            path="/pol-fuel"
+                            element={
+                              <ProtectedRoute allowedRoles={['MTO', 'S4', 'CO', 'S4_ADMIN', 'S1']}>
+                                <PolFuel />
+                              </ProtectedRoute>
+                            }
+                          />
+                          <Route path="/equipment-kits" element={<EquipmentKits />} />
                           <Route path="/barracks-stores" element={<BarracksStores />} />
                           <Route path="/clothing-equipment" element={<ClothingEquipment />} />
                           <Route path="/company-stores" element={<CompanyStores />} />

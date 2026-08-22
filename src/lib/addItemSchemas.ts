@@ -223,6 +223,23 @@ export const worksMaterialSchema = (unitId?: string | null) =>
     notes: optionalStringSchema,
   });
 
+// Room Inventory Schema
+export const roomInventorySchema = (unitId?: string | null) =>
+  z.object({
+    room_id: idSchema('Room ID'),
+    platoon_company: z.string().optional().nullable(),
+    room_type: z.union([
+      z.enum(['Barracks Room', 'Office', 'Store Room', 'Common Room', 'Other']),
+      z.literal(''),
+    ]).optional().nullable(),
+    occupants: z.string().optional().nullable(),
+    inventory_item: z.string().min(1, 'Inventory item is required'),
+    expected_qty: z.coerce.number().min(0, 'Expected quantity must be 0 or greater').default(0),
+    present_qty: z.coerce.number().min(0, 'Present quantity must be 0 or greater').default(0),
+    inspection_date: z.string().optional().nullable(),
+    notes: optionalStringSchema,
+  });
+
 // Helper to get schema by module name
 export function getSchemaForModule(
   module: string,
@@ -253,6 +270,8 @@ export function getSchemaForModule(
       return mtFacilitySchema(unitId);
     case 'works_materials':
       return worksMaterialSchema(unitId);
+    case 'room_inventory':
+      return roomInventorySchema(unitId);
     default:
       throw new Error(`No schema defined for module: ${module}`);
   }

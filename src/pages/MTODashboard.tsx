@@ -10,9 +10,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MTWorkTicketDialog } from "@/components/MTWorkTicketDialog";
 import { MTDriverPermitDialog } from "@/components/MTDriverPermitDialog";
 import { WorkTicketReturnDialog } from "@/components/WorkTicketReturnDialog";
+import { MTVehicleAllocationDialog } from "@/components/MTVehicleAllocationDialog";
+import { VehicleInspectionDialog } from "@/components/VehicleInspectionDialog";
+import { MTAccidentDialog } from "@/components/MTAccidentDialog";
 import { useQuery } from "@tanstack/react-query";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { format } from "date-fns";
+import { toast } from "sonner";
 
 export default function MTODashboard() {
   const { role, profile } = useAuth();
@@ -22,6 +26,12 @@ export default function MTODashboard() {
   const [selectedTicketForReturn, setSelectedTicketForReturn] = useState<any>(null);
   const [driverPermitDialogOpen, setDriverPermitDialogOpen] = useState(false);
   const [selectedPermit, setSelectedPermit] = useState<any>(null);
+  const [allocationDialogOpen, setAllocationDialogOpen] = useState(false);
+  const [selectedAllocation, setSelectedAllocation] = useState<any>(null);
+  const [inspectionDialogOpen, setInspectionDialogOpen] = useState(false);
+  const [selectedInspection, setSelectedInspection] = useState<any>(null);
+  const [accidentDialogOpen, setAccidentDialogOpen] = useState(false);
+  const [selectedAccident, setSelectedAccident] = useState<any>(null);
   const [stats, setStats] = useState({
     totalVehicles: 0,
     serviceableVehicles: 0,
@@ -75,7 +85,74 @@ export default function MTODashboard() {
     },
     enabled: isMTO,
   });
-  
+
+  // Fetch vehicle allocations
+  const { data: allocations = [], refetch: refetchAllocations } = useQuery({
+    queryKey: ['mt_vehicle_allocations'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('mt_vehicle_allocations')
+        .select(`
+          *,
+          vehicle:vehicles(vehicle_id, vehicle_type),
+          allocated_to:profiles!mt_vehicle_allocations_allocated_to_id_fkey(name, rank)
+        `)
+        .order('allocated_from', { ascending: false });
+
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: isMTO,
+  });
+
+  // Fetch all vehicles (for the vehicle pool list)
+  const { data: allVehicles = [], refetch: refetchVehicles } = useQuery({
+    queryKey: ['vehicles_pool'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('vehicles').select('*').order('vehicle_id');
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: isMTO,
+  });
+
+  // Fetch vehicle inspections
+  const { data: inspections = [], refetch: refetchInspections } = useQuery({
+    queryKey: ['vehicle_inspections'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('vehicle_inspections')
+        .select(`
+          *,
+          vehicle:vehicles(vehicle_id, vehicle_type)
+        `)
+        .order('inspection_date', { ascending: false });
+
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: isMTO,
+  });
+
+  // Fetch accidents
+  const { data: accidents = [], refetch: refetchAccidents } = useQuery({
+    queryKey: ['mt_accidents'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('mt_accidents')
+        .select(`
+          *,
+          vehicle:vehicles(vehicle_id, vehicle_type),
+          driver:profiles!mt_accidents_driver_id_fkey(name, rank)
+        `)
+        .order('accident_date', { ascending: false });
+
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: isMTO,
+  });
+
   useEffect(() => {
     if (!isMTO) return;
     fetchMTStats();
@@ -310,6 +387,7 @@ export default function MTODashboard() {
             <TabsTrigger value="drivers">Drivers</TabsTrigger>
             <TabsTrigger value="pol">POL Management</TabsTrigger>
             <TabsTrigger value="inspections">Inspections</TabsTrigger>
+            <TabsTrigger value="accidents">Accidents</TabsTrigger>
           </TabsList>
           
           <TabsContent value="overview" className="space-y-4">
@@ -323,13 +401,121 @@ export default function MTODashboard() {
             </Card>
           </TabsContent>
           
-          <TabsContent value="vehicles">
+          <TabsContent value="vehicles" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Vehicle Pool Management</CardTitle>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Vehicle Allocations</CardTitle>
+                    <CardDescription>Permanent and temporary vehicle entitlements</CardDescription>
+                  </div>
+                  <Button
+                    onClick={() => {
+                      setSelectedAllocation(null);
+                      setAllocationDialogOpen(true);
+                    }}
+                  >
+                    <Plus className="mr-2 h-4 w-4" />
+                    Allocate Vehicle
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground">Vehicle management interface coming soon...</p>
+                {allocations.length === 0 ? (
+                  <p className="text-muted-foreground text-center py-8">
+                    No vehicle allocations found. Allocate one to get started.
+                  </p>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Vehicle</TableHead>
+                        <TableHead>Allocated To</TableHead>
+                        <TableHead>Type</TableHead>
+                        <TableHead>From</TableHead>
+                        <TableHead>Until</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {allocations.map((allocation: any) => (
+                        <TableRow key={allocation.id}>
+                          <TableCell className="font-medium">
+                            {allocation.vehicle?.vehicle_id || 'N/A'} - {allocation.vehicle?.vehicle_type || ''}
+                          </TableCell>
+                          <TableCell>
+                            {allocation.allocated_to?.rank || ''} {allocation.allocated_to?.name || 'N/A'}
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="outline">{allocation.allocation_type?.replace(/_/g, ' ')}</Badge>
+                          </TableCell>
+                          <TableCell>
+                            {allocation.allocated_from ? format(new Date(allocation.allocated_from), 'MMM dd, yyyy') : 'N/A'}
+                          </TableCell>
+                          <TableCell>
+                            {allocation.allocated_until ? format(new Date(allocation.allocated_until), 'MMM dd, yyyy') : 'Permanent'}
+                          </TableCell>
+                          <TableCell>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedAllocation(allocation);
+                                setAllocationDialogOpen(true);
+                              }}
+                            >
+                              Edit
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Fleet Overview</CardTitle>
+                <CardDescription>All vehicles in the pool</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {allVehicles.length === 0 ? (
+                  <p className="text-muted-foreground text-center py-8">No vehicles found.</p>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Vehicle ID</TableHead>
+                        <TableHead>Type</TableHead>
+                        <TableHead>Serviceability</TableHead>
+                        <TableHead>Status</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {allVehicles.map((vehicle: any) => {
+                        const isAllocated = allocations.some((a: any) => a.vehicle_id === vehicle.id);
+                        return (
+                          <TableRow key={vehicle.id}>
+                            <TableCell className="font-medium">{vehicle.vehicle_id}</TableCell>
+                            <TableCell>{vehicle.vehicle_type}</TableCell>
+                            <TableCell>
+                              <Badge variant={vehicle.serviceability === 'Serviceable' ? 'default' : 'destructive'}>
+                                {vehicle.serviceability || 'Unknown'}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant={isAllocated ? 'secondary' : 'outline'}>
+                                {isAllocated ? 'Allocated' : 'Available'}
+                              </Badge>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -516,7 +702,7 @@ export default function MTODashboard() {
             <Card>
               <CardHeader>
                 <CardTitle>POL (Petrol, Oil, Lubricants) Management</CardTitle>
-                <CardDescription>Fuel consumption tracking and accounting (TTR Form 14)</CardDescription>
+                <CardDescription>Fuel consumption tracking and accounting (Form 1A Revised)</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -550,10 +736,167 @@ export default function MTODashboard() {
           <TabsContent value="inspections">
             <Card>
               <CardHeader>
-                <CardTitle>Vehicle Inspections</CardTitle>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Vehicle Inspections</CardTitle>
+                    <CardDescription>TTR Form 16 (monthly) and TTR Form 17 (technical) inspections</CardDescription>
+                  </div>
+                  <Button
+                    onClick={() => {
+                      setSelectedInspection(null);
+                      setInspectionDialogOpen(true);
+                    }}
+                  >
+                    <Plus className="mr-2 h-4 w-4" />
+                    Record Inspection
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground">Inspection scheduling and tracking coming soon...</p>
+                {inspections.length === 0 ? (
+                  <p className="text-muted-foreground text-center py-8">
+                    No inspections recorded. Record one to get started.
+                  </p>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Inspection #</TableHead>
+                        <TableHead>Vehicle</TableHead>
+                        <TableHead>Form</TableHead>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Next Due</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {inspections.map((inspection: any) => (
+                        <TableRow key={inspection.id}>
+                          <TableCell className="font-medium">{inspection.inspection_number}</TableCell>
+                          <TableCell>
+                            {inspection.vehicle?.vehicle_id || 'N/A'} - {inspection.vehicle?.vehicle_type || ''}
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="outline">{inspection.form_type?.replace('_', ' ')}</Badge>
+                          </TableCell>
+                          <TableCell>
+                            {inspection.inspection_date ? format(new Date(inspection.inspection_date), 'MMM dd, yyyy') : 'N/A'}
+                          </TableCell>
+                          <TableCell>
+                            <Badge
+                              variant={
+                                inspection.serviceability_status === 'serviceable' ? 'default' :
+                                inspection.serviceability_status === 'restricted' ? 'secondary' : 'destructive'
+                              }
+                            >
+                              {inspection.serviceability_status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            {inspection.next_inspection_due ? format(new Date(inspection.next_inspection_due), 'MMM dd, yyyy') : 'N/A'}
+                          </TableCell>
+                          <TableCell>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedInspection(inspection);
+                                setInspectionDialogOpen(true);
+                              }}
+                            >
+                              Edit
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="accidents">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Accident Reports</CardTitle>
+                    <CardDescription>Motor transport accident reporting and investigation</CardDescription>
+                  </div>
+                  <Button
+                    onClick={() => {
+                      setSelectedAccident(null);
+                      setAccidentDialogOpen(true);
+                    }}
+                  >
+                    <Plus className="mr-2 h-4 w-4" />
+                    Report Accident
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {accidents.length === 0 ? (
+                  <p className="text-muted-foreground text-center py-8">
+                    No accidents reported.
+                  </p>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Report #</TableHead>
+                        <TableHead>Vehicle</TableHead>
+                        <TableHead>Driver</TableHead>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Type</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {accidents.map((accident: any) => (
+                        <TableRow key={accident.id}>
+                          <TableCell className="font-medium">{accident.accident_number}</TableCell>
+                          <TableCell>
+                            {accident.vehicle?.vehicle_id || 'N/A'} - {accident.vehicle?.vehicle_type || ''}
+                          </TableCell>
+                          <TableCell>
+                            {accident.driver?.rank || ''} {accident.driver?.name || 'N/A'}
+                          </TableCell>
+                          <TableCell>
+                            {accident.accident_date ? format(new Date(accident.accident_date), 'MMM dd, yyyy') : 'N/A'}
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="outline">{accident.accident_type?.replace(/_/g, ' ')}</Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge
+                              variant={
+                                accident.status === 'closed' || accident.status === 'resolved' ? 'secondary' :
+                                accident.status === 'investigating' ? 'default' : 'destructive'
+                              }
+                            >
+                              {accident.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedAccident(accident);
+                                setAccidentDialogOpen(true);
+                              }}
+                            >
+                              Edit
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -599,6 +942,55 @@ export default function MTODashboard() {
             refetchPermits();
             setDriverPermitDialogOpen(false);
             setSelectedPermit(null);
+          }}
+        />
+
+        {/* Vehicle Allocation Dialog */}
+        <MTVehicleAllocationDialog
+          open={allocationDialogOpen}
+          onOpenChange={(open) => {
+            setAllocationDialogOpen(open);
+            if (!open) setSelectedAllocation(null);
+          }}
+          allocation={selectedAllocation}
+          onSuccess={() => {
+            fetchMTStats();
+            refetchAllocations();
+            refetchVehicles();
+            setAllocationDialogOpen(false);
+            setSelectedAllocation(null);
+          }}
+        />
+
+        {/* Vehicle Inspection Dialog */}
+        <VehicleInspectionDialog
+          open={inspectionDialogOpen}
+          onOpenChange={(open) => {
+            setInspectionDialogOpen(open);
+            if (!open) setSelectedInspection(null);
+          }}
+          inspection={selectedInspection}
+          onSuccess={() => {
+            fetchMTStats();
+            refetchInspections();
+            setInspectionDialogOpen(false);
+            setSelectedInspection(null);
+          }}
+        />
+
+        {/* Accident Dialog */}
+        <MTAccidentDialog
+          open={accidentDialogOpen}
+          onOpenChange={(open) => {
+            setAccidentDialogOpen(open);
+            if (!open) setSelectedAccident(null);
+          }}
+          accident={selectedAccident}
+          onSuccess={() => {
+            fetchMTStats();
+            refetchAccidents();
+            setAccidentDialogOpen(false);
+            setSelectedAccident(null);
           }}
         />
       </main>

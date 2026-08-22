@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ItemDetailDialog } from "@/components/ItemDetailDialog";
+import { AddRoomInventoryDialog } from "@/components/AddRoomInventoryDialog";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -13,6 +14,8 @@ export default function RoomInventory() {
   const [rooms, setRooms] = useState<any[]>([]);
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [search, setSearch] = useState("");
   const { role } = useAuth();
   const canManage = role === 'S4' || role === 'OC' || role === 'SQMS';
 
@@ -24,6 +27,17 @@ export default function RoomInventory() {
   useEffect(() => {
     fetchRooms();
   }, []);
+
+  const filteredRooms = rooms.filter((room) => {
+    if (!search.trim()) return true;
+    const term = search.toLowerCase();
+    return (
+      room.room_id?.toLowerCase().includes(term) ||
+      room.room_type?.toLowerCase().includes(term) ||
+      room.platoon_company?.toLowerCase().includes(term) ||
+      room.inventory_item?.toLowerCase().includes(term)
+    );
+  });
 
   return (
     <div className="min-h-screen bg-background">
@@ -38,6 +52,12 @@ export default function RoomInventory() {
               Accommodation and office fixtures tracking
             </p>
           </div>
+          {canManage && (
+            <Button variant="default" className="gap-2" onClick={() => setDialogOpen(true)}>
+              <Plus className="h-4 w-4" />
+              Add Room Item
+            </Button>
+          )}
         </div>
 
         <Card className="border-border/50 backdrop-blur-sm">
@@ -46,18 +66,27 @@ export default function RoomInventory() {
               <span>Room Inventory</span>
               <div className="relative w-64">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input placeholder="Search rooms..." className="pl-9" />
+                <Input
+                  placeholder="Search rooms..."
+                  className="pl-9"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
               </div>
             </CardTitle>
           </CardHeader>
           <CardContent>
             {rooms.length === 0 ? (
               <p className="text-muted-foreground text-center py-8">
-                No room inventory data available.
+                No room inventory data available. {canManage && "Add items to get started."}
+              </p>
+            ) : filteredRooms.length === 0 ? (
+              <p className="text-muted-foreground text-center py-8">
+                No rooms match "{search}".
               </p>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {rooms.map((room) => (
+                {filteredRooms.map((room) => (
                   <Card 
                     key={room.id} 
                     className="cursor-pointer hover:shadow-glow transition-all duration-300 border-border/50 hover:border-primary/50"
@@ -104,6 +133,12 @@ export default function RoomInventory() {
           onOpenChange={setDetailDialogOpen}
           title={selectedItem ? `${selectedItem.room_id} - ${selectedItem.room_type}` : ''}
           data={selectedItem}
+        />
+
+        <AddRoomInventoryDialog
+          open={dialogOpen}
+          onOpenChange={setDialogOpen}
+          onSuccess={fetchRooms}
         />
       </main>
     </div>

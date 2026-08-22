@@ -1,5 +1,6 @@
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { StatCard } from "@/components/StatCard";
+import { HeroStatCard } from "@/components/HeroStatCard";
 import { ModuleCard } from "@/components/ModuleCard";
 import { ActionRequiredCard } from "@/components/ActionRequiredCard";
 import { useEffect, useState } from "react";
@@ -299,6 +300,16 @@ const Index = () => {
             }
           </p>
         </div>
+
+        {/* Hero Metric */}
+        <HeroStatCard
+          label="Total Tracked Assets"
+          value={loading ? "..." : dashboardStats.totalAssets.toLocaleString()}
+          subtitle="Across all fleet modules"
+          icon={Package}
+          actionLabel="View Analytics"
+          actionLink="/analytics"
+        />
 
         {/* Key Metrics */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

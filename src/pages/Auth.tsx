@@ -80,15 +80,42 @@ export default function Auth() {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    
+
     const { error } = await signIn(signInData.email, signInData.password);
-    
+
     if (error) {
       toast.error(error.message);
     } else {
       toast.success('Signed in successfully');
     }
-    
+
+    setLoading(false);
+  };
+
+  const [pinData, setPinData] = useState({ serviceNumber: '', pin: '' });
+
+  const handlePinSignIn = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    const { data: email, error: lookupError } = await supabase.rpc('get_email_by_service_number', {
+      p_service_number: pinData.serviceNumber,
+    });
+
+    if (lookupError || !email) {
+      toast.error('Service number not recognized, or no PIN has been set for it');
+      setLoading(false);
+      return;
+    }
+
+    const { error } = await signIn(email, pinData.pin);
+
+    if (error) {
+      toast.error('Incorrect PIN');
+    } else {
+      toast.success('Signed in successfully');
+    }
+
     setLoading(false);
   };
 
@@ -142,8 +169,9 @@ export default function Auth() {
         </div>
 
         <Tabs defaultValue="signin" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-6">
+          <TabsList className="grid w-full grid-cols-3 mb-6">
             <TabsTrigger value="signin">Sign In</TabsTrigger>
+            <TabsTrigger value="pin">PIN</TabsTrigger>
             <TabsTrigger value="signup">Sign Up</TabsTrigger>
           </TabsList>
 
@@ -184,6 +212,47 @@ export default function Auth() {
                   </div>
                   <Button type="submit" className="w-full shadow-glow" disabled={loading}>
                     {loading ? 'Signing in...' : 'Sign In'}
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="pin">
+            <Card className="border-border/50">
+              <CardHeader>
+                <CardTitle>Quick PIN Access</CardTitle>
+                <CardDescription>
+                  Sign in with your service number and PIN. Set a PIN from your account menu after signing in with your password at least once.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handlePinSignIn} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="pin-service-number">Service Number</Label>
+                    <Input
+                      id="pin-service-number"
+                      type="text"
+                      placeholder="e.g., TTDF-12345"
+                      value={pinData.serviceNumber}
+                      onChange={(e) => setPinData({ ...pinData, serviceNumber: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="pin-pin">6-Digit PIN</Label>
+                    <Input
+                      id="pin-pin"
+                      type="password"
+                      inputMode="numeric"
+                      maxLength={6}
+                      value={pinData.pin}
+                      onChange={(e) => setPinData({ ...pinData, pin: e.target.value.replace(/\D/g, '') })}
+                      required
+                    />
+                  </div>
+                  <Button type="submit" className="w-full shadow-glow" disabled={loading}>
+                    {loading ? 'Signing in...' : 'Sign In with PIN'}
                   </Button>
                 </form>
               </CardContent>

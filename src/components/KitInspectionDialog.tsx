@@ -462,7 +462,7 @@ export function KitInspectionDialog({ open, onOpenChange, onSuccess }: KitInspec
         )}
 
         {/* Step 3: Item Checklist */}
-        {step === 3 && selectedSoldier && itemChecks.length > 0 && (
+        {step === 3 && selectedSoldier && (
           <div className="space-y-4">
             <Alert>
               <AlertCircle className="h-4 w-4" />
@@ -472,6 +472,13 @@ export function KitInspectionDialog({ open, onOpenChange, onSuccess }: KitInspec
               </AlertDescription>
             </Alert>
 
+            {itemChecks.length === 0 && (
+              <p className="text-sm text-muted-foreground text-center py-8 border rounded-lg">
+                No current holdings or authorized scale items found for this soldier.
+              </p>
+            )}
+
+            {itemChecks.length > 0 && (
             <div className="space-y-2 max-h-96 overflow-y-auto border p-4 rounded-lg">
               {itemChecks.map((check, idx) => (
                 <div key={idx} className="flex items-center justify-between p-3 border rounded-lg">
@@ -513,6 +520,7 @@ export function KitInspectionDialog({ open, onOpenChange, onSuccess }: KitInspec
                 </div>
               ))}
             </div>
+            )}
 
             <div className="flex gap-2">
               <Button

@@ -1080,6 +1080,95 @@ export const worksMaterialFields: FieldConfig[] = [
 ];
 
 /**
+ * Room Inventory fields configuration
+ */
+export const roomInventoryFields: FieldConfig[] = [
+  {
+    name: 'room_id',
+    label: 'Room ID',
+    type: 'text',
+    required: true,
+    placeholder: 'e.g., ROOM-101',
+    helpText: 'Unique identifier for this room',
+    gridCols: 1,
+  },
+  {
+    name: 'platoon_company',
+    label: 'Platoon/Company',
+    type: 'text',
+    required: false,
+    placeholder: 'e.g., Alpha Company',
+    gridCols: 1,
+  },
+  {
+    name: 'room_type',
+    label: 'Room Type',
+    type: 'select',
+    required: false,
+    options: [
+      { value: 'Barracks Room', label: 'Barracks Room' },
+      { value: 'Office', label: 'Office' },
+      { value: 'Store Room', label: 'Store Room' },
+      { value: 'Common Room', label: 'Common Room' },
+      { value: 'Other', label: 'Other' },
+    ],
+    gridCols: 1,
+  },
+  {
+    name: 'occupants',
+    label: 'Occupants',
+    type: 'text',
+    required: false,
+    placeholder: 'Names of soldiers assigned to this room',
+    gridCols: 1,
+  },
+  {
+    name: 'inventory_item',
+    label: 'Inventory Item',
+    type: 'text',
+    required: true,
+    placeholder: 'e.g., Bed, Locker, Desk',
+    gridCols: 2,
+  },
+  {
+    name: 'expected_qty',
+    label: 'Expected Quantity',
+    type: 'number',
+    required: false,
+    placeholder: '0',
+    min: 0,
+    step: 1,
+    gridCols: 1,
+  },
+  {
+    name: 'present_qty',
+    label: 'Present Quantity',
+    type: 'number',
+    required: false,
+    placeholder: '0',
+    min: 0,
+    step: 1,
+    gridCols: 1,
+  },
+  {
+    name: 'inspection_date',
+    label: 'Inspection Date',
+    type: 'date',
+    required: false,
+    gridCols: 2,
+  },
+  {
+    name: 'notes',
+    label: 'Notes',
+    type: 'textarea',
+    required: false,
+    placeholder: 'Additional notes...',
+    rows: 3,
+    gridCols: 2,
+  },
+];
+
+/**
  * Get field configuration for a module
  */
 export function getFieldsForModule(module: string): FieldConfig[] {
@@ -1108,6 +1197,8 @@ export function getFieldsForModule(module: string): FieldConfig[] {
       return mtFacilityFields;
     case 'works_materials':
       return worksMaterialFields;
+    case 'room_inventory':
+      return roomInventoryFields;
     default:
       return [];
   }
@@ -1233,6 +1324,17 @@ export function getDefaultValuesForModule(module: string): Record<string, any> {
       quantity_received: 0,
       quantity_issued: 0,
       authority: '',
+      notes: '',
+    },
+    room_inventory: {
+      room_id: '',
+      platoon_company: '',
+      room_type: '',
+      occupants: '',
+      inventory_item: '',
+      expected_qty: 0,
+      present_qty: 0,
+      inspection_date: '',
       notes: '',
     },
   };

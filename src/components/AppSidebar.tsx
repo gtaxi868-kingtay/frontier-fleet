@@ -17,7 +17,11 @@ import {
   Car,
   ClipboardList,
   ArrowLeftRight,
-  ScrollText
+  ScrollText,
+  Warehouse,
+  BellRing,
+  Fuel,
+  Boxes
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -36,8 +40,12 @@ import {
   SidebarHeader,
 } from "@/components/ui/sidebar";
 
-const modules = [
+const overviewModules = [
   { title: "Dashboard", url: "/", icon: Home },
+  { title: "Stores", url: "/stores", icon: Warehouse },
+];
+
+const assetModules = [
   { title: "Weapons", url: "/weapons", icon: Crosshair },
   { title: "Tools", url: "/tools", icon: Wrench },
   { title: "Engineer Equipment", url: "/engineer-equipment", icon: HardHat },
@@ -53,7 +61,14 @@ const modules = [
   { title: "Barracks Stores", url: "/barracks-stores", icon: Building },
   { title: "Clothing & Equipment", url: "/clothing-equipment", icon: Shirt },
   { title: "Company Stores", url: "/company-stores", icon: ScrollText },
+  { title: "Equipment Kits", url: "/equipment-kits", icon: Boxes },
+];
+
+const personnelModules = [
   { title: "Inventory Requests", url: "/inventory-requests", icon: ClipboardList },
+];
+
+const reportingModules = [
   { title: "Transactions", url: "/transactions", icon: ArrowLeftRight },
   { title: "Analytics", url: "/analytics", icon: BarChart3 },
   { title: "Reports", url: "/reports", icon: FileText },
@@ -62,6 +77,7 @@ const modules = [
 const departmentModules = [
   { title: "MTO Dashboard", url: "/mto-dashboard", icon: Car, roles: ['MTO', 'S4', 'CO', 'S4_ADMIN'] },
   { title: "Workshop Dashboard", url: "/workshop-dashboard", icon: Wrench, roles: ['WKSP_WO', 'S4', 'CO', 'S4_ADMIN'] },
+  { title: "POL / Fuel", url: "/pol-fuel", icon: Fuel, roles: ['MTO', 'S4', 'S4_ADMIN', 'CO', 'S1'] },
 ];
 
 export function AppSidebar() {
@@ -70,6 +86,7 @@ export function AppSidebar() {
   
   const showRoleManagement = role === 'CO' || role === 'S4';
   const showAuditTrail = ['CO', 'S1', 'S4', 'S4_ADMIN'].includes(role || '');
+  const showChangeNotices = ['CO', 'S1', 'S4'].includes(role || '');
   
   // Filter department modules based on role
   const availableDepartmentModules = departmentModules.filter(module => 
@@ -89,7 +106,7 @@ export function AppSidebar() {
             className="h-40 w-40 object-contain drop-shadow-[0_0_8px_rgba(139,0,0,0.5)] group-hover:drop-shadow-[0_0_12px_rgba(255,215,0,0.6)] transition-all" 
           />
           <div className="flex flex-col group-data-[collapsible=icon]:hidden text-left">
-            <span className="text-xl font-display font-black tracking-wider uppercase text-transparent bg-clip-text bg-gradient-to-r from-primary via-gold to-accent">IBIMS</span>
+            <span className="text-xl font-display font-black tracking-wider uppercase text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">IBIMS</span>
             <span className="text-sm font-tactical text-muted-foreground uppercase tracking-wide">1st Eng Bn</span>
           </div>
         </button>
@@ -97,17 +114,93 @@ export function AppSidebar() {
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="font-tactical uppercase tracking-wider text-xs text-muted-foreground">Modules</SidebarGroupLabel>
+          <SidebarGroupLabel className="font-tactical uppercase tracking-wider text-xs text-muted-foreground">Overview</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {modules.map((item) => (
+              {overviewModules.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <NavLink 
+                    <NavLink
+                      to={item.url}
+                      end
+                      className={({ isActive }) =>
+                        isActive
+                          ? "bg-gradient-primary text-primary-foreground font-tactical font-bold shadow-glow beveled"
+                          : "hover:bg-primary/10 hover:text-primary font-tactical transition-all"
+                      }
+                    >
+                      <item.icon className="h-4 w-4" />
+                      <span className="uppercase tracking-wide text-xs">{item.title}</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel className="font-tactical uppercase tracking-wider text-xs text-muted-foreground">Asset Modules</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {assetModules.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <NavLink
                       to={item.url}
                       className={({ isActive }) =>
-                        isActive 
-                          ? "bg-gradient-primary text-primary-foreground font-tactical font-bold shadow-glow beveled" 
+                        isActive
+                          ? "bg-gradient-primary text-primary-foreground font-tactical font-bold shadow-glow beveled"
+                          : "hover:bg-primary/10 hover:text-primary font-tactical transition-all"
+                      }
+                    >
+                      <item.icon className="h-4 w-4" />
+                      <span className="uppercase tracking-wide text-xs">{item.title}</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel className="font-tactical uppercase tracking-wider text-xs text-muted-foreground">Personnel</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {personnelModules.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <NavLink
+                      to={item.url}
+                      className={({ isActive }) =>
+                        isActive
+                          ? "bg-gradient-primary text-primary-foreground font-tactical font-bold shadow-glow beveled"
+                          : "hover:bg-primary/10 hover:text-primary font-tactical transition-all"
+                      }
+                    >
+                      <item.icon className="h-4 w-4" />
+                      <span className="uppercase tracking-wide text-xs">{item.title}</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel className="font-tactical uppercase tracking-wider text-xs text-muted-foreground">Reporting</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {reportingModules.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <NavLink
+                      to={item.url}
+                      className={({ isActive }) =>
+                        isActive
+                          ? "bg-gradient-primary text-primary-foreground font-tactical font-bold shadow-glow beveled"
                           : "hover:bg-primary/10 hover:text-primary font-tactical transition-all"
                       }
                     >
@@ -148,7 +241,7 @@ export function AppSidebar() {
           </SidebarGroup>
         )}
 
-        {(showRoleManagement || showAuditTrail) && (
+        {(showRoleManagement || showAuditTrail || showChangeNotices) && (
           <SidebarGroup>
             <SidebarGroupLabel className="font-tactical uppercase tracking-wider text-xs text-muted-foreground">Administration</SidebarGroupLabel>
             <SidebarGroupContent>
@@ -173,16 +266,33 @@ export function AppSidebar() {
                 {showAuditTrail && (
                   <SidebarMenuItem>
                     <SidebarMenuButton asChild>
-                      <NavLink 
+                      <NavLink
                         to="/audit-trail"
                         className={({ isActive }) =>
-                          isActive 
-                            ? "bg-gradient-primary text-primary-foreground font-tactical font-bold shadow-glow beveled" 
+                          isActive
+                            ? "bg-gradient-primary text-primary-foreground font-tactical font-bold shadow-glow beveled"
                             : "hover:bg-primary/10 hover:text-primary font-tactical transition-all"
                         }
                       >
                         <ScrollText className="h-4 w-4" />
                         <span className="uppercase tracking-wide text-xs">Audit Trail</span>
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )}
+                {showChangeNotices && (
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild>
+                      <NavLink
+                        to="/notices"
+                        className={({ isActive }) =>
+                          isActive
+                            ? "bg-gradient-primary text-primary-foreground font-tactical font-bold shadow-glow beveled"
+                            : "hover:bg-primary/10 hover:text-primary font-tactical transition-all"
+                        }
+                      >
+                        <BellRing className="h-4 w-4" />
+                        <span className="uppercase tracking-wide text-xs">Change Notices</span>
                       </NavLink>
                     </SidebarMenuButton>
                   </SidebarMenuItem>

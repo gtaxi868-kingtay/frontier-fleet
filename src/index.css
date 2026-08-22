@@ -8,106 +8,105 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Futuristic Military Command Theme */
-    --background: 0 0% 4%;
-    --foreground: 0 0% 96%;
+    /* Command Violet Theme */
+    --background: 260 30% 6%;
+    --foreground: 0 0% 97%;
 
-    /* Card with metallic depth */
-    --card: 0 0% 6%;
-    --card-foreground: 0 0% 96%;
+    /* Card with soft depth */
+    --card: 258 22% 10%;
+    --card-foreground: 0 0% 97%;
 
     /* Popover/Dropdown */
-    --popover: 0 0% 5%;
-    --popover-foreground: 0 0% 96%;
+    --popover: 258 22% 9%;
+    --popover-foreground: 0 0% 97%;
 
-    /* Primary - Deep Crimson Command */
-    --primary: 0 100% 27%;
+    /* Primary - Command Violet */
+    --primary: 262 83% 58%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 0 100% 35%;
+    --primary-glow: 266 85% 68%;
 
-    /* Secondary - Gunmetal Steel */
-    --secondary: 210 8% 15%;
+    /* Secondary - Slate Steel */
+    --secondary: 258 14% 16%;
     --secondary-foreground: 0 0% 92%;
 
-    /* Muted - Dark tactical variants */
-    --muted: 210 6% 12%;
-    --muted-foreground: 0 0% 55%;
+    /* Muted - Dark violet-neutral variants */
+    --muted: 258 14% 14%;
+    --muted-foreground: 0 0% 60%;
 
-    /* Accent - Royal Blue Tech */
-    --accent: 210 100% 56%;
+    /* Accent - Indigo companion to primary */
+    --accent: 245 85% 65%;
     --accent-foreground: 0 0% 100%;
 
-    /* Gold - Command Authority */
-    --gold: 51 100% 50%;
+    /* Gold - reserved for rare highlight use */
+    --gold: 45 93% 58%;
     --gold-foreground: 0 0% 10%;
 
     /* Silver - Precision Metal */
     --silver: 0 0% 75%;
     --silver-foreground: 0 0% 10%;
 
-    /* Status Colors - Tactical Grade */
-    --success: 142 76% 36%;
+    /* Status Colors */
+    --success: 142 71% 45%;
     --success-foreground: 0 0% 100%;
-    
+
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 10%;
-    
+
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Borders & Inputs - Metallic edges */
-    --border: 210 8% 18%;
-    --input: 0 0% 8%;
-    --ring: 0 100% 27%;
+    /* Borders & Inputs */
+    --border: 258 16% 18%;
+    --input: 258 20% 11%;
+    --ring: 262 83% 58%;
 
-    --radius: 0.5rem;
+    --radius: 1rem;
 
-    /* Sidebar - Tactical Control */
-    --sidebar-background: 0 0% 5%;
+    /* Sidebar */
+    --sidebar-background: 258 24% 8%;
     --sidebar-foreground: 0 0% 96%;
-    --sidebar-primary: 0 100% 27%;
+    --sidebar-primary: 262 83% 58%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 210 8% 12%;
+    --sidebar-accent: 258 16% 13%;
     --sidebar-accent-foreground: 0 0% 92%;
-    --sidebar-border: 210 8% 15%;
-    --sidebar-ring: 0 100% 27%;
+    --sidebar-border: 258 16% 16%;
+    --sidebar-ring: 262 83% 58%;
 
-    /* Military-Grade Shadows - Metallic depth */
+    /* Soft violet-tinted shadows */
     --shadow-sm: 0 2px 4px 0 rgb(0 0 0 / 0.4);
-    --shadow-md: 0 4px 8px -2px rgb(0 0 0 / 0.5), 0 2px 4px -1px rgb(139 0 0 / 0.1);
-    --shadow-lg: 0 12px 20px -4px rgb(0 0 0 / 0.6), 0 4px 8px -2px rgb(139 0 0 / 0.15);
-    --shadow-xl: 0 24px 40px -8px rgb(0 0 0 / 0.7), 0 8px 16px -4px rgb(139 0 0 / 0.2);
-    --shadow-card: 0 4px 12px 0 rgb(0 0 0 / 0.6), 0 0 0 1px rgb(139 0 0 / 0.15), inset 0 1px 0 0 rgb(255 255 255 / 0.05);
-    --shadow-glow: 0 0 40px rgb(139 0 0 / 0.4), 0 0 15px rgb(139 0 0 / 0.3), 0 0 5px rgb(255 215 0 / 0.2);
-    --shadow-glow-blue: 0 0 35px rgb(30 144 255 / 0.4), 0 0 12px rgb(30 144 255 / 0.3);
-    --shadow-glow-gold: 0 0 30px rgb(255 215 0 / 0.5), 0 0 10px rgb(255 215 0 / 0.3);
-    
-    /* Gradients - Metallic tactical surfaces */
-    --gradient-primary: linear-gradient(135deg, hsl(0 100% 27%), hsl(0 100% 35%));
-    --gradient-metallic: linear-gradient(135deg, hsl(0 0% 15%), hsl(210 8% 18%), hsl(0 0% 12%));
-    --gradient-gold: linear-gradient(135deg, hsl(45 100% 48%), hsl(51 100% 50%), hsl(38 92% 50%));
-    --gradient-blue: linear-gradient(135deg, hsl(210 100% 56%), hsl(200 100% 60%));
-    --gradient-hero: linear-gradient(135deg, hsl(0 100% 27%), hsl(210 100% 56%), hsl(51 100% 50%));
-    --gradient-card: linear-gradient(180deg, hsl(0 0% 6%), hsl(0 0% 4%));
-    --gradient-glow: radial-gradient(800px circle at 0% 0%, hsl(0 100% 27% / 0.12), transparent 50%),
-                     radial-gradient(600px circle at 100% 0%, hsl(210 100% 56% / 0.08), transparent 50%),
-                     radial-gradient(400px circle at 50% 100%, hsl(51 100% 50% / 0.06), transparent 40%);
-    
-    /* Beveled edges and metallic surfaces */
-    --bevel-light: rgba(255, 255, 255, 0.1);
-    --bevel-dark: rgba(0, 0, 0, 0.4);
-    --metallic-shine: linear-gradient(165deg, transparent 40%, rgba(255, 255, 255, 0.1) 50%, transparent 60%);
-    
-    /* Animations - Precision tactical motion */
+    --shadow-md: 0 4px 8px -2px rgb(0 0 0 / 0.5), 0 2px 4px -1px rgb(124 58 237 / 0.12);
+    --shadow-lg: 0 12px 20px -4px rgb(0 0 0 / 0.5), 0 4px 8px -2px rgb(124 58 237 / 0.18);
+    --shadow-xl: 0 24px 40px -8px rgb(0 0 0 / 0.6), 0 8px 16px -4px rgb(124 58 237 / 0.22);
+    --shadow-card: 0 4px 16px 0 rgb(0 0 0 / 0.45), 0 0 0 1px rgb(124 58 237 / 0.1), inset 0 1px 0 0 rgb(255 255 255 / 0.04);
+    --shadow-glow: 0 0 40px rgb(124 58 237 / 0.35), 0 0 15px rgb(124 58 237 / 0.25);
+    --shadow-glow-blue: 0 0 35px rgb(99 102 241 / 0.35), 0 0 12px rgb(99 102 241 / 0.25);
+    --shadow-glow-gold: 0 0 30px rgb(250 204 21 / 0.35), 0 0 10px rgb(250 204 21 / 0.25);
+
+    /* Gradients - Violet command surfaces */
+    --gradient-primary: linear-gradient(135deg, hsl(262 83% 52%), hsl(266 85% 62%));
+    --gradient-metallic: linear-gradient(135deg, hsl(258 16% 16%), hsl(258 14% 12%), hsl(258 20% 9%));
+    --gradient-gold: linear-gradient(135deg, hsl(38 92% 50%), hsl(45 93% 58%));
+    --gradient-blue: linear-gradient(135deg, hsl(245 85% 65%), hsl(258 90% 70%));
+    --gradient-hero: linear-gradient(135deg, hsl(262 83% 52%), hsl(266 85% 62%), hsl(280 80% 68%));
+    --gradient-card: linear-gradient(180deg, hsl(258 22% 10%), hsl(260 30% 6%));
+    --gradient-glow: radial-gradient(800px circle at 0% 0%, hsl(262 83% 52% / 0.14), transparent 50%),
+                     radial-gradient(600px circle at 100% 0%, hsl(245 85% 65% / 0.10), transparent 50%),
+                     radial-gradient(400px circle at 50% 100%, hsl(280 80% 60% / 0.08), transparent 40%);
+
+    /* Beveled edges and soft surfaces */
+    --bevel-light: rgba(255, 255, 255, 0.08);
+    --bevel-dark: rgba(0, 0, 0, 0.35);
+    --metallic-shine: linear-gradient(165deg, transparent 40%, rgba(255, 255, 255, 0.08) 50%, transparent 60%);
+
+    /* Animations */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-spring: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
     --transition-tactical: all 0.25s cubic-bezier(0.22, 0.61, 0.36, 1);
   }
 
   .dark {
-    /* Already optimized for dark mode */
-    --background: 220 15% 8%;
-    --foreground: 0 0% 95%;
+    --background: 260 30% 6%;
+    --foreground: 0 0% 97%;
   }
 }
 
@@ -122,12 +121,38 @@ All colors MUST be HSL.
     background-image: var(--gradient-glow);
     background-attachment: fixed;
   }
-  
-  /* Heading typography - Futuristic military */
+
+  /* Prevent tap-to-select-text from stealing touch taps on interactive
+     controls (mobile Safari/Chrome will sometimes enter text-selection
+     mode on a fast tap instead of firing the click). */
+  button,
+  a,
+  [role="button"],
+  [role="tab"],
+  [role="menuitem"],
+  summary {
+    -webkit-touch-callout: none;
+    user-select: none;
+    touch-action: manipulation;
+  }
+
+  /* Safe-area padding utilities for notched/rounded-corner phones */
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .safe-x {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* Heading typography */
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Orbitron', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-weight: 700;
-    letter-spacing: 0.02em;
+    letter-spacing: -0.01em;
   }
   
   /* Metallic surface effect */

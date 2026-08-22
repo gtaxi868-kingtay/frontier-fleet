@@ -11,6 +11,7 @@ interface Profile {
   rank: string | null;
   unit_id: string | null;
   contact: string | null;
+  service_number: string | null;
 }
 
 interface AuthContextType {
@@ -22,6 +23,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signUp: (email: string, password: string, name: string, rank: string, role: AppRole, unit_id: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
+  setPin: (pin: string) => Promise<{ error: any }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -118,11 +120,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signUp = async (email: string, password: string, name: string, rank: string, role: AppRole, unit_id: string) => {
     const redirectUrl = `${window.location.origin}/`;
-    
+
     if (!unit_id) {
       return { error: { message: 'Unit selection is required' } };
     }
-    
+
+    // name, rank, unit_id, and role are all passed as user metadata and
+    // consumed by the handle_new_user() trigger (SECURITY DEFINER), which
+    // creates the profile and pending role request atomically. This avoids
+    // depending on an authenticated client session immediately after
+    // signUp() — which doesn't exist yet when email confirmation is
+    // required, causing RLS to reject any follow-up client-side writes.
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -131,54 +139,46 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         data: {
           name,
           rank,
+          unit_id,
+          role,
         },
       },
     });
-    
+
     if (error) {
       console.error('Sign up error:', error);
       return { error };
     }
-    
+
     if (!data.user) {
       return { error: { message: 'User creation failed' } };
     }
 
-    // Wait a moment for trigger to create profile
-    await new Promise(resolve => setTimeout(resolve, 500));
+    return { error: null };
+  };
 
-    // Ensure profile exists (create if trigger didn't fire) with unit_id
+  const setPin = async (pin: string) => {
+    if (!/^\d{6}$/.test(pin)) {
+      return { error: { message: 'PIN must be exactly 6 digits' } };
+    }
+    if (!user) {
+      return { error: { message: 'Not signed in' } };
+    }
+
+    const { error: authError } = await supabase.auth.updateUser({ password: pin });
+    if (authError) {
+      return { error: authError };
+    }
+
     const { error: profileError } = await supabase
       .from('profiles')
-      .upsert({
-        id: data.user.id,
-        name: name,
-        rank: rank,
-        unit_id: unit_id,
-      }, {
-        onConflict: 'id'
-      });
-    
+      .update({ pin_enabled: true })
+      .eq('id', user.id);
+
     if (profileError) {
-      console.error('Error creating/updating profile:', profileError);
-      return { error: { message: `Failed to save unit assignment: ${profileError.message}` } };
+      return { error: profileError };
     }
 
-    // Create role request (pending approval)
-    const { error: roleError } = await supabase
-      .from('user_roles')
-      .insert({
-        user_id: data.user.id,
-        role: role,
-        status: 'pending'
-      });
-    
-    if (roleError) {
-      console.error('Error creating role request:', roleError);
-      // Don't fail signup if role creation fails, but log it
-      return { error: { message: `Account created but role assignment failed: ${roleError.message}` } };
-    }
-    
     return { error: null };
   };
 
@@ -202,6 +202,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         signIn,
         signUp,
         signOut,
+        setPin,
       }}
     >
       {children}

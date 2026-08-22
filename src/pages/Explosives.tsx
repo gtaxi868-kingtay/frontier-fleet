@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 import { AddExplosiveDialog } from "@/components/AddExplosiveDialog";
 import { useAuth } from "@/hooks/useAuth";
+import { useUnitFilter } from "@/hooks/useUnitFilter";
 import { BulkUploadDialog } from "@/components/BulkUploadDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { ItemDetailDialog } from "@/components/ItemDetailDialog";
@@ -14,19 +15,22 @@ import { Badge } from "@/components/ui/badge";
 export default function Explosives() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const { role } = useAuth();
+  const { applyUnitFilter, currentUnitId, canSeeAllUnits } = useUnitFilter();
   const canManage = role === 'S4';
   const [explosives, setExplosives] = useState<any[]>([]);
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
 
   const fetchExplosives = async () => {
-    const { data } = await supabase.from("explosives").select("*");
+    let query = supabase.from("explosives").select("*");
+    query = applyUnitFilter(query, { columnName: 'squadron_id' });
+    const { data } = await query;
     if (data) setExplosives(data);
   };
 
   useEffect(() => {
     fetchExplosives();
-  }, []);
+  }, [currentUnitId, canSeeAllUnits]);
 
   return (
     <div className="min-h-screen bg-background">
