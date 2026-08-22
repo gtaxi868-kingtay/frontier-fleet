@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Shield } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -156,11 +157,21 @@ export default function Auth() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/10 p-4">
       <div className="w-full max-w-md">
         <div className="flex flex-col items-center mb-8">
-          <img
-            src="/logo-mark.svg"
-            alt="Frontier Fleet"
-            className="h-20 w-20 rounded-2xl shadow-glow mb-4"
-          />
+          <div className="relative h-20 w-20 mb-4">
+            <div
+              className="h-full w-full rounded-2xl flex items-center justify-center shadow-glow"
+              style={{
+                background: 'linear-gradient(145deg, hsl(0 65% 32%), hsl(0 75% 14%))',
+                boxShadow: '0 0 30px rgba(139,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.08)',
+              }}
+            >
+              <Shield className="h-11 w-11" style={{ color: 'hsl(45 93% 68%)' }} strokeWidth={1.75} />
+            </div>
+            <span className="absolute -top-0.5 -left-0.5 h-3 w-3 border-t-2 border-l-2 rounded-tl-sm" style={{ borderColor: 'hsl(45 93% 58%)' }} />
+            <span className="absolute -top-0.5 -right-0.5 h-3 w-3 border-t-2 border-r-2 rounded-tr-sm" style={{ borderColor: 'hsl(45 93% 58%)' }} />
+            <span className="absolute -bottom-0.5 -left-0.5 h-3 w-3 border-b-2 border-l-2 rounded-bl-sm" style={{ borderColor: 'hsl(45 93% 58%)' }} />
+            <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 border-b-2 border-r-2 rounded-br-sm" style={{ borderColor: 'hsl(45 93% 58%)' }} />
+          </div>
           <h1 className="text-4xl font-bold text-foreground mb-2">
             IBIMS
           </h1>
