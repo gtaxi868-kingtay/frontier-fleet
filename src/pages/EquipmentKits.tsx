@@ -243,9 +243,15 @@ export default function EquipmentKits() {
             <div className="space-y-2">
               <Label>Items</Label>
               {items.map((item, idx) => (
-                <div key={idx} className="flex gap-2 items-center">
+                <div key={idx} className="flex flex-wrap gap-2 items-center p-2 rounded-lg border border-border/30 sm:border-0 sm:p-0">
+                  <Input
+                    value={item.item_name}
+                    onChange={(e) => updateItemRow(idx, { item_name: e.target.value })}
+                    placeholder="Item name"
+                    className="flex-1 min-w-[140px] order-1"
+                  />
                   <Select value={item.category} onValueChange={(v) => updateItemRow(idx, { category: v })}>
-                    <SelectTrigger className="w-40 shrink-0">
+                    <SelectTrigger className="w-36 shrink-0 order-2">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -257,18 +263,13 @@ export default function EquipmentKits() {
                     </SelectContent>
                   </Select>
                   <Input
-                    value={item.item_name}
-                    onChange={(e) => updateItemRow(idx, { item_name: e.target.value })}
-                    placeholder="Item name"
-                  />
-                  <Input
                     type="number"
                     min={1}
                     value={item.quantity}
                     onChange={(e) => updateItemRow(idx, { quantity: e.target.value })}
-                    className="w-16 shrink-0"
+                    className="w-16 shrink-0 order-3"
                   />
-                  <Button size="icon" variant="ghost" onClick={() => removeItemRow(idx)} disabled={items.length === 1}>
+                  <Button size="icon" variant="ghost" className="shrink-0 order-4" onClick={() => removeItemRow(idx)} disabled={items.length === 1}>
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>

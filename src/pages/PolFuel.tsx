@@ -369,7 +369,7 @@ export default function PolFuel() {
 
         {queuedEntries.length > 0 && (
           <Card className="border-accent/40 bg-accent/5">
-            <CardContent className="p-4 flex items-center justify-between gap-3">
+            <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex items-center gap-3">
                 <WifiOff className="h-5 w-5 text-accent shrink-0" />
                 <div>
@@ -381,7 +381,7 @@ export default function PolFuel() {
                   </p>
                 </div>
               </div>
-              <Button size="sm" variant="outline" onClick={syncQueue} disabled={syncing}>
+              <Button size="sm" variant="outline" className="w-full sm:w-auto" onClick={syncQueue} disabled={syncing}>
                 <RefreshCw className={`h-3 w-3 mr-1 ${syncing ? "animate-spin" : ""}`} /> Retry Now
               </Button>
             </CardContent>

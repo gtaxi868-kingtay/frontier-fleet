@@ -188,7 +188,7 @@ export default function PhysicalCheck() {
         ) : (
           <>
             <Card>
-              <CardContent className="p-4 flex items-center justify-between">
+              <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
                   <p className="font-semibold">
                     {checkedCount} / {items.length} weapons checked off
@@ -196,10 +196,10 @@ export default function PhysicalCheck() {
                   <p className="text-sm text-muted-foreground">Scan each weapon's QR label to check it off</p>
                 </div>
                 <div className="flex gap-2">
-                  <Button variant="outline" onClick={() => setScannerOpen(true)}>
+                  <Button variant="outline" className="flex-1 sm:flex-none" onClick={() => setScannerOpen(true)}>
                     <QrCode className="h-4 w-4 mr-2" /> Scan
                   </Button>
-                  <Button onClick={completeCheck}>Complete Check</Button>
+                  <Button className="flex-1 sm:flex-none" onClick={completeCheck}>Complete Check</Button>
                 </div>
               </CardContent>
             </Card>

@@ -153,10 +153,10 @@ export function DashboardHeader() {
         <SidebarTrigger className="-ml-2 hover:bg-primary/10 transition-colors" />
         
         <div className="flex items-center gap-3">
-          <img 
-            src={battalionEmblem} 
-            alt="Battalion Emblem" 
-            className="h-20 w-20 object-contain drop-shadow-[0_0_6px_rgba(139,0,0,0.4)]" 
+          <img
+            src={battalionEmblem}
+            alt="Battalion Emblem"
+            className="h-10 w-10 object-contain drop-shadow-[0_0_6px_rgba(139,0,0,0.4)]"
           />
           <div className="hidden md:block">
             <h2 className="text-sm font-display font-bold uppercase tracking-wider">1st Engineer Battalion</h2>
@@ -175,7 +175,7 @@ export function DashboardHeader() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="flex items-center gap-3 hover:bg-primary/10 transition-all group">
-                  <div className="text-right">
+                  <div className="text-right hidden sm:block">
                     <p className="text-sm font-tactical font-semibold">{profile?.name || 'User'}</p>
                     <p className="text-xs text-muted-foreground uppercase tracking-wide">{role || 'No Role'}</p>
                   </div>
