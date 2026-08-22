@@ -1,0 +1,38 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#160404"/>
+      <stop offset="1" stop-color="#050505"/>
+    </linearGradient>
+    <linearGradient id="layerTop" x1="106" y1="150" x2="406" y2="230" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F4CE6B"/>
+      <stop offset="1" stop-color="#C6962F"/>
+    </linearGradient>
+    <linearGradient id="layerMid" x1="106" y1="210" x2="406" y2="290" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#D64545"/>
+      <stop offset="1" stop-color="#8B0000"/>
+    </linearGradient>
+    <linearGradient id="layerBase" x1="106" y1="270" x2="406" y2="350" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#5A0000"/>
+      <stop offset="1" stop-color="#2A0000"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <rect x="1" y="1" width="510" height="510" rx="111" fill="none" stroke="#8B0000" stroke-opacity="0.35" stroke-width="1.5"/>
+
+  <!-- three stacked chevrons: layered-stripes motif reworked as a rank chevron -->
+  <path d="M256 148 L406 224 L256 260 L106 224 Z" fill="url(#layerTop)"/>
+  <path d="M256 208 L406 284 L256 320 L106 284 Z" fill="url(#layerMid)"/>
+  <path d="M256 268 L406 344 L256 380 L106 344 Z" fill="url(#layerBase)"/>
+
+  <!-- hairline separators for a machined, dossier feel -->
+  <path d="M106 224 L256 260 L406 224" fill="none" stroke="#050505" stroke-opacity="0.5" stroke-width="2"/>
+  <path d="M106 284 L256 320 L406 284" fill="none" stroke="#050505" stroke-opacity="0.5" stroke-width="2"/>
+
+  <!-- corner brackets -->
+  <path d="M70 96 L70 70 L96 70" fill="none" stroke="#F4CE6B" stroke-width="4" stroke-linecap="square" opacity="0.8"/>
+  <path d="M442 70 L442 96 M416 70 L442 70" fill="none" stroke="#F4CE6B" stroke-width="4" stroke-linecap="square" opacity="0.8"/>
+  <path d="M70 416 L70 442 L96 442" fill="none" stroke="#F4CE6B" stroke-width="4" stroke-linecap="square" opacity="0.8"/>
+  <path d="M416 442 L442 442 L442 416" fill="none" stroke="#F4CE6B" stroke-width="4" stroke-linecap="square" opacity="0.8"/>
+</svg>

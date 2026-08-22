@@ -7,7 +7,6 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Shield } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -157,9 +156,11 @@ export default function Auth() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/10 p-4">
       <div className="w-full max-w-md">
         <div className="flex flex-col items-center mb-8">
-          <div className="h-20 w-20 rounded-2xl bg-primary shadow-glow flex items-center justify-center mb-4">
-            <Shield className="h-12 w-12 text-primary-foreground" />
-          </div>
+          <img
+            src="/logo-mark.svg"
+            alt="Frontier Fleet"
+            className="h-20 w-20 rounded-2xl shadow-glow mb-4"
+          />
           <h1 className="text-4xl font-bold text-foreground mb-2">
             IBIMS
           </h1>
