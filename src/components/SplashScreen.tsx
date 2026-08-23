@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import battalionLogo from "@/assets/battalion-logo.png";
+import { AnimatedIcon } from "@/components/AnimatedIcon";
 
 interface SplashScreenProps {
   onFinish: () => void;
@@ -24,14 +24,12 @@ export function SplashScreen({ onFinish }: SplashScreenProps) {
       }`}
     >
       <div className="flex flex-col items-center gap-6 animate-fade-in">
-        <img 
-          src={battalionLogo} 
-          alt="Battalion Logo" 
-          className="h-48 w-48 object-contain animate-scale-in"
-        />
+        <div className="animate-scale-in">
+          <AnimatedIcon size={140} />
+        </div>
         <div className="text-center">
           <h1 className="text-4xl font-bold bg-gradient-hero bg-clip-text text-transparent mb-2">
-            IBIMS
+            S4
           </h1>
           <p className="text-lg text-muted-foreground">
             1st Engineer Battalion

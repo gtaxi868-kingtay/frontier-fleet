@@ -1,6 +1,6 @@
 {
-  "name": "IBIMS - 1st Engineer Battalion Inventory Management System",
-  "short_name": "IBIMS",
+  "name": "S4 - 1st Engineer Battalion Inventory Management System",
+  "short_name": "S4",
   "description": "Military inventory management system for 1st Engineer Battalion",
   "start_url": "/",
   "display": "standalone",

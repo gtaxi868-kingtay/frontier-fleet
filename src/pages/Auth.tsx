@@ -7,9 +7,9 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Shield } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { AnimatedIcon } from '@/components/AnimatedIcon';
 
 const militaryRanks = [
   'Private',
@@ -157,16 +157,9 @@ export default function Auth() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/10 p-4">
       <div className="w-full max-w-md">
         <div className="flex flex-col items-center mb-8">
-          <Shield
-            className="h-16 w-16 mb-4"
-            style={{
-              color: 'hsl(45 93% 62%)',
-              filter: 'drop-shadow(0 0 18px rgba(139,0,0,0.55)) drop-shadow(0 0 2px rgba(0,0,0,0.6))',
-            }}
-            strokeWidth={1.5}
-          />
+          <AnimatedIcon size={80} className="mb-2" />
           <h1 className="text-4xl font-bold text-foreground mb-2">
-            IBIMS
+            S4
           </h1>
           <p className="text-muted-foreground text-center text-sm">
             1st Engineer Battalion<br />Inventory Management System
