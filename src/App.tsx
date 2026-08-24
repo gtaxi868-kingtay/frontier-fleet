@@ -36,6 +36,7 @@ import ChangeNotices from "./pages/ChangeNotices";
 import SelfApprove from "./pages/SelfApprove";
 import NotFound from "./pages/NotFound";
 import Profile from "./pages/Profile";
+import Documents from "./pages/Documents";
 import MTODashboard from "./pages/MTODashboard";
 import WorkshopDashboard from "./pages/WorkshopDashboard";
 import POLManagement from "./pages/POLManagement";
@@ -213,6 +214,7 @@ const App = () => {
                           <Route path="/clothing-equipment" element={<ClothingEquipment />} />
                           <Route path="/company-stores" element={<CompanyStores />} />
                           <Route path="/profile" element={<Profile />} />
+                          <Route path="/documents" element={<Documents />} />
                           <Route path="*" element={<NotFound />} />
                         </Routes>
                       </div>

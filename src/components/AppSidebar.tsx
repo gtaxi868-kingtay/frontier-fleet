@@ -22,7 +22,8 @@ import {
   BellRing,
   Fuel,
   Boxes,
-  ClipboardCheck
+  ClipboardCheck,
+  Camera
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -71,6 +72,7 @@ const personnelModules = [
 ];
 
 const reportingModules = [
+  { title: "Documents", url: "/documents", icon: Camera },
   { title: "Transactions", url: "/transactions", icon: ArrowLeftRight },
   { title: "Analytics", url: "/analytics", icon: BarChart3 },
   { title: "Reports", url: "/reports", icon: FileText },
