@@ -23,7 +23,9 @@ import {
   Fuel,
   Boxes,
   ClipboardCheck,
-  Camera
+  Camera,
+  QrCode,
+  Tags
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -45,6 +47,7 @@ import {
 const overviewModules = [
   { title: "Dashboard", url: "/", icon: Home },
   { title: "Stores", url: "/stores", icon: Warehouse },
+  { title: "Scan Item", url: "/scan", icon: QrCode },
 ];
 
 const assetModules = [
@@ -72,6 +75,7 @@ const personnelModules = [
 ];
 
 const reportingModules = [
+  { title: "Print Labels", url: "/print-labels", icon: Tags },
   { title: "Documents", url: "/documents", icon: Camera },
   { title: "Transactions", url: "/transactions", icon: ArrowLeftRight },
   { title: "Analytics", url: "/analytics", icon: BarChart3 },

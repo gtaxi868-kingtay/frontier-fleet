@@ -53,6 +53,48 @@ export function decodeQRData(qrString: string): QRCodeData | null {
   }
 }
 
+// DB column holding the item's unique ID, per module
+export function getIdField(module: InventoryModule): string {
+  const idFields: Record<InventoryModule, string> = {
+    weapons: 'weapon_id',
+    tools: 'tool_id',
+    vehicles: 'vehicle_id',
+    engineer_equipment: 'equip_id',
+    plant_machinery: 'plant_id',
+    mechanics_tools: 'tool_id',
+    mt_facilities: 'facility_id',
+    ppe: 'ppe_id',
+    uniforms: 'uniform_id',
+    explosives: 'explosive_id',
+    facilities: 'facility_id',
+    works_materials: 'voucher_id',
+    general_inventory: 'item_id',
+    room_inventory: 'room_id',
+  };
+  return idFields[module] || 'id';
+}
+
+// DB column holding the item's display name, per module
+export function getNameField(module: InventoryModule): string {
+  const nameFields: Record<InventoryModule, string> = {
+    weapons: 'weapon_type',
+    tools: 'tool_name',
+    vehicles: 'vehicle_type',
+    engineer_equipment: 'equipment_name',
+    plant_machinery: 'type',
+    mechanics_tools: 'tool_name',
+    mt_facilities: 'facility_name',
+    ppe: 'item',
+    uniforms: 'item_name',
+    explosives: 'type',
+    facilities: 'facility_name',
+    works_materials: 'material',
+    general_inventory: 'item_name',
+    room_inventory: 'room_type',
+  };
+  return nameFields[module] || 'name';
+}
+
 // Get display name for module
 export function getModuleDisplayName(module: InventoryModule): string {
   const moduleNames: Record<InventoryModule, string> = {

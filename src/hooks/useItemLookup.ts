@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { InventoryModule } from '@/lib/qr-utils';
+import { InventoryModule, getIdField } from '@/lib/qr-utils';
 import { toast } from 'sonner';
 
 export interface LookupResult {
@@ -8,27 +8,6 @@ export interface LookupResult {
   item: any;
   found: boolean;
 }
-
-// ID field mappings for each module
-const getIdField = (module: InventoryModule): string => {
-  switch (module) {
-    case 'weapons': return 'weapon_id';
-    case 'tools': return 'tool_id';
-    case 'vehicles': return 'vehicle_id';
-    case 'engineer_equipment': return 'equip_id';
-    case 'plant_machinery': return 'plant_id';
-    case 'mechanics_tools': return 'tool_id';
-    case 'mt_facilities': return 'facility_id';
-    case 'ppe': return 'ppe_id';
-    case 'uniforms': return 'uniform_id';
-    case 'explosives': return 'explosive_id';
-    case 'facilities': return 'facility_id';
-    case 'works_materials': return 'voucher_id';
-    case 'general_inventory': return 'item_id';
-    case 'room_inventory': return 'room_id';
-    default: return 'id';
-  }
-};
 
 export function useItemLookup() {
   const [isSearching, setIsSearching] = useState(false);
