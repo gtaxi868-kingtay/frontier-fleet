@@ -4429,6 +4429,14 @@ export type Database = {
         Returns: string
       }
       get_pending_vehicles: { Args: never; Returns: Json }
+      get_public_login_stats: {
+        Args: never
+        Returns: {
+          arms_reconciled_pct: number
+          squadrons: number
+          tracked_assets: number
+        }[]
+      }
       get_recent_dips_rpc: {
         Args: { p_limit?: number }
         Returns: {
