@@ -3,7 +3,7 @@ import { DashboardHeader } from "@/components/DashboardHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
+import { FuelTankGauge } from "@/components/FuelTankGauge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -454,14 +454,11 @@ export default function PolFuel() {
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div>
-                  <div className="flex items-baseline justify-between mb-1">
-                    <span className="text-2xl font-bold">{Math.round(tank.current_liters).toLocaleString()}L</span>
-                    <span className="text-sm text-muted-foreground">of {tank.capacity_liters.toLocaleString()}L</span>
-                  </div>
-                  <Progress value={Math.max(0, Math.min(100, tank.percentage))} />
-                  <p className="text-xs text-muted-foreground mt-1">{tank.percentage}% full</p>
-                </div>
+                <FuelTankGauge
+                  percentage={tank.percentage}
+                  currentLiters={tank.current_liters}
+                  capacityLiters={tank.capacity_liters}
+                />
                 {canWrite && (
                   <div className="grid grid-cols-3 gap-2">
                     <Button size="sm" variant="outline" onClick={() => openIssue(tank.id)}>

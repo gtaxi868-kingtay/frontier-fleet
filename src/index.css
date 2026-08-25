@@ -266,4 +266,33 @@ All colors MUST be HSL.
     border-radius: inherit;
     z-index: -1;
   }
+
+  .fuel-tank-grid {
+    background-image:
+      linear-gradient(hsl(var(--primary) / 0.08) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--primary) / 0.08) 1px, transparent 1px);
+    background-size: 10px 10px;
+  }
+
+  .fuel-tank-fill {
+    transition: height 700ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .fuel-tank-pulse {
+    animation: fuel-tank-breathe 3.5s ease-in-out infinite;
+  }
+
+  @keyframes fuel-tank-breathe {
+    0%, 100% { opacity: 0.92; }
+    50% { opacity: 0.72; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fuel-tank-fill {
+      transition: none;
+    }
+    .fuel-tank-pulse {
+      animation: none;
+    }
+  }
 }
