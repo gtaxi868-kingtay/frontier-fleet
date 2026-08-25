@@ -313,34 +313,42 @@ const Index = () => {
 
         {/* Key Metrics */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <StatCard
-            title="Total Assets"
-            value={loading ? "..." : dashboardStats.totalAssets.toLocaleString()}
-            subtitle="Across all modules"
-            icon={Package}
-            variant="default"
-          />
-          <StatCard
-            title="Serviceable"
-            value={loading ? "..." : `${dashboardStats.serviceablePercentage}%`}
-            subtitle="Operational readiness"
-            icon={CheckCircle2}
-            variant="success"
-          />
-          <StatCard
-            title="Pending Actions"
-            value={loading ? "..." : dashboardStats.pendingActions}
-            subtitle="Requires approval"
-            icon={Clock}
-            variant="warning"
-          />
-          <StatCard
-            title="Critical Items"
-            value={loading ? "..." : dashboardStats.criticalItems}
-            subtitle="Low stock alerts"
-            icon={AlertTriangle}
-            variant="danger"
-          />
+          <div className="stagger-in" style={{ animationDelay: "0ms" }}>
+            <StatCard
+              title="Total Assets"
+              value={loading ? "..." : dashboardStats.totalAssets.toLocaleString()}
+              subtitle="Across all modules"
+              icon={Package}
+              variant="default"
+            />
+          </div>
+          <div className="stagger-in" style={{ animationDelay: "40ms" }}>
+            <StatCard
+              title="Serviceable"
+              value={loading ? "..." : `${dashboardStats.serviceablePercentage}%`}
+              subtitle="Operational readiness"
+              icon={CheckCircle2}
+              variant="success"
+            />
+          </div>
+          <div className="stagger-in" style={{ animationDelay: "80ms" }}>
+            <StatCard
+              title="Pending Actions"
+              value={loading ? "..." : dashboardStats.pendingActions}
+              subtitle="Requires approval"
+              icon={Clock}
+              variant="warning"
+            />
+          </div>
+          <div className="stagger-in" style={{ animationDelay: "120ms" }}>
+            <StatCard
+              title="Critical Items"
+              value={loading ? "..." : dashboardStats.criticalItems}
+              subtitle="Low stock alerts"
+              icon={AlertTriangle}
+              variant="danger"
+            />
+          </div>
         </div>
 
         {/* Action Required Card */}

@@ -35,7 +35,10 @@ export function StatCard({
   };
 
   return (
-    <Card className={`${variantStyles[variant]} border hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 command-border`}>
+    <Card
+      className={`${variantStyles[variant]} border hover:shadow-lg hover:-translate-y-0.5 command-border`}
+      style={{ transition: "transform 200ms var(--ease-out), box-shadow 200ms var(--ease-out)" }}
+    >
       <CardContent className="p-6">
         <div className="flex items-start justify-between">
           <div className="space-y-2 flex-1">

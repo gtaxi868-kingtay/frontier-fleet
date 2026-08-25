@@ -13,19 +13,20 @@ interface HeroStatCardProps {
 
 export function HeroStatCard({ label, value, subtitle, icon: Icon, actionLabel, actionLink }: HeroStatCardProps) {
   return (
-    <Card className="border-0 bg-gradient-hero text-primary-foreground shadow-glow overflow-hidden relative">
-      <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top_right,_white,_transparent_60%)]" />
+    <Card className="border border-primary/30 bg-card shadow-glow overflow-hidden relative rounded-lg">
+      <div className="absolute inset-0 fuel-tank-grid opacity-60" />
+      <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-primary" />
       <CardContent className="p-8 relative space-y-4">
-        <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-primary-foreground/80">
+        <div className="flex items-center gap-2 text-xs font-mono font-semibold uppercase tracking-[0.15em] text-primary">
           <Icon className="h-4 w-4" />
           {label}
         </div>
-        <div className="text-5xl font-bold tracking-tight">{value}</div>
-        <p className="text-primary-foreground/75 text-sm">{subtitle}</p>
+        <div className="text-6xl font-display font-black tracking-tight text-foreground">{value}</div>
+        <p className="text-muted-foreground text-sm">{subtitle}</p>
         {actionLabel && actionLink && (
           <Link
             to={actionLink}
-            className="inline-flex items-center gap-2 rounded-full bg-white/15 hover:bg-white/25 backdrop-blur-sm px-4 py-2 text-sm font-medium transition-colors"
+            className="hero-stat-cta inline-flex items-center gap-2 rounded-md border border-primary/40 bg-primary/10 hover:bg-primary/20 hover:border-primary/70 px-4 py-2 text-sm font-medium text-primary"
           >
             {actionLabel}
           </Link>

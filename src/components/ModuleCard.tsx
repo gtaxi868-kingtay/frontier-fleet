@@ -13,9 +13,15 @@ interface ModuleCardProps {
 
 export function ModuleCard({ title, description, icon: Icon, stats, link }: ModuleCardProps) {
   return (
-    <Link to={link} className="block group">
-      <Card className="border-primary/20 hover:border-primary/50 transition-all duration-300 hover:shadow-glow hover:-translate-y-1 group-hover:scale-[1.02] relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+    <Link to={link} className="block group module-card-link">
+      <Card
+        className="border-primary/20 hover:border-primary/50 hover:shadow-glow hover:-translate-y-1 group-hover:scale-[1.02] relative overflow-hidden"
+        style={{ transition: "transform 200ms var(--ease-out), border-color 200ms var(--ease-out), box-shadow 200ms var(--ease-out)" }}
+      >
+        <div
+          className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-0 group-hover:opacity-100"
+          style={{ transition: "opacity 200ms var(--ease-out)" }}
+        />
         <CardHeader className="relative">
           <div className="flex items-start justify-between">
             <div className="space-y-2 flex-1">
