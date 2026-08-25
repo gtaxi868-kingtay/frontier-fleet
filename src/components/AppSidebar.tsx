@@ -1,7 +1,7 @@
-import { 
-  Shield, 
-  Wrench, 
-  HardHat, 
+import {
+  Shield,
+  Wrench,
+  HardHat,
   Crosshair,
   Package,
   Shirt,
@@ -27,7 +27,7 @@ import {
   QrCode,
   Tags
 } from "lucide-react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import battalionLogo from "@/assets/battalion-logo.png";
@@ -45,7 +45,7 @@ import {
 } from "@/components/ui/sidebar";
 
 const overviewModules = [
-  { title: "Dashboard", url: "/", icon: Home },
+  { title: "Dashboard", url: "/", icon: Home, end: true },
   { title: "Stores", url: "/stores", icon: Warehouse },
   { title: "Scan Item", url: "/scan", icon: QrCode },
 ];
@@ -88,30 +88,45 @@ const departmentModules = [
   { title: "POL / Fuel", url: "/pol-fuel", icon: Fuel, roles: ['MTO', 'S4', 'S4_ADMIN', 'CO', 'S1'] },
 ];
 
+const ACTIVE_LINK_CLASS = "bg-gradient-primary text-primary-foreground font-tactical font-bold shadow-glow beveled";
+const INACTIVE_LINK_CLASS = "hover:bg-primary/10 hover:text-primary font-tactical transition-all";
+
 export function AppSidebar() {
   const { role } = useAuth();
   const navigate = useNavigate();
-  
+  const { pathname } = useLocation();
+
+  // NavLink's function-form className breaks when SidebarMenuButton's
+  // `asChild` (a Radix Slot) merges props onto it - Slot merges className
+  // before NavLink resolves the function into a string, so the raw
+  // function gets stringified into the class attribute instead. Compute
+  // the active state ourselves and pass a plain string instead.
+  const isLinkActive = (url: string, end = false) =>
+    end ? pathname === url : pathname === url || pathname.startsWith(`${url}/`);
+
+  const linkClass = (url: string, end = false) =>
+    isLinkActive(url, end) ? ACTIVE_LINK_CLASS : INACTIVE_LINK_CLASS;
+
   const showRoleManagement = role === 'CO' || role === 'S4';
   const showAuditTrail = ['CO', 'S1', 'S4', 'S4_ADMIN', 'RSM'].includes(role || '');
   const showChangeNotices = ['CO', 'S1', 'S4'].includes(role || '');
-  
+
   // Filter department modules based on role
-  const availableDepartmentModules = departmentModules.filter(module => 
+  const availableDepartmentModules = departmentModules.filter(module =>
     module.roles.includes(role || '')
   );
 
   return (
     <Sidebar collapsible="icon" className="border-r border-primary/20 bg-sidebar/95 backdrop-blur-xl">
       <SidebarHeader className="border-b border-primary/20 p-4">
-        <button 
+        <button
           onClick={() => navigate("/")}
           className="flex items-center gap-3 w-full hover:opacity-90 transition-all group"
         >
-          <img 
-            src={battalionLogo} 
-            alt="Battalion Logo" 
-            className="h-40 w-40 object-contain drop-shadow-[0_0_8px_rgba(139,0,0,0.5)] group-hover:drop-shadow-[0_0_12px_rgba(255,215,0,0.6)] transition-all" 
+          <img
+            src={battalionLogo}
+            alt="Battalion Logo"
+            className="h-40 w-40 object-contain drop-shadow-[0_0_8px_rgba(139,0,0,0.5)] group-hover:drop-shadow-[0_0_12px_rgba(255,215,0,0.6)] transition-all"
           />
           <div className="flex flex-col group-data-[collapsible=icon]:hidden text-left">
             <span className="text-xl font-display font-black tracking-wider uppercase text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">S4</span>
@@ -130,12 +145,8 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild>
                     <NavLink
                       to={item.url}
-                      end
-                      className={({ isActive }) =>
-                        isActive
-                          ? "bg-gradient-primary text-primary-foreground font-tactical font-bold shadow-glow beveled"
-                          : "hover:bg-primary/10 hover:text-primary font-tactical transition-all"
-                      }
+                      end={item.end}
+                      className={linkClass(item.url, item.end)}
                     >
                       <item.icon className="h-4 w-4" />
                       <span className="uppercase tracking-wide text-xs">{item.title}</span>
@@ -156,11 +167,7 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild>
                     <NavLink
                       to={item.url}
-                      className={({ isActive }) =>
-                        isActive
-                          ? "bg-gradient-primary text-primary-foreground font-tactical font-bold shadow-glow beveled"
-                          : "hover:bg-primary/10 hover:text-primary font-tactical transition-all"
-                      }
+                      className={linkClass(item.url)}
                     >
                       <item.icon className="h-4 w-4" />
                       <span className="uppercase tracking-wide text-xs">{item.title}</span>
@@ -181,11 +188,7 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild>
                     <NavLink
                       to={item.url}
-                      className={({ isActive }) =>
-                        isActive
-                          ? "bg-gradient-primary text-primary-foreground font-tactical font-bold shadow-glow beveled"
-                          : "hover:bg-primary/10 hover:text-primary font-tactical transition-all"
-                      }
+                      className={linkClass(item.url)}
                     >
                       <item.icon className="h-4 w-4" />
                       <span className="uppercase tracking-wide text-xs">{item.title}</span>
@@ -206,11 +209,7 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild>
                     <NavLink
                       to={item.url}
-                      className={({ isActive }) =>
-                        isActive
-                          ? "bg-gradient-primary text-primary-foreground font-tactical font-bold shadow-glow beveled"
-                          : "hover:bg-primary/10 hover:text-primary font-tactical transition-all"
-                      }
+                      className={linkClass(item.url)}
                     >
                       <item.icon className="h-4 w-4" />
                       <span className="uppercase tracking-wide text-xs">{item.title}</span>
@@ -230,13 +229,9 @@ export function AppSidebar() {
                 {availableDepartmentModules.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild>
-                      <NavLink 
+                      <NavLink
                         to={item.url}
-                        className={({ isActive }) =>
-                          isActive 
-                            ? "bg-gradient-primary text-primary-foreground font-tactical font-bold shadow-glow beveled" 
-                            : "hover:bg-primary/10 hover:text-primary font-tactical transition-all"
-                        }
+                        className={linkClass(item.url)}
                       >
                         <item.icon className="h-4 w-4" />
                         <span className="uppercase tracking-wide text-xs">{item.title}</span>
@@ -257,13 +252,9 @@ export function AppSidebar() {
                 {showRoleManagement && (
                   <SidebarMenuItem>
                     <SidebarMenuButton asChild>
-                      <NavLink 
+                      <NavLink
                         to="/role-management"
-                        className={({ isActive }) =>
-                          isActive 
-                            ? "bg-gradient-primary text-primary-foreground font-tactical font-bold shadow-glow beveled" 
-                            : "hover:bg-primary/10 hover:text-primary font-tactical transition-all"
-                        }
+                        className={linkClass("/role-management")}
                       >
                         <UserCog className="h-4 w-4" />
                         <span className="uppercase tracking-wide text-xs">Role Management</span>
@@ -276,11 +267,7 @@ export function AppSidebar() {
                     <SidebarMenuButton asChild>
                       <NavLink
                         to="/audit-trail"
-                        className={({ isActive }) =>
-                          isActive
-                            ? "bg-gradient-primary text-primary-foreground font-tactical font-bold shadow-glow beveled"
-                            : "hover:bg-primary/10 hover:text-primary font-tactical transition-all"
-                        }
+                        className={linkClass("/audit-trail")}
                       >
                         <ScrollText className="h-4 w-4" />
                         <span className="uppercase tracking-wide text-xs">Audit Trail</span>
@@ -293,11 +280,7 @@ export function AppSidebar() {
                     <SidebarMenuButton asChild>
                       <NavLink
                         to="/notices"
-                        className={({ isActive }) =>
-                          isActive
-                            ? "bg-gradient-primary text-primary-foreground font-tactical font-bold shadow-glow beveled"
-                            : "hover:bg-primary/10 hover:text-primary font-tactical transition-all"
-                        }
+                        className={linkClass("/notices")}
                       >
                         <BellRing className="h-4 w-4" />
                         <span className="uppercase tracking-wide text-xs">Change Notices</span>
