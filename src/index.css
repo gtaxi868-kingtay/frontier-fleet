@@ -8,36 +8,36 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Command Violet Theme */
-    --background: 260 30% 6%;
+    /* Command Gold Theme (tactical/industrial) */
+    --background: 260 20% 5%;
     --foreground: 0 0% 97%;
 
     /* Card with soft depth */
-    --card: 258 22% 10%;
+    --card: 255 16% 9%;
     --card-foreground: 0 0% 97%;
 
     /* Popover/Dropdown */
-    --popover: 258 22% 9%;
+    --popover: 255 16% 8%;
     --popover-foreground: 0 0% 97%;
 
-    /* Primary - Command Violet */
-    --primary: 262 83% 58%;
-    --primary-foreground: 0 0% 100%;
-    --primary-glow: 266 85% 68%;
+    /* Primary - Command Gold */
+    --primary: 45 93% 58%;
+    --primary-foreground: 0 0% 10%;
+    --primary-glow: 42 95% 66%;
 
     /* Secondary - Slate Steel */
-    --secondary: 258 14% 16%;
+    --secondary: 255 10% 15%;
     --secondary-foreground: 0 0% 92%;
 
-    /* Muted - Dark violet-neutral variants */
-    --muted: 258 14% 14%;
+    /* Muted - Dark neutral variants */
+    --muted: 255 10% 13%;
     --muted-foreground: 0 0% 60%;
 
-    /* Accent - Indigo companion to primary */
-    --accent: 245 85% 65%;
-    --accent-foreground: 0 0% 100%;
+    /* Accent - Amber companion to primary */
+    --accent: 32 85% 52%;
+    --accent-foreground: 0 0% 10%;
 
-    /* Gold - reserved for rare highlight use */
+    /* Gold - alias of primary, kept for existing gold-specific usage */
     --gold: 45 93% 58%;
     --gold-foreground: 0 0% 10%;
 
@@ -56,42 +56,42 @@ All colors MUST be HSL.
     --destructive-foreground: 0 0% 100%;
 
     /* Borders & Inputs */
-    --border: 258 16% 18%;
-    --input: 258 20% 11%;
-    --ring: 262 83% 58%;
+    --border: 255 12% 16%;
+    --input: 255 16% 10%;
+    --ring: 45 93% 58%;
 
     --radius: 1rem;
 
     /* Sidebar */
-    --sidebar-background: 258 24% 8%;
+    --sidebar-background: 255 18% 7%;
     --sidebar-foreground: 0 0% 96%;
-    --sidebar-primary: 262 83% 58%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 258 16% 13%;
+    --sidebar-primary: 45 93% 58%;
+    --sidebar-primary-foreground: 0 0% 10%;
+    --sidebar-accent: 255 12% 12%;
     --sidebar-accent-foreground: 0 0% 92%;
-    --sidebar-border: 258 16% 16%;
-    --sidebar-ring: 262 83% 58%;
+    --sidebar-border: 255 12% 15%;
+    --sidebar-ring: 45 93% 58%;
 
-    /* Soft violet-tinted shadows */
+    /* Soft gold-tinted shadows */
     --shadow-sm: 0 2px 4px 0 rgb(0 0 0 / 0.4);
-    --shadow-md: 0 4px 8px -2px rgb(0 0 0 / 0.5), 0 2px 4px -1px rgb(124 58 237 / 0.12);
-    --shadow-lg: 0 12px 20px -4px rgb(0 0 0 / 0.5), 0 4px 8px -2px rgb(124 58 237 / 0.18);
-    --shadow-xl: 0 24px 40px -8px rgb(0 0 0 / 0.6), 0 8px 16px -4px rgb(124 58 237 / 0.22);
-    --shadow-card: 0 4px 16px 0 rgb(0 0 0 / 0.45), 0 0 0 1px rgb(124 58 237 / 0.1), inset 0 1px 0 0 rgb(255 255 255 / 0.04);
-    --shadow-glow: 0 0 40px rgb(124 58 237 / 0.35), 0 0 15px rgb(124 58 237 / 0.25);
+    --shadow-md: 0 4px 8px -2px rgb(0 0 0 / 0.5), 0 2px 4px -1px rgb(250 204 21 / 0.1);
+    --shadow-lg: 0 12px 20px -4px rgb(0 0 0 / 0.5), 0 4px 8px -2px rgb(250 204 21 / 0.14);
+    --shadow-xl: 0 24px 40px -8px rgb(0 0 0 / 0.6), 0 8px 16px -4px rgb(250 204 21 / 0.18);
+    --shadow-card: 0 4px 16px 0 rgb(0 0 0 / 0.45), 0 0 0 1px rgb(250 204 21 / 0.08), inset 0 1px 0 0 rgb(255 255 255 / 0.04);
+    --shadow-glow: 0 0 40px rgb(250 204 21 / 0.3), 0 0 15px rgb(250 204 21 / 0.2);
     --shadow-glow-blue: 0 0 35px rgb(99 102 241 / 0.35), 0 0 12px rgb(99 102 241 / 0.25);
     --shadow-glow-gold: 0 0 30px rgb(250 204 21 / 0.35), 0 0 10px rgb(250 204 21 / 0.25);
 
-    /* Gradients - Violet command surfaces */
-    --gradient-primary: linear-gradient(135deg, hsl(262 83% 52%), hsl(266 85% 62%));
-    --gradient-metallic: linear-gradient(135deg, hsl(258 16% 16%), hsl(258 14% 12%), hsl(258 20% 9%));
+    /* Gradients - Gold command surfaces */
+    --gradient-primary: linear-gradient(135deg, hsl(38 92% 50%), hsl(45 93% 58%));
+    --gradient-metallic: linear-gradient(135deg, hsl(255 10% 16%), hsl(255 10% 12%), hsl(255 14% 8%));
     --gradient-gold: linear-gradient(135deg, hsl(38 92% 50%), hsl(45 93% 58%));
     --gradient-blue: linear-gradient(135deg, hsl(245 85% 65%), hsl(258 90% 70%));
-    --gradient-hero: linear-gradient(135deg, hsl(262 83% 52%), hsl(266 85% 62%), hsl(280 80% 68%));
-    --gradient-card: linear-gradient(180deg, hsl(258 22% 10%), hsl(260 30% 6%));
-    --gradient-glow: radial-gradient(800px circle at 0% 0%, hsl(262 83% 52% / 0.14), transparent 50%),
-                     radial-gradient(600px circle at 100% 0%, hsl(245 85% 65% / 0.10), transparent 50%),
-                     radial-gradient(400px circle at 50% 100%, hsl(280 80% 60% / 0.08), transparent 40%);
+    --gradient-hero: linear-gradient(135deg, hsl(32 85% 48%), hsl(45 93% 58%), hsl(48 95% 66%));
+    --gradient-card: linear-gradient(180deg, hsl(255 16% 9%), hsl(260 20% 5%));
+    --gradient-glow: radial-gradient(800px circle at 0% 0%, hsl(45 93% 58% / 0.10), transparent 50%),
+                     radial-gradient(600px circle at 100% 0%, hsl(32 85% 52% / 0.08), transparent 50%),
+                     radial-gradient(400px circle at 50% 100%, hsl(0 0% 30% / 0.06), transparent 40%);
 
     /* Beveled edges and soft surfaces */
     --bevel-light: rgba(255, 255, 255, 0.08);
