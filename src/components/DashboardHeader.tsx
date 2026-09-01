@@ -66,16 +66,17 @@ export function DashboardHeader() {
       <div className="flex h-16 items-center gap-4 px-6">
         <SidebarTrigger className="-ml-2 hover:bg-primary/10 transition-colors" />
         
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 min-w-0">
           <img
             src={battalionEmblem}
             alt="Battalion Emblem"
-            className="h-10 w-10 object-contain drop-shadow-[0_0_6px_rgba(139,0,0,0.4)]"
+            className="h-12 w-12 shrink-0 object-contain drop-shadow-[0_0_8px_rgba(139,0,0,0.5)]"
           />
-          <div className="hidden md:block">
-            <h2 className="text-sm font-display font-bold uppercase tracking-wider">1st Engineer Battalion</h2>
-            <p className="text-xs text-muted-foreground font-tactical">TTDF Inventory Management</p>
+          <div className="hidden sm:block min-w-0 leading-tight">
+            <h2 className="text-lg font-display font-black uppercase tracking-wide truncate">1st Engineer Battalion</h2>
+            <p className="text-xs text-primary/80 font-tactical font-semibold uppercase tracking-wider">TTDF Inventory Management</p>
           </div>
+          <span className="sm:hidden text-base font-display font-black uppercase tracking-wide">S4</span>
         </div>
         
         <div className="flex-1" />
