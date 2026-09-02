@@ -55,7 +55,9 @@ import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { lookupSoldier } from "@/hooks/useSoldierLookup";
 import { useUnitFilter } from "@/hooks/useUnitFilter";
 import { useDebouncedDuplicateCheck } from "@/hooks/useDuplicateCheck";
-import { AlertCircle, Loader2, CheckCircle2, AlertTriangle } from "lucide-react";
+import { AlertCircle, Loader2, CheckCircle2, AlertTriangle, Package } from "lucide-react";
+import { QuickIssueDialog } from "@/components/QuickIssueDialog";
+import { QuickReturnDialog } from "@/components/QuickReturnDialog";
 
 const weaponSchema = z.object({
   weapon_id: z.string().min(1, "Weapon ID is required"),
@@ -89,6 +91,9 @@ export default function Weapons() {
   const [pendingUpdate, setPendingUpdate] = useState<{ id: string; updates: any } | null>(null);
   const [statusEditDialogOpen, setStatusEditDialogOpen] = useState(false);
   const [weaponForStatusEdit, setWeaponForStatusEdit] = useState<any>(null);
+  const [issueDialogOpen, setIssueDialogOpen] = useState(false);
+  const [returnDialogOpen, setReturnDialogOpen] = useState(false);
+  const [selectedWeaponForAction, setSelectedWeaponForAction] = useState<any>(null);
 
   const handleStatusChange = (weapon: any, newServiceable: boolean) => {
     setPendingUpdate({
@@ -375,6 +380,35 @@ export default function Weapons() {
                             <p className="text-xs text-muted-foreground">SN: {weapon.service_number}</p>
                           )}
                         </div>
+                      )}
+                      {!weapon.issued_to && weapon.serviceable && canManage && (
+                        <Button
+                          size="sm"
+                          className="w-full"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedWeaponForAction(weapon);
+                            setIssueDialogOpen(true);
+                          }}
+                        >
+                          <Package className="h-4 w-4 mr-2" />
+                          Issue Weapon
+                        </Button>
+                      )}
+                      {weapon.issued_to && canManage && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedWeaponForAction(weapon);
+                            setReturnDialogOpen(true);
+                          }}
+                        >
+                          <CheckCircle2 className="h-4 w-4 mr-2" />
+                          Return Weapon
+                        </Button>
                       )}
                       <div className="flex gap-2">
                         <Button
@@ -719,6 +753,36 @@ export default function Weapons() {
       />
       
       <RealtimeInventorySync module="weapons" onDataChange={refetch} />
+
+      <QuickIssueDialog
+        open={issueDialogOpen}
+        onOpenChange={(open) => {
+          setIssueDialogOpen(open);
+          if (!open) setSelectedWeaponForAction(null);
+        }}
+        item={selectedWeaponForAction}
+        module="weapons"
+        onSuccess={() => {
+          refetch();
+          setIssueDialogOpen(false);
+          setSelectedWeaponForAction(null);
+        }}
+      />
+
+      <QuickReturnDialog
+        open={returnDialogOpen}
+        onOpenChange={(open) => {
+          setReturnDialogOpen(open);
+          if (!open) setSelectedWeaponForAction(null);
+        }}
+        item={selectedWeaponForAction}
+        module="weapons"
+        onSuccess={() => {
+          refetch();
+          setReturnDialogOpen(false);
+          setSelectedWeaponForAction(null);
+        }}
+      />
     </div>
   );
 }

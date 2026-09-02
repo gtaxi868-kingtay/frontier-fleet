@@ -55,13 +55,17 @@ export function QuickReturnDialog({ open, onOpenChange, onSuccess, item, module 
     try {
       const returnDate = new Date().toISOString().split('T')[0];
       
-      // Update item to mark as returned
+      // Update item to mark as returned. Not every per-unit module has a
+      // condition_return column (weapons doesn't) - only set it when the
+      // fetched row actually carries that field.
       const updateData: any = {
         issued_to: null,
         return_date: returnDate,
-        condition_return: condition,
         serviceable: condition === 'Serviceable',
       };
+      if (item.condition_return !== undefined) {
+        updateData.condition_return = condition;
+      }
 
       // Handle quantity-based items
       if (item.qty_on_hand !== undefined && item.qty_on_hand !== null) {
