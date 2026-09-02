@@ -1,7 +1,7 @@
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, UserPlus, UserMinus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 import { AddPlantMachineryDialog } from "@/components/AddPlantMachineryDialog";
@@ -18,6 +18,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { useInventoryData } from "@/hooks/useInventoryData";
+import { AssignOperatorDialog } from "@/components/AssignOperatorDialog";
+import { UnassignOperatorDialog } from "@/components/UnassignOperatorDialog";
+import { useQuery } from "@tanstack/react-query";
 
 export default function PlantMachinery() {
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -27,8 +30,31 @@ export default function PlantMachinery() {
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [pendingUpdate, setPendingUpdate] = useState<{ id: string; updates: any } | null>(null);
-  
+  const [assignDialogOpen, setAssignDialogOpen] = useState(false);
+  const [unassignDialogOpen, setUnassignDialogOpen] = useState(false);
+  const [selectedItemForAction, setSelectedItemForAction] = useState<any>(null);
+
   const { data: machinery = [], refetch, update } = useInventoryData('plant_machinery');
+
+  const operatorIds = Array.from(
+    new Set(machinery.map((m: any) => m.operator_assigned).filter(Boolean))
+  ) as string[];
+
+  const { data: operatorProfiles = [] } = useQuery({
+    queryKey: ['plant-machinery-operators', operatorIds],
+    queryFn: async () => {
+      if (operatorIds.length === 0) return [];
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, name, rank')
+        .in('id', operatorIds);
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: operatorIds.length > 0,
+  });
+
+  const operatorById = Object.fromEntries(operatorProfiles.map((p: any) => [p.id, p]));
 
   const handleStatusChange = (item: any, newServiceability: string) => {
     setPendingUpdate({
@@ -105,6 +131,16 @@ export default function PlantMachinery() {
                           <span className="font-medium">{item.location}</span>
                         </div>
                       )}
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="font-tactical uppercase text-muted-foreground">Operator</span>
+                        <span className="font-medium">
+                          {item.operator_assigned
+                            ? operatorById[item.operator_assigned]
+                              ? `${operatorById[item.operator_assigned].rank || ''} ${operatorById[item.operator_assigned].name}`.trim()
+                              : 'Loading…'
+                            : 'Unassigned'}
+                        </span>
+                      </div>
                       <div className="pt-2">
                         {canManage ? (
                           <DropdownMenu>
@@ -143,6 +179,35 @@ export default function PlantMachinery() {
                           </Badge>
                         )}
                       </div>
+                      {!item.operator_assigned && canManage && (
+                        <Button
+                          size="sm"
+                          className="w-full"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedItemForAction(item);
+                            setAssignDialogOpen(true);
+                          }}
+                        >
+                          <UserPlus className="h-4 w-4 mr-2" />
+                          Assign Operator
+                        </Button>
+                      )}
+                      {item.operator_assigned && canManage && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedItemForAction(item);
+                            setUnassignDialogOpen(true);
+                          }}
+                        >
+                          <UserMinus className="h-4 w-4 mr-2" />
+                          Unassign Operator
+                        </Button>
+                      )}
                     </CardContent>
                   </Card>
                 ))}
@@ -176,6 +241,36 @@ export default function PlantMachinery() {
           }}
           title="Confirm Status Update"
           description="Are you sure you want to update this item's status? This action will be logged in the audit trail."
+        />
+
+        <AssignOperatorDialog
+          open={assignDialogOpen}
+          onOpenChange={(open) => {
+            setAssignDialogOpen(open);
+            if (!open) setSelectedItemForAction(null);
+          }}
+          item={selectedItemForAction}
+          module="plant_machinery"
+          onSuccess={() => {
+            refetch();
+            setAssignDialogOpen(false);
+            setSelectedItemForAction(null);
+          }}
+        />
+
+        <UnassignOperatorDialog
+          open={unassignDialogOpen}
+          onOpenChange={(open) => {
+            setUnassignDialogOpen(open);
+            if (!open) setSelectedItemForAction(null);
+          }}
+          item={selectedItemForAction}
+          module="plant_machinery"
+          onSuccess={() => {
+            refetch();
+            setUnassignDialogOpen(false);
+            setSelectedItemForAction(null);
+          }}
         />
       </main>
     </div>
