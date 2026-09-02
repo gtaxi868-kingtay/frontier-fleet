@@ -11,6 +11,7 @@ import { CheckCircle2, AlertTriangle, Package, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { ReturnReceipt } from "@/components/ReturnReceipt";
+import { getItemDisplayId, getItemDisplayName } from "@/lib/itemDisplay";
 
 interface QuickReturnDialogProps {
   open: boolean;
@@ -103,8 +104,8 @@ export function QuickReturnDialog({ open, onOpenChange, onSuccess, item, module 
       // Store return data for receipt
       if (soldier) {
         setReturnedItemData({
-          issueNumber: item.item_id || item.weapon_id || item.tool_id || 'N/A',
-          itemName: item.item_name || item.weapon_type || item.tool_name || 'Unknown',
+          issueNumber: getItemDisplayId(item),
+          itemName: getItemDisplayName(item),
           quantity: item.qty_issued || 1,
           soldierName: soldier.name,
           soldierRank: soldier.rank || '',
@@ -172,8 +173,8 @@ export function QuickReturnDialog({ open, onOpenChange, onSuccess, item, module 
                   <Package className="h-4 w-4" />
                   Item:
                 </Label>
-                <div className="font-medium">{item.item_name || item.weapon_type || item.tool_name}</div>
-                <Badge variant="outline" className="mt-1">{item.item_id || item.weapon_id || item.tool_id}</Badge>
+                <div className="font-medium">{getItemDisplayName(item)}</div>
+                <Badge variant="outline" className="mt-1">{getItemDisplayId(item)}</Badge>
               </div>
 
               <div className="border-t pt-3">
@@ -246,7 +247,7 @@ export function QuickReturnDialog({ open, onOpenChange, onSuccess, item, module 
             <div className="bg-muted/50 p-4 rounded-lg space-y-3">
               <div className="flex justify-between items-center">
                 <span className="text-sm text-muted-foreground">Item:</span>
-                <span className="font-medium">{item.item_name || item.weapon_type || item.tool_name}</span>
+                <span className="font-medium">{getItemDisplayName(item)}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm text-muted-foreground">Returned From:</span>

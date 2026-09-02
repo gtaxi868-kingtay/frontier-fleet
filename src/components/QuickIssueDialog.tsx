@@ -15,6 +15,7 @@ import { IssueReceipt } from "@/components/IssueReceipt";
 import { useClothingScaleCheck } from "@/hooks/useClothingScale";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { validateQuantity } from "@/lib/validation";
+import { getItemDisplayId, getItemDisplayName } from "@/lib/itemDisplay";
 
 interface QuickIssueDialogProps {
   open: boolean;
@@ -71,7 +72,7 @@ export function QuickIssueDialog({ open, onOpenChange, onSuccess, item, module }
   const isClothingModule = module === 'uniforms' || module === 'clothing_equipment_issues';
 
   // Get item name for scale checking
-  const itemName = item?.item_name || item?.item || item?.tool_name || item?.material || null;
+  const itemName = item ? getItemDisplayName(item, '') || null : null;
 
   // Bulk stock ledgers (general_inventory, works_materials) use different column
   // names than the per-unit modules (tools/uniforms/ppe use qty_on_hand/qty_issued).
@@ -206,7 +207,7 @@ export function QuickIssueDialog({ open, onOpenChange, onSuccess, item, module }
       // Store issue data for receipt
       setIssuedItemData({
         issueNumber,
-        itemName: item.item_name || item.weapon_type || item.tool_name || item.material || 'Unknown',
+        itemName: getItemDisplayName(item),
         quantity,
         soldierName: selectedSoldier.name,
         soldierRank: selectedSoldier.rank || '',
@@ -318,10 +319,10 @@ export function QuickIssueDialog({ open, onOpenChange, onSuccess, item, module }
             <div className="bg-muted/50 p-4 rounded-lg space-y-3">
               <div className="flex items-center justify-between">
                 <Label className="text-sm font-medium">Item to Issue:</Label>
-                <Badge variant="outline">{item.item_id || item.weapon_id || item.tool_id || item.voucher_id || 'N/A'}</Badge>
+                <Badge variant="outline">{getItemDisplayId(item)}</Badge>
               </div>
               <div>
-                <span className="text-sm font-medium">{item.item_name || item.weapon_type || item.tool_name || item.material}</span>
+                <span className="text-sm font-medium">{getItemDisplayName(item)}</span>
               </div>
 
               <div className="border-t pt-3">
@@ -442,7 +443,7 @@ export function QuickIssueDialog({ open, onOpenChange, onSuccess, item, module }
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Item:</span>
-                <span className="font-medium">{item.item_name || item.weapon_type || item.tool_name || item.material}</span>
+                <span className="font-medium">{getItemDisplayName(item)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">To:</span>

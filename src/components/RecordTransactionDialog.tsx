@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import { getItemDisplayId, getItemDisplayName } from '@/lib/itemDisplay';
 
 interface RecordTransactionDialogProps {
   open: boolean;
@@ -152,11 +153,9 @@ export function RecordTransactionDialog({ open, onOpenChange }: RecordTransactio
 
   const getItemLabel = (item: any) => {
     if (!item) return 'Unknown';
-    const label = item.weapon_id || item.vehicle_id || item.tool_id || item.equip_id || 
-           item.plant_id || item.ppe_id || item.uniform_id || 
-           item.weapon_type || item.vehicle_type || item.tool_name || 
-           item.equipment_name || item.type || item.item;
-    return label ? String(label) : 'Unknown';
+    const id = getItemDisplayId(item, '');
+    if (id) return id;
+    return getItemDisplayName(item);
   };
 
   return (

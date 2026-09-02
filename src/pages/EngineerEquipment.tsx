@@ -1,7 +1,7 @@
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, Package, CheckCircle2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 import { AddEngineerEquipmentDialog } from "@/components/AddEngineerEquipmentDialog";
@@ -18,6 +18,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { useInventoryData } from "@/hooks/useInventoryData";
+import { QuickIssueDialog } from "@/components/QuickIssueDialog";
+import { QuickReturnDialog } from "@/components/QuickReturnDialog";
 
 export default function EngineerEquipment() {
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -27,7 +29,10 @@ export default function EngineerEquipment() {
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [pendingUpdate, setPendingUpdate] = useState<{ id: string; updates: any } | null>(null);
-  
+  const [issueDialogOpen, setIssueDialogOpen] = useState(false);
+  const [returnDialogOpen, setReturnDialogOpen] = useState(false);
+  const [selectedItemForAction, setSelectedItemForAction] = useState<any>(null);
+
   const { data: equipment = [], refetch, update } = useInventoryData('engineer_equipment');
 
   const handleStatusChange = (item: any, newServiceable: boolean) => {
@@ -141,6 +146,35 @@ export default function EngineerEquipment() {
                           </Badge>
                         )}
                       </div>
+                      {!item.issued_to && item.serviceable && canManage && (
+                        <Button
+                          size="sm"
+                          className="w-full"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedItemForAction(item);
+                            setIssueDialogOpen(true);
+                          }}
+                        >
+                          <Package className="h-4 w-4 mr-2" />
+                          Issue Item
+                        </Button>
+                      )}
+                      {item.issued_to && canManage && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedItemForAction(item);
+                            setReturnDialogOpen(true);
+                          }}
+                        >
+                          <CheckCircle2 className="h-4 w-4 mr-2" />
+                          Return Item
+                        </Button>
+                      )}
                     </CardContent>
                   </Card>
                 ))}
@@ -174,6 +208,36 @@ export default function EngineerEquipment() {
           }}
           title="Confirm Status Update"
           description="Are you sure you want to update this item's status? This action will be logged in the audit trail."
+        />
+
+        <QuickIssueDialog
+          open={issueDialogOpen}
+          onOpenChange={(open) => {
+            setIssueDialogOpen(open);
+            if (!open) setSelectedItemForAction(null);
+          }}
+          item={selectedItemForAction}
+          module="engineer_equipment"
+          onSuccess={() => {
+            refetch();
+            setIssueDialogOpen(false);
+            setSelectedItemForAction(null);
+          }}
+        />
+
+        <QuickReturnDialog
+          open={returnDialogOpen}
+          onOpenChange={(open) => {
+            setReturnDialogOpen(open);
+            if (!open) setSelectedItemForAction(null);
+          }}
+          item={selectedItemForAction}
+          module="engineer_equipment"
+          onSuccess={() => {
+            refetch();
+            setReturnDialogOpen(false);
+            setSelectedItemForAction(null);
+          }}
         />
       </main>
     </div>
