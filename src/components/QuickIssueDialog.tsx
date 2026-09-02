@@ -24,6 +24,38 @@ interface QuickIssueDialogProps {
   module: string; // 'tools', 'weapons', 'uniforms', etc.
 }
 
+interface QtyFieldConfig {
+  availableField: string; // column checked against the requested quantity
+  onHandField?: string; // column decremented on issue (omit if the module has no live balance to decrement)
+  issuedField: string; // column incremented on issue
+  computeAvailable?: (item: any) => number; // overrides availableField when the "available" figure is derived, not stored directly
+}
+
+const DEFAULT_QTY_CONFIG: QtyFieldConfig = {
+  availableField: 'qty_on_hand',
+  onHandField: 'qty_on_hand',
+  issuedField: 'qty_issued',
+};
+
+// Bulk consumable-stock ledgers use different column names than the per-unit
+// modules (tools/uniforms/ppe/mechanics_tools) the dialog was originally built
+// for. Add an entry here for any module whose columns don't match the default.
+const QTY_FIELD_CONFIG: Record<string, QtyFieldConfig> = {
+  general_inventory: {
+    availableField: 'qty_on_hand',
+    onHandField: 'qty_on_hand',
+    issuedField: 'qty_issued_monthly',
+  },
+  works_materials: {
+    // works_materials has no live "on hand" balance - quantity_received is a
+    // running historical total that never gets decremented. "Available" is
+    // derived, and only quantity_issued moves on an issue.
+    availableField: 'quantity_received',
+    issuedField: 'quantity_issued',
+    computeAvailable: (item: any) => (item?.quantity_received ?? 0) - (item?.quantity_issued ?? 0),
+  },
+};
+
 export function QuickIssueDialog({ open, onOpenChange, onSuccess, item, module }: QuickIssueDialogProps) {
   const { profile, role } = useAuth();
   const [loading, setLoading] = useState(false);
@@ -37,9 +69,16 @@ export function QuickIssueDialog({ open, onOpenChange, onSuccess, item, module }
 
   // Determine if this is a clothing-related module
   const isClothingModule = module === 'uniforms' || module === 'clothing_equipment_issues';
-  
+
   // Get item name for scale checking
-  const itemName = item?.item_name || item?.item || item?.tool_name || null;
+  const itemName = item?.item_name || item?.item || item?.tool_name || item?.material || null;
+
+  // Bulk stock ledgers (general_inventory, works_materials) use different column
+  // names than the per-unit modules (tools/uniforms/ppe use qty_on_hand/qty_issued).
+  // This config lets the same dialog issue against either shape without touching
+  // the default behavior those modules already rely on.
+  const qtyConfig = QTY_FIELD_CONFIG[module] || DEFAULT_QTY_CONFIG;
+  const availableQty = qtyConfig.computeAvailable ? qtyConfig.computeAvailable(item) : item?.[qtyConfig.availableField];
   
   // Check scale if clothing item and soldier selected
   const { data: scaleCheckResult } = useClothingScaleCheck(
@@ -100,8 +139,8 @@ export function QuickIssueDialog({ open, onOpenChange, onSuccess, item, module }
     }
 
     // Check available quantity
-    if (item.qty_on_hand !== undefined && quantity > item.qty_on_hand) {
-      toast.error(`Insufficient quantity. Only ${item.qty_on_hand} available.`);
+    if (availableQty !== undefined && quantity > availableQty) {
+      toast.error(`Insufficient quantity. Only ${availableQty} available.`);
       return;
     }
 
@@ -113,23 +152,30 @@ export function QuickIssueDialog({ open, onOpenChange, onSuccess, item, module }
 
     setLoading(true);
     try {
-      // Update item to mark as issued
-      const updateData: any = {
-        issued_to: selectedSoldier.id,
-        issue_date: new Date().toISOString().split('T')[0],
-        condition_issue: item.condition_issue || 'Serviceable',
-        serviceable: item.serviceable !== false,
-      };
+      const isBulkLedger = module in QTY_FIELD_CONFIG;
 
-      // Handle quantity-based items (tools, uniforms, etc.)
-      if (item.qty_on_hand !== undefined && item.qty_on_hand !== null) {
-        const currentOnHand = item.qty_on_hand || 0;
-        const currentIssued = item.qty_issued || 0;
-        updateData.qty_on_hand = currentOnHand - quantity;
-        updateData.qty_issued = currentIssued + quantity;
-      } else {
-        // For non-quantity items (weapons, etc.), just mark as issued
-        // qty_on_hand field doesn't exist, so skip quantity updates
+      // Per-unit modules (tools, uniforms, weapons, etc.) track who currently
+      // holds the item directly on the row. Bulk stock ledgers (general
+      // inventory, works materials) have no such columns - they're just
+      // running totals - so skip these for them.
+      const updateData: any = isBulkLedger
+        ? {}
+        : {
+            issued_to: selectedSoldier.id,
+            issue_date: new Date().toISOString().split('T')[0],
+            condition_issue: item.condition_issue || 'Serviceable',
+            serviceable: item.serviceable !== false,
+          };
+
+      // Only touch these columns when the fetched row actually has them -
+      // some per-unit modules (weapons, etc.) carry no quantity fields at all.
+      if (qtyConfig.onHandField && item[qtyConfig.onHandField] !== undefined && item[qtyConfig.onHandField] !== null) {
+        const currentOnHand = item[qtyConfig.onHandField] || 0;
+        updateData[qtyConfig.onHandField] = currentOnHand - quantity;
+      }
+      if (qtyConfig.issuedField && item[qtyConfig.issuedField] !== undefined) {
+        const currentIssued = item[qtyConfig.issuedField] || 0;
+        updateData[qtyConfig.issuedField] = currentIssued + quantity;
       }
 
       // Update item in database
@@ -160,7 +206,7 @@ export function QuickIssueDialog({ open, onOpenChange, onSuccess, item, module }
       // Store issue data for receipt
       setIssuedItemData({
         issueNumber,
-        itemName: item.item_name || item.weapon_type || item.tool_name || 'Unknown',
+        itemName: item.item_name || item.weapon_type || item.tool_name || item.material || 'Unknown',
         quantity,
         soldierName: selectedSoldier.name,
         soldierRank: selectedSoldier.rank || '',
@@ -272,10 +318,10 @@ export function QuickIssueDialog({ open, onOpenChange, onSuccess, item, module }
             <div className="bg-muted/50 p-4 rounded-lg space-y-3">
               <div className="flex items-center justify-between">
                 <Label className="text-sm font-medium">Item to Issue:</Label>
-                <Badge variant="outline">{item.item_id || item.weapon_id || item.tool_id || 'N/A'}</Badge>
+                <Badge variant="outline">{item.item_id || item.weapon_id || item.tool_id || item.voucher_id || 'N/A'}</Badge>
               </div>
               <div>
-                <span className="text-sm font-medium">{item.item_name || item.weapon_type || item.tool_name}</span>
+                <span className="text-sm font-medium">{item.item_name || item.weapon_type || item.tool_name || item.material}</span>
               </div>
 
               <div className="border-t pt-3">
@@ -289,20 +335,20 @@ export function QuickIssueDialog({ open, onOpenChange, onSuccess, item, module }
                 )}
               </div>
 
-              {item.qty_on_hand !== undefined && (
+              {availableQty !== undefined && (
                 <div>
                   <Label htmlFor="quantity" className="text-sm">Quantity:</Label>
                   <Input
                     id="quantity"
                     type="number"
                     min="1"
-                    max={item.qty_on_hand}
+                    max={availableQty}
                     value={quantity}
                     onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
                     className="mt-1"
                   />
                   <p className="text-xs text-muted-foreground mt-1">
-                    Available: {item.qty_on_hand || 0}
+                    Available: {availableQty || 0}
                   </p>
                 </div>
               )}
@@ -396,7 +442,7 @@ export function QuickIssueDialog({ open, onOpenChange, onSuccess, item, module }
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Item:</span>
-                <span className="font-medium">{item.item_name || item.weapon_type || item.tool_name}</span>
+                <span className="font-medium">{item.item_name || item.weapon_type || item.tool_name || item.material}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">To:</span>

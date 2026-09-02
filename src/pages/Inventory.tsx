@@ -1,12 +1,13 @@
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, Package } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { AddGeneralInventoryDialog } from "@/components/AddGeneralInventoryDialog";
 import { ItemDetailDialog } from "@/components/ItemDetailDialog";
 import { BulkUploadDialog } from "@/components/BulkUploadDialog";
+import { QuickIssueDialog } from "@/components/QuickIssueDialog";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -20,6 +21,8 @@ export default function Inventory() {
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [issueDialogOpen, setIssueDialogOpen] = useState(false);
+  const [selectedItemForIssue, setSelectedItemForIssue] = useState<any>(null);
 
   const canManage = role === 'S4' || role === 'SQMS';
 
@@ -148,6 +151,21 @@ export default function Inventory() {
                           </Badge>
                         </div>
                       )}
+                      {canManage && (
+                        <Button
+                          size="sm"
+                          className="w-full"
+                          disabled={item.qty_on_hand <= 0}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedItemForIssue(item);
+                            setIssueDialogOpen(true);
+                          }}
+                        >
+                          <Package className="h-4 w-4 mr-2" />
+                          Issue Item
+                        </Button>
+                      )}
                     </CardContent>
                   </Card>
                 ))}
@@ -171,6 +189,21 @@ export default function Inventory() {
           title={`${selectedItem.item_id} - ${selectedItem.item_name}`}
         />
       )}
+
+      <QuickIssueDialog
+        open={issueDialogOpen}
+        onOpenChange={(open) => {
+          setIssueDialogOpen(open);
+          if (!open) setSelectedItemForIssue(null);
+        }}
+        item={selectedItemForIssue}
+        module="general_inventory"
+        onSuccess={() => {
+          fetchItems();
+          setIssueDialogOpen(false);
+          setSelectedItemForIssue(null);
+        }}
+      />
     </div>
   );
 }

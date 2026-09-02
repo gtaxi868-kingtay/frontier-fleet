@@ -1,7 +1,7 @@
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, Package } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 import { AddWorksMaterialDialog } from "@/components/AddWorksMaterialDialog";
@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { BulkUploadDialog } from "@/components/BulkUploadDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { ItemDetailDialog } from "@/components/ItemDetailDialog";
+import { QuickIssueDialog } from "@/components/QuickIssueDialog";
 import { Badge } from "@/components/ui/badge";
 
 export default function WorksMaterials() {
@@ -18,6 +19,8 @@ export default function WorksMaterials() {
   const [materials, setMaterials] = useState<any[]>([]);
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
+  const [issueDialogOpen, setIssueDialogOpen] = useState(false);
+  const [selectedItemForIssue, setSelectedItemForIssue] = useState<any>(null);
 
   const fetchMaterials = async () => {
     const { data } = await supabase.from("works_materials").select("*");
@@ -69,37 +72,55 @@ export default function WorksMaterials() {
               </p>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {materials.map((item) => (
-                  <Card 
-                    key={item.id} 
-                    className="cursor-pointer hover:shadow-glow transition-all duration-300 border-border/50 hover:border-accent/50"
-                    onClick={() => {
-                      setSelectedItem(item);
-                      setDetailDialogOpen(true);
-                    }}
-                  >
-                    <CardHeader>
-                      <CardTitle className="text-lg font-display uppercase tracking-wider">
-                        {item.voucher_id}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-2">
-                      <p className="font-medium">{item.material}</p>
-                      <div className="flex justify-between items-center text-sm">
-                        <span className="font-tactical uppercase text-muted-foreground">Project</span>
-                        <span className="font-medium text-xs">{item.project_task}</span>
-                      </div>
-                      <div className="flex justify-between items-center text-sm">
-                        <span className="font-tactical uppercase text-muted-foreground">Received</span>
-                        <Badge variant="default">{item.quantity_received}</Badge>
-                      </div>
-                      <div className="flex justify-between items-center text-sm">
-                        <span className="font-tactical uppercase text-muted-foreground">Issued</span>
-                        <Badge variant="secondary">{item.quantity_issued}</Badge>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                {materials.map((item) => {
+                  const available = (item.quantity_received || 0) - (item.quantity_issued || 0);
+                  return (
+                    <Card
+                      key={item.id}
+                      className="cursor-pointer hover:shadow-glow transition-all duration-300 border-border/50 hover:border-accent/50"
+                      onClick={() => {
+                        setSelectedItem(item);
+                        setDetailDialogOpen(true);
+                      }}
+                    >
+                      <CardHeader>
+                        <CardTitle className="text-lg font-display uppercase tracking-wider">
+                          {item.voucher_id}
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-2">
+                        <p className="font-medium">{item.material}</p>
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="font-tactical uppercase text-muted-foreground">Project</span>
+                          <span className="font-medium text-xs">{item.project_task}</span>
+                        </div>
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="font-tactical uppercase text-muted-foreground">Received</span>
+                          <Badge variant="default">{item.quantity_received}</Badge>
+                        </div>
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="font-tactical uppercase text-muted-foreground">Issued</span>
+                          <Badge variant="secondary">{item.quantity_issued}</Badge>
+                        </div>
+                        {canManage && (
+                          <Button
+                            size="sm"
+                            className="w-full"
+                            disabled={available <= 0}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedItemForIssue(item);
+                              setIssueDialogOpen(true);
+                            }}
+                          >
+                            <Package className="h-4 w-4 mr-2" />
+                            Issue Material
+                          </Button>
+                        )}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
               </div>
             )}
           </CardContent>
@@ -116,6 +137,21 @@ export default function WorksMaterials() {
           onOpenChange={setDetailDialogOpen}
           title={selectedItem ? `${selectedItem.voucher_id} - ${selectedItem.material}` : ''}
           data={selectedItem}
+        />
+
+        <QuickIssueDialog
+          open={issueDialogOpen}
+          onOpenChange={(open) => {
+            setIssueDialogOpen(open);
+            if (!open) setSelectedItemForIssue(null);
+          }}
+          item={selectedItemForIssue}
+          module="works_materials"
+          onSuccess={() => {
+            fetchMaterials();
+            setIssueDialogOpen(false);
+            setSelectedItemForIssue(null);
+          }}
         />
       </main>
     </div>
