@@ -1,13 +1,14 @@
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Search, Package } from "lucide-react";
+import { Plus, Search, Package, ArrowDownWideNarrow } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { AddGeneralInventoryDialog } from "@/components/AddGeneralInventoryDialog";
 import { ItemDetailDialog } from "@/components/ItemDetailDialog";
 import { BulkUploadDialog } from "@/components/BulkUploadDialog";
 import { QuickIssueDialog } from "@/components/QuickIssueDialog";
+import { SetReorderLevelDialog } from "@/components/SetReorderLevelDialog";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -23,8 +24,11 @@ export default function Inventory() {
   const [searchTerm, setSearchTerm] = useState("");
   const [issueDialogOpen, setIssueDialogOpen] = useState(false);
   const [selectedItemForIssue, setSelectedItemForIssue] = useState<any>(null);
+  const [reorderDialogOpen, setReorderDialogOpen] = useState(false);
+  const [selectedItemForReorder, setSelectedItemForReorder] = useState<any>(null);
 
   const canManage = role === 'S4' || role === 'SQMS';
+  const canSetReorderLevel = role === 'S4';
 
   const fetchItems = async () => {
     let query = supabase.from("general_inventory").select("*");
@@ -142,7 +146,23 @@ export default function Inventory() {
                       </div>
                       <div className="flex justify-between items-center text-sm">
                         <span className="font-tactical uppercase text-muted-foreground">Reorder Level</span>
-                        <span className="font-medium">{item.reorder_level}</span>
+                        <span className="flex items-center gap-1">
+                          <span className="font-medium">{item.reorder_level}</span>
+                          {canSetReorderLevel && (
+                            <button
+                              type="button"
+                              className="text-muted-foreground hover:text-foreground transition-colors"
+                              title="Set reorder level"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedItemForReorder(item);
+                                setReorderDialogOpen(true);
+                              }}
+                            >
+                              <ArrowDownWideNarrow className="h-3.5 w-3.5" />
+                            </button>
+                          )}
+                        </span>
                       </div>
                       {item.reorder_level > 0 && item.qty_on_hand <= item.reorder_level && (
                         <div className="pt-2">
@@ -202,6 +222,20 @@ export default function Inventory() {
           fetchItems();
           setIssueDialogOpen(false);
           setSelectedItemForIssue(null);
+        }}
+      />
+
+      <SetReorderLevelDialog
+        open={reorderDialogOpen}
+        onOpenChange={(open) => {
+          setReorderDialogOpen(open);
+          if (!open) setSelectedItemForReorder(null);
+        }}
+        item={selectedItemForReorder}
+        onSuccess={() => {
+          fetchItems();
+          setReorderDialogOpen(false);
+          setSelectedItemForReorder(null);
         }}
       />
     </div>
