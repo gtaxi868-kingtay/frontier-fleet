@@ -51,7 +51,13 @@ export function useInventoryData<T = any>(tableName: TableName) {
       // Build select query with relationships
       let selectQuery = '*';
       if (tableName === 'weapons') {
-        selectQuery = '*, unit:units(name), issued_to_profile:profiles!weapons_issued_to_fkey(id, name, rank)';
+        // serial_number is deliberately excluded here — it must never ride
+        // along in the default list fetch, since that's what made the
+        // PIN-to-reveal gate cosmetic (see get_weapon_serials migration).
+        // Real values are fetched separately via that RPC, only once the
+        // viewer has actually re-authenticated.
+        selectQuery =
+          'id,weapon_id,weapon_type,squadron_id,issued_to,issue_date,return_date,condition_issue,serviceable,last_inspection_date,next_inspection_due,survey_report_filed,notes,created_at,updated_at,rack_number,store_location,service_number,rank,name,mag_amount,page_64_no,unit:units(name),issued_to_profile:profiles!weapons_issued_to_fkey(id, name, rank)';
       } else if (tableName === 'tools' || tableName === 'uniforms' || tableName === 'ppe' || tableName === 'engineer_equipment') {
         // Include issued_to profile for tables that can be issued
         selectQuery = '*, issued_to_profile:profiles!tools_issued_to_fkey(id, name, rank)';

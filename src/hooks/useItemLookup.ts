@@ -17,10 +17,18 @@ export function useItemLookup() {
     
     try {
       const idField = getIdField(module);
-      
+
+      // weapons.serial_number must never ride along in a lookup fetch —
+      // same reasoning as useInventoryData's weapons select. QR-scanning a
+      // weapon shouldn't be a side channel around the PIN-gated reveal.
+      const selectQuery =
+        module === 'weapons'
+          ? 'id,weapon_id,weapon_type,squadron_id,issued_to,issue_date,return_date,condition_issue,serviceable,last_inspection_date,next_inspection_due,survey_report_filed,notes,created_at,updated_at,rack_number,store_location,service_number,rank,name,mag_amount,page_64_no'
+          : '*';
+
       const { data, error } = await supabase
         .from(module as any)
-        .select('*')
+        .select(selectQuery)
         .eq(idField, itemId)
         .maybeSingle();
 

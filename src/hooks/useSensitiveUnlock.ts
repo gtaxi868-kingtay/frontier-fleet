@@ -3,6 +3,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
 const STORAGE_KEY = "sensitive_unlocked";
+// sessionStorage mutations don't trigger re-renders in sibling components
+// within the same tab (the native `storage` event only fires in *other*
+// tabs) — without this, a page that reads `unlocked` itself (e.g. to decide
+// whether to fetch gated data) would stay stuck on a stale `false` even
+// after a SensitiveField/SensitiveGate elsewhere on the same page unlocked.
+const UNLOCK_EVENT = "sensitive-unlock-changed";
 
 // Session-level re-authentication for weapon serials / ammunition detail.
 // Re-entering the password/PIN confirms the person at the keyboard right
@@ -21,6 +27,12 @@ export function useSensitiveUnlock() {
     }
   }, [user]);
 
+  useEffect(() => {
+    const onChange = () => setUnlocked(sessionStorage.getItem(STORAGE_KEY) === "true");
+    window.addEventListener(UNLOCK_EVENT, onChange);
+    return () => window.removeEventListener(UNLOCK_EVENT, onChange);
+  }, []);
+
   const unlock = useCallback(
     async (password: string, context: string): Promise<{ success: boolean; error?: string }> => {
       if (!user?.email) {
@@ -36,6 +48,7 @@ export function useSensitiveUnlock() {
 
       sessionStorage.setItem(STORAGE_KEY, "true");
       setUnlocked(true);
+      window.dispatchEvent(new Event(UNLOCK_EVENT));
       return { success: true };
     },
     [user]
@@ -44,6 +57,7 @@ export function useSensitiveUnlock() {
   const lock = useCallback(() => {
     sessionStorage.removeItem(STORAGE_KEY);
     setUnlocked(false);
+    window.dispatchEvent(new Event(UNLOCK_EVENT));
   }, []);
 
   return { unlocked, unlock, lock };

@@ -58,6 +58,7 @@ import { useDebouncedDuplicateCheck } from "@/hooks/useDuplicateCheck";
 import { AlertCircle, Loader2, CheckCircle2, AlertTriangle, Package } from "lucide-react";
 import { QuickIssueDialog } from "@/components/QuickIssueDialog";
 import { QuickReturnDialog } from "@/components/QuickReturnDialog";
+import { useSensitiveUnlock } from "@/hooks/useSensitiveUnlock";
 
 const weaponSchema = z.object({
   weapon_id: z.string().min(1, "Weapon ID is required"),
@@ -137,6 +138,44 @@ export default function Weapons() {
 
   const { currentUnitId } = useUnitFilter();
 
+  // Real serial numbers never ride along in the `weapons` list fetch (see
+  // useInventoryData's explicit column list) — they're only ever fetched
+  // here, via the RPC that requires a real, logged unlock. Cleared again the
+  // moment the session-level unlock lapses, so a masked view never lingers
+  // with stale real values in memory.
+  const { unlocked } = useSensitiveUnlock();
+  const [realSerials, setRealSerials] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    if (!unlocked || weapons.length === 0) {
+      setRealSerials({});
+      return;
+    }
+    const ids = weapons.map((w: any) => w.id);
+    supabase
+      .rpc('get_weapon_serials', { p_weapon_ids: ids })
+      .then(({ data, error }) => {
+        if (error) {
+          console.error('Failed to fetch weapon serials:', error);
+          return;
+        }
+        const map: Record<string, string> = {};
+        (data || []).forEach((row: any) => {
+          if (row.serial_number) map[row.id] = row.serial_number;
+        });
+        setRealSerials(map);
+      });
+  }, [unlocked, weapons]);
+
+  // Pre-unlock this always shows the masked placeholder (we no longer know,
+  // client-side, whether a given weapon even has a serial on file — that's
+  // deliberate, see the migration). Post-unlock it's the real value from
+  // realSerials, or null if this weapon genuinely has none.
+  const getDisplaySerial = (weapon: any): string | null => {
+    if (unlocked) return realSerials[weapon.id] ?? null;
+    return '••••••';
+  };
+
   const form = useForm<WeaponFormData>({
     resolver: zodResolver(weaponSchema),
     defaultValues: {
@@ -202,7 +241,9 @@ export default function Weapons() {
       module: 'weapons',
       id: weapon.weapon_id,
       name: weapon.weapon_type,
-      additionalInfo: weapon.serial_number || undefined,
+      // Only print a real serial onto a label once unlocked — never the
+      // masked placeholder, and never a value the viewer hasn't unlocked.
+      additionalInfo: unlocked ? realSerials[weapon.id] || undefined : undefined,
     };
     setLabelData(labelData);
     setLabelOpen(true);
@@ -266,7 +307,10 @@ export default function Weapons() {
     return (
       weapon.weapon_id?.toLowerCase().includes(searchLower) ||
       weapon.weapon_type?.toLowerCase().includes(searchLower) ||
-      weapon.serial_number?.toLowerCase().includes(searchLower) ||
+      // Serial number is intentionally not searchable here — it's no longer
+      // part of the fetched row pre-unlock (search-by-serial is unavailable
+      // until you unlock, same as the display).
+      (unlocked && realSerials[weapon.id]?.toLowerCase().includes(searchLower)) ||
       weapon.store_location?.toLowerCase().includes(searchLower) ||
       weapon.name?.toLowerCase().includes(searchLower) ||
       weapon.service_number?.toLowerCase().includes(searchLower) ||
@@ -359,10 +403,10 @@ export default function Weapons() {
                           <span className="text-muted-foreground">Store:</span> {weapon.store_location}
                         </p>
                       )}
-                      {weapon.serial_number && (
+                      {getDisplaySerial(weapon) && (
                         <p className="text-sm">
                           <span className="text-muted-foreground">Serial:</span>{" "}
-                          <SensitiveField value={weapon.serial_number} context="weapons" />
+                          <SensitiveField value={getDisplaySerial(weapon)!} context="weapons" />
                         </p>
                       )}
                       {weapon.rack_number && (
@@ -704,7 +748,7 @@ export default function Weapons() {
           open={detailDialogOpen}
           onOpenChange={setDetailDialogOpen}
           title={`${selectedWeapon.weapon_type} - ${selectedWeapon.weapon_id}`}
-          data={selectedWeapon}
+          data={{ ...selectedWeapon, serial_number: getDisplaySerial(selectedWeapon) }}
           module="weapons"
           onStatusClick={handleStatusClick}
         />
