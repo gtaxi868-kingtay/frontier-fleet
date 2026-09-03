@@ -73,7 +73,7 @@ export default function InventoryRequests() {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-3xl font-bold">Inventory Requests</h1>
           <p className="text-muted-foreground mt-1">
