@@ -47,7 +47,7 @@ export default function Facilities() {
           </div>
           {canManage && (
             <div className="flex gap-2">
-              {role === 'S4' && <BulkUploadDialog module="facilities" moduleName="Facilities" />}
+              {(role === 'S4' || role === 'S4_ADMIN') && <BulkUploadDialog module="facilities" moduleName="Facilities" />}
               <Button variant="default" className="gap-2" onClick={() => setDialogOpen(true)}>
                 <Plus className="h-4 w-4" />
                 Add Facility

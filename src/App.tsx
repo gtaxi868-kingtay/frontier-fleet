@@ -165,7 +165,7 @@ const App = () => {
                           <Route
                             path="/audit-trail"
                             element={
-                              <ProtectedRoute allowedRoles={['CO', 'S1', 'S4', 'S4_ADMIN']}>
+                              <ProtectedRoute allowedRoles={['CO', 'S1', 'S4', 'S4_ADMIN', 'RSM']}>
                                 <AuditTrail />
                               </ProtectedRoute>
                             }

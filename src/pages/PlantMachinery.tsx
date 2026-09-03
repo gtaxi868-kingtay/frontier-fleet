@@ -79,7 +79,7 @@ export default function PlantMachinery() {
           </div>
           {canManage && (
             <div className="flex gap-2">
-              {role === 'S4' && <BulkUploadDialog module="plant_machinery" moduleName="Plant & Machinery" />}
+              {(role === 'S4' || role === 'S4_ADMIN') && <BulkUploadDialog module="plant_machinery" moduleName="Plant & Machinery" />}
               <Button variant="default" className="gap-2" onClick={() => setDialogOpen(true)}>
                 <Plus className="h-4 w-4" />
                 Add Plant/Machinery

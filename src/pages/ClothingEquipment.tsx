@@ -103,7 +103,7 @@ export default function ClothingEquipment() {
           </div>
           {canManage && (
             <div className="flex gap-2">
-              {role === 'S4' && <BulkUploadDialog module="clothing_equipment_issues" moduleName="Clothing Equipment" />}
+              {(role === 'S4' || role === 'S4_ADMIN') && <BulkUploadDialog module="clothing_equipment_issues" moduleName="Clothing Equipment" />}
               <Button variant="default" className="gap-2" onClick={() => setIssueDialogOpen(true)}>
                 <Plus className="h-4 w-4" />
                 Issue Item

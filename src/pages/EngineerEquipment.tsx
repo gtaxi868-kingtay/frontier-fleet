@@ -58,7 +58,7 @@ export default function EngineerEquipment() {
           </div>
           {canManage && (
             <div className="flex gap-2">
-              {role === 'S4' && <BulkUploadDialog module="engineer_equipment" moduleName="Engineer Equipment" />}
+              {(role === 'S4' || role === 'S4_ADMIN') && <BulkUploadDialog module="engineer_equipment" moduleName="Engineer Equipment" />}
               <Button variant="default" className="gap-2" onClick={() => setDialogOpen(true)}>
                 <Plus className="h-4 w-4" />
                 Add Equipment

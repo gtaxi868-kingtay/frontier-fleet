@@ -104,7 +104,7 @@ export default function Tools() {
             </Button>
             {canManage && (
               <>
-                {role === 'S4' && <BulkUploadDialog module="tools" moduleName="Tools" />}
+                {(role === 'S4' || role === 'S4_ADMIN') && <BulkUploadDialog module="tools" moduleName="Tools" />}
                 <Button variant="default" className="gap-2" onClick={() => setDialogOpen(true)}>
                   <Plus className="h-4 w-4" />
                   Add Tool

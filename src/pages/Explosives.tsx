@@ -97,7 +97,7 @@ export default function Explosives() {
           </div>
           {canManage && (
             <div className="flex gap-2">
-              {role === 'S4' && <BulkUploadDialog module="explosives" moduleName="Explosives" />}
+              {(role === 'S4' || role === 'S4_ADMIN') && <BulkUploadDialog module="explosives" moduleName="Explosives" />}
               <Button variant="default" className="gap-2" onClick={() => setDialogOpen(true)}>
                 <Plus className="h-4 w-4" />
                 Request Add (CO approval required)

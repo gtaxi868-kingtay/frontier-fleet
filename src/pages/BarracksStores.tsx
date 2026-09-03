@@ -69,7 +69,7 @@ export default function BarracksStores() {
           </div>
           {canManage && (
             <div className="flex gap-2">
-              {role === 'S4' && <BulkUploadDialog module="barracks_stores" moduleName="Barracks Stores" />}
+              {(role === 'S4' || role === 'S4_ADMIN') && <BulkUploadDialog module="barracks_stores" moduleName="Barracks Stores" />}
               <Button 
                 variant="outline" 
                 className="gap-2" 
