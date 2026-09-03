@@ -70,22 +70,27 @@ const assetModules = [
   { title: "Physical Check", url: "/physical-check", icon: ClipboardCheck },
 ];
 
+// `roles` here must mirror the ProtectedRoute allowedRoles for the same
+// path in App.tsx exactly — a link visible to a role the route itself
+// rejects is a dead end (Access Denied on click). Omit `roles` only for
+// routes that genuinely have no ProtectedRoute restriction.
 const personnelModules = [
-  { title: "Inventory Requests", url: "/inventory-requests", icon: ClipboardList },
+  { title: "Inventory Requests", url: "/inventory-requests", icon: ClipboardList, roles: ['CO', 'S1', 'S4', 'S4_ADMIN', 'OC', 'SQMS'] },
 ];
 
 const reportingModules = [
   { title: "Print Labels", url: "/print-labels", icon: Tags },
   { title: "Documents", url: "/documents", icon: Camera },
-  { title: "Transactions", url: "/transactions", icon: ArrowLeftRight },
-  { title: "Analytics", url: "/analytics", icon: BarChart3 },
-  { title: "Reports", url: "/reports", icon: FileText },
+  { title: "Transactions", url: "/transactions", icon: ArrowLeftRight, roles: ['CO', 'S1', 'S4', 'S4_ADMIN', 'OC', 'SQMS', 'STOREMAN'] },
+  { title: "Analytics", url: "/analytics", icon: BarChart3, roles: ['CO', 'S4', 'OC'] },
+  { title: "Reports", url: "/reports", icon: FileText, roles: ['CO', 'S4', 'OC'] },
 ];
 
 const departmentModules = [
   { title: "MTO Dashboard", url: "/mto-dashboard", icon: Car, roles: ['MTO', 'S4', 'CO', 'S4_ADMIN'] },
   { title: "Workshop Dashboard", url: "/workshop-dashboard", icon: Wrench, roles: ['WKSP_WO', 'S4', 'CO', 'S4_ADMIN'] },
   { title: "POL / Fuel", url: "/pol-fuel", icon: Fuel, roles: ['MTO', 'S4', 'S4_ADMIN', 'CO', 'S1'] },
+  { title: "POL Management", url: "/pol-management", icon: Fuel, roles: ['MTO', 'S4', 'CO', 'S4_ADMIN'] },
 ];
 
 const ACTIVE_LINK_CLASS = "bg-gradient-primary text-primary-foreground font-tactical font-bold shadow-glow beveled";
@@ -111,10 +116,14 @@ export function AppSidebar() {
   const showAuditTrail = ['CO', 'S1', 'S4', 'S4_ADMIN', 'RSM'].includes(role || '');
   const showChangeNotices = ['CO', 'S1', 'S4'].includes(role || '');
 
-  // Filter department modules based on role
-  const availableDepartmentModules = departmentModules.filter(module =>
-    module.roles.includes(role || '')
-  );
+  // A module with no `roles` array has no ProtectedRoute restriction and
+  // is visible to everyone; one with `roles` is filtered to match.
+  const visibleTo = <T extends { roles?: string[] }>(modules: T[]) =>
+    modules.filter(m => !m.roles || m.roles.includes(role || ''));
+
+  const availablePersonnelModules = visibleTo(personnelModules);
+  const availableReportingModules = visibleTo(reportingModules);
+  const availableDepartmentModules = visibleTo(departmentModules);
 
   return (
     <Sidebar collapsible="icon" className="border-r border-primary/20 bg-sidebar/95 backdrop-blur-xl">
@@ -179,11 +188,12 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
+        {availablePersonnelModules.length > 0 && (
         <SidebarGroup>
           <SidebarGroupLabel className="font-tactical uppercase tracking-wider text-xs text-muted-foreground">Personnel</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {personnelModules.map((item) => (
+              {availablePersonnelModules.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink
@@ -199,12 +209,14 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+        )}
 
+        {availableReportingModules.length > 0 && (
         <SidebarGroup>
           <SidebarGroupLabel className="font-tactical uppercase tracking-wider text-xs text-muted-foreground">Reporting</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {reportingModules.map((item) => (
+              {availableReportingModules.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink
@@ -220,6 +232,7 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+        )}
 
         {availableDepartmentModules.length > 0 && (
           <SidebarGroup>
