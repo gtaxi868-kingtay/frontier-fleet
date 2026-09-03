@@ -139,8 +139,8 @@ export default function Analytics() {
       
       const unserviceableCount = serviceableTotal - serviceableCount;
 
-      const lowStock = generalInventory?.filter(item => 
-        (item.qty_on_hand || 0) <= (item.reorder_level || 0)
+      const lowStock = generalInventory?.filter(item =>
+        (item.reorder_level || 0) > 0 && (item.qty_on_hand || 0) <= (item.reorder_level || 0)
       ).length || 0;
 
       // Fetch alerts data

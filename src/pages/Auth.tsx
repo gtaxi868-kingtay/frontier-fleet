@@ -425,6 +425,10 @@ export default function Auth() {
                     <SelectItem value="Soldier">Soldier</SelectItem>
                   </SelectContent>
                 </Select>
+                <p className="text-xs text-muted-foreground mt-1.5">
+                  Every role request — including command roles — needs approval from the CO or S4
+                  before you can sign in. You'll see a pending-approval screen until then.
+                </p>
               </div>
               <div>
                 <FieldLabel htmlFor="signup-email">Email</FieldLabel>

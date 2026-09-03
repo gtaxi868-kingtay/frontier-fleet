@@ -166,7 +166,7 @@ const Index = () => {
       // Fetch general inventory
       const { data: generalInventory } = await getUnitFilteredQuery('general_inventory');
       const generalInventoryTotal = generalInventory?.reduce((sum, g) => sum + (g.qty_on_hand || 0), 0) || 0;
-      const generalInventoryLowStock = generalInventory?.filter(g => (g.qty_on_hand || 0) <= (g.reorder_level || 0)).length || 0;
+      const generalInventoryLowStock = generalInventory?.filter(g => (g.reorder_level || 0) > 0 && (g.qty_on_hand || 0) <= (g.reorder_level || 0)).length || 0;
 
       // Fetch room inventory (may not have unit column, skip filter for now)
       const { data: roomInventory } = await supabase.from('room_inventory').select('*');
@@ -181,8 +181,8 @@ const Index = () => {
       // Calculate serviceable percentage
       const totalServiceableItems = weaponsServiceable + toolsServiceable + engineerServiceable + 
                                     plantOperational + vehiclesServiceable + uniformsServiceable + ppeServiceable;
-      const totalCheckableItems = weaponsTotal + tools?.length || 0 + engineerEquip?.length || 0 + 
-                                 plantTotal + vehiclesTotal + uniformsTotal + ppe?.length || 0;
+      const totalCheckableItems = weaponsTotal + (tools?.length || 0) + (engineerEquip?.length || 0) +
+                                 plantTotal + vehiclesTotal + uniformsTotal + (ppe?.length || 0);
       const serviceablePercentage = totalCheckableItems > 0 
         ? Math.round((totalServiceableItems / totalCheckableItems) * 100) 
         : 0;
@@ -304,7 +304,8 @@ const Index = () => {
         {/* Hero Metric */}
         <HeroStatCard
           label="Total Tracked Assets"
-          value={loading ? "..." : dashboardStats.totalAssets.toLocaleString()}
+          value={dashboardStats.totalAssets.toLocaleString()}
+          loading={loading}
           subtitle="Across all fleet modules"
           icon={Package}
           actionLabel="View Analytics"
@@ -316,7 +317,8 @@ const Index = () => {
           <div className="stagger-in" style={{ animationDelay: "0ms" }}>
             <StatCard
               title="Total Assets"
-              value={loading ? "..." : dashboardStats.totalAssets.toLocaleString()}
+              value={dashboardStats.totalAssets.toLocaleString()}
+              loading={loading}
               subtitle="Across all modules"
               icon={Package}
               variant="default"
@@ -325,7 +327,8 @@ const Index = () => {
           <div className="stagger-in" style={{ animationDelay: "40ms" }}>
             <StatCard
               title="Serviceable"
-              value={loading ? "..." : `${dashboardStats.serviceablePercentage}%`}
+              value={`${dashboardStats.serviceablePercentage}%`}
+              loading={loading}
               subtitle="Operational readiness"
               icon={CheckCircle2}
               variant="success"
@@ -334,7 +337,8 @@ const Index = () => {
           <div className="stagger-in" style={{ animationDelay: "80ms" }}>
             <StatCard
               title="Pending Actions"
-              value={loading ? "..." : dashboardStats.pendingActions}
+              value={dashboardStats.pendingActions}
+              loading={loading}
               subtitle="Requires approval"
               icon={Clock}
               variant="warning"
@@ -343,7 +347,8 @@ const Index = () => {
           <div className="stagger-in" style={{ animationDelay: "120ms" }}>
             <StatCard
               title="Critical Items"
-              value={loading ? "..." : dashboardStats.criticalItems}
+              value={dashboardStats.criticalItems}
+              loading={loading}
               subtitle="Low stock alerts"
               icon={AlertTriangle}
               variant="danger"

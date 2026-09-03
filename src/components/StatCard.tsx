@@ -9,6 +9,7 @@ interface StatCardProps {
   trend?: "up" | "down" | "neutral";
   trendValue?: string;
   variant?: "default" | "success" | "warning" | "danger";
+  loading?: boolean;
 }
 
 export function StatCard({
@@ -19,6 +20,7 @@ export function StatCard({
   trend,
   trendValue,
   variant = "default",
+  loading = false,
 }: StatCardProps) {
   const variantStyles = {
     default: "border-primary/20 bg-gradient-to-br from-card to-background",
@@ -44,7 +46,11 @@ export function StatCard({
           <div className="space-y-2 flex-1">
             <p className="text-sm font-tactical font-semibold text-muted-foreground uppercase tracking-wider">{title}</p>
             <div className="flex items-baseline gap-2">
-              <h3 className="text-4xl font-display font-black tracking-tight text-foreground">{value}</h3>
+              {loading ? (
+                <div className="h-9 w-20 rounded-md bg-muted animate-pulse" />
+              ) : (
+                <h3 className="text-4xl font-display font-black tracking-tight text-foreground">{value}</h3>
+              )}
               {trendValue && (
                 <span
                   className={`text-sm font-tactical font-bold uppercase tracking-wide ${

@@ -105,7 +105,7 @@ const App = () => {
           <SidebarProvider defaultOpen={true}>
             <div className="flex min-h-screen w-full">
               <AppSidebar />
-              <div className="flex-1 flex flex-col">
+              <div className="flex-1 flex flex-col min-w-0">
                         <Routes>
                           <Route path="/" element={<Index />} />
                           <Route path="/stores" element={<Stores />} />

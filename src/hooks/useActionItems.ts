@@ -124,6 +124,30 @@ export function useActionItems() {
         });
       }
 
+      // 4. Low Stock (general inventory below its reorder level)
+      let lowStockQuery = supabase
+        .from('general_inventory')
+        .select('id, item_id, item_name, qty_on_hand, reorder_level')
+        .gt('reorder_level', 0);
+      lowStockQuery = applyUnitFilter(lowStockQuery, { columnName: 'squadron_id' });
+      const { data: lowStockCandidates } = await lowStockQuery;
+      const lowStockItems = lowStockCandidates?.filter(
+        (item: any) => (item.qty_on_hand || 0) <= (item.reorder_level || 0)
+      );
+
+      if (lowStockItems && lowStockItems.length > 0) {
+        items.push({
+          id: 'low-stock-general-inventory',
+          type: 'low_stock',
+          priority: lowStockItems.some((item: any) => (item.qty_on_hand || 0) === 0) ? 'urgent' : 'attention',
+          title: `${lowStockItems.length} Item${lowStockItems.length !== 1 ? 's' : ''} Below Reorder Level`,
+          description: `${lowStockItems.length} general inventory item${lowStockItems.length !== 1 ? 's' : ''} at or below the reorder threshold`,
+          module: 'general_inventory',
+          link: '/inventory',
+          count: lowStockItems.length,
+        });
+      }
+
       // Sort by priority (urgent first, then attention, then info)
       const priorityOrder = { urgent: 0, attention: 1, info: 2 };
       items.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);

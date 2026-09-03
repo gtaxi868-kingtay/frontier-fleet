@@ -1,6 +1,7 @@
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -10,8 +11,9 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
-  const { user, role, loading } = useAuth();
+  const { user, role, loading, signOut } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const [checkingSelfApprove, setCheckingSelfApprove] = useState(false);
   const [canSelfApprove, setCanSelfApprove] = useState(false);
 
@@ -77,6 +79,9 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
             Your role is pending approval from CO/S4.<br />
             You'll be able to access the system once approved.
           </p>
+          <Button variant="outline" onClick={signOut}>
+            Sign Out
+          </Button>
         </div>
       </div>
     );
@@ -90,6 +95,9 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
           <p className="text-muted-foreground">
             You don't have permission to access this page.
           </p>
+          <Button variant="outline" className="mt-3" onClick={() => navigate('/')}>
+            Go to Dashboard
+          </Button>
         </div>
       </div>
     );

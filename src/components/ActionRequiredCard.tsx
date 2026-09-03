@@ -28,6 +28,8 @@ export function ActionRequiredCard() {
         return <Package className="h-4 w-4" />;
       case 'unserviceable':
         return <Wrench className="h-4 w-4" />;
+      case 'low_stock':
+        return <Package className="h-4 w-4" />;
       default:
         return <AlertTriangle className="h-4 w-4" />;
     }
@@ -45,6 +47,8 @@ export function ActionRequiredCard() {
         return 'Pending Approval';
       case 'unserviceable':
         return 'Unserviceable';
+      case 'low_stock':
+        return 'Low Stock';
       default:
         return 'Action Required';
     }

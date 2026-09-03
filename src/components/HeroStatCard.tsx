@@ -9,9 +9,10 @@ interface HeroStatCardProps {
   icon: LucideIcon;
   actionLabel?: string;
   actionLink?: string;
+  loading?: boolean;
 }
 
-export function HeroStatCard({ label, value, subtitle, icon: Icon, actionLabel, actionLink }: HeroStatCardProps) {
+export function HeroStatCard({ label, value, subtitle, icon: Icon, actionLabel, actionLink, loading = false }: HeroStatCardProps) {
   return (
     <Card className="border border-primary/30 bg-card shadow-glow overflow-hidden relative rounded-lg">
       <div className="absolute inset-0 fuel-tank-grid opacity-60" />
@@ -21,7 +22,11 @@ export function HeroStatCard({ label, value, subtitle, icon: Icon, actionLabel, 
           <Icon className="h-4 w-4" />
           {label}
         </div>
-        <div className="text-6xl font-display font-black tracking-tight text-foreground">{value}</div>
+        {loading ? (
+          <div className="h-14 w-32 rounded-md bg-muted animate-pulse" />
+        ) : (
+          <div className="text-6xl font-display font-black tracking-tight text-foreground">{value}</div>
+        )}
         <p className="text-muted-foreground text-sm">{subtitle}</p>
         {actionLabel && actionLink && (
           <Link
