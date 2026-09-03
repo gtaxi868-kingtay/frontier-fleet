@@ -1,5 +1,4 @@
 import { LucideIcon } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
 
 interface StatCardProps {
   title: string;
@@ -22,58 +21,40 @@ export function StatCard({
   variant = "default",
   loading = false,
 }: StatCardProps) {
-  const variantStyles = {
-    default: "border-primary/20 bg-gradient-to-br from-card to-background",
-    success: "border-success/30 bg-gradient-to-br from-success/10 to-background",
-    warning: "border-warning/30 bg-gradient-to-br from-warning/10 to-background",
-    danger: "border-destructive/30 bg-gradient-to-br from-destructive/10 to-background",
-  };
-
   const iconStyles = {
-    default: "bg-gradient-primary text-primary-foreground shadow-glow",
-    success: "bg-success text-success-foreground shadow-md",
-    warning: "bg-warning text-warning-foreground shadow-md",
-    danger: "bg-destructive text-destructive-foreground shadow-md",
+    default: "bg-primary/15 text-primary",
+    success: "bg-success/15 text-success",
+    warning: "bg-warning/15 text-warning",
+    danger: "bg-destructive/15 text-destructive",
   };
 
   return (
-    <Card
-      className={`${variantStyles[variant]} border hover:shadow-lg hover:-translate-y-0.5 command-border`}
-      style={{ transition: "transform 200ms var(--ease-out), box-shadow 200ms var(--ease-out)" }}
-    >
-      <CardContent className="p-6">
-        <div className="flex items-start justify-between">
-          <div className="space-y-2 flex-1">
-            <p className="text-sm font-tactical font-semibold text-muted-foreground uppercase tracking-wider">{title}</p>
-            <div className="flex items-baseline gap-2">
-              {loading ? (
-                <div className="h-9 w-20 rounded-md bg-muted animate-pulse" />
-              ) : (
-                <h3 className="text-4xl font-display font-black tracking-tight text-foreground">{value}</h3>
-              )}
-              {trendValue && (
-                <span
-                  className={`text-sm font-tactical font-bold uppercase tracking-wide ${
-                    trend === "up"
-                      ? "text-success"
-                      : trend === "down"
-                      ? "text-destructive"
-                      : "text-muted-foreground"
-                  }`}
-                >
-                  {trendValue}
-                </span>
-              )}
-            </div>
-            {subtitle && (
-              <p className="text-xs text-muted-foreground font-tactical">{subtitle}</p>
-            )}
-          </div>
-          <div className={`p-3 rounded-lg ${iconStyles[variant]} beveled`}>
-            <Icon className="h-6 w-6" />
-          </div>
+    <div className="glass-panel rounded-xl p-4 flex items-center gap-3 transition-colors duration-200 hover:bg-white/[0.05]">
+      <div className={`shrink-0 p-2.5 rounded-lg ${iconStyles[variant]}`}>
+        <Icon className="h-4 w-4" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="text-[11px] font-tactical font-semibold text-muted-foreground uppercase tracking-wider truncate">
+          {title}
+        </p>
+        <div className="flex items-baseline gap-1.5">
+          {loading ? (
+            <div className="h-6 w-14 rounded bg-muted animate-pulse mt-0.5" />
+          ) : (
+            <h3 className="text-xl font-display font-bold tracking-tight text-foreground">{value}</h3>
+          )}
+          {trendValue && (
+            <span
+              className={`text-xs font-tactical font-semibold ${
+                trend === "up" ? "text-success" : trend === "down" ? "text-destructive" : "text-muted-foreground"
+              }`}
+            >
+              {trendValue}
+            </span>
+          )}
         </div>
-      </CardContent>
-    </Card>
+        {subtitle && <p className="text-[11px] text-muted-foreground truncate">{subtitle}</p>}
+      </div>
+    </div>
   );
 }

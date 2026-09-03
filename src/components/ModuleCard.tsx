@@ -1,5 +1,4 @@
 import { LucideIcon } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -14,42 +13,34 @@ interface ModuleCardProps {
 export function ModuleCard({ title, description, icon: Icon, stats, link }: ModuleCardProps) {
   return (
     <Link to={link} className="block group module-card-link">
-      <Card
-        className="border-primary/20 hover:border-primary/50 hover:shadow-glow hover:-translate-y-1 group-hover:scale-[1.02] relative overflow-hidden"
-        style={{ transition: "transform 200ms var(--ease-out), border-color 200ms var(--ease-out), box-shadow 200ms var(--ease-out)" }}
+      <div
+        className="glass-panel rounded-2xl p-5 hover:bg-white/[0.05] hover:border-primary/30 hover:-translate-y-0.5 relative overflow-hidden"
+        style={{ transition: "transform 200ms var(--ease-out), border-color 200ms var(--ease-out), background-color 200ms var(--ease-out)" }}
       >
-        <div
-          className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-0 group-hover:opacity-100"
-          style={{ transition: "opacity 200ms var(--ease-out)" }}
-        />
-        <CardHeader className="relative">
-          <div className="flex items-start justify-between">
-            <div className="space-y-2 flex-1">
-              <CardTitle className="flex items-center gap-3 text-lg">
-                <div className="p-2.5 rounded-lg bg-gradient-primary text-primary-foreground shadow-glow group-hover:shadow-glow-gold transition-all duration-300 beveled">
-                  <Icon className="h-5 w-5" />
-                </div>
-                <span className="font-display uppercase tracking-wide">{title}</span>
-              </CardTitle>
-              <p className="text-sm text-muted-foreground font-tactical">{description}</p>
+        <div className="flex items-start gap-3 mb-4">
+          <div className="p-2.5 rounded-lg bg-primary/15 text-primary shrink-0">
+            <Icon className="h-5 w-5" />
+          </div>
+          <div className="min-w-0">
+            <h3 className="font-display font-bold uppercase tracking-wide text-base text-foreground">{title}</h3>
+            <p className="text-sm text-muted-foreground">{description}</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          {stats.map((stat) => (
+            <div key={stat.label} className="space-y-0.5 p-3 rounded-lg bg-black/20 border border-white/[0.06]">
+              <p className="text-[11px] text-muted-foreground font-tactical font-semibold uppercase tracking-wider">{stat.label}</p>
+              <p className="text-lg font-display font-bold text-foreground">{stat.value}</p>
             </div>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4 relative">
-          <div className="grid grid-cols-2 gap-4">
-            {stats.map((stat) => (
-              <div key={stat.label} className="space-y-1 p-3 rounded-lg bg-muted/30 border border-primary/10 beveled">
-                <p className="text-xs text-muted-foreground font-tactical font-semibold uppercase tracking-wider">{stat.label}</p>
-                <p className="text-xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">{stat.value}</p>
-              </div>
-            ))}
-          </div>
-          <div className="flex items-center justify-between pt-2 text-sm text-primary font-tactical font-bold uppercase tracking-wider group-hover:translate-x-1 transition-transform">
-            <span>View Details</span>
-            <ArrowRight className="h-4 w-4 group-hover:text-gold transition-colors" />
-          </div>
-        </CardContent>
-      </Card>
+          ))}
+        </div>
+
+        <div className="flex items-center justify-between pt-4 text-sm text-primary font-tactical font-semibold uppercase tracking-wider group-hover:translate-x-1 transition-transform">
+          <span>View Details</span>
+          <ArrowRight className="h-4 w-4" />
+        </div>
+      </div>
     </Link>
   );
 }
