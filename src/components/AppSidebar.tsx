@@ -25,7 +25,8 @@ import {
   ClipboardCheck,
   Camera,
   QrCode,
-  Tags
+  Tags,
+  PackageOpen
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -46,6 +47,7 @@ import {
 
 const overviewModules = [
   { title: "Dashboard", url: "/", icon: Home, end: true },
+  { title: "My Kit", url: "/my-kit", icon: PackageOpen },
   { title: "Stores", url: "/stores", icon: Warehouse },
   { title: "Scan Item", url: "/scan", icon: QrCode },
 ];

@@ -262,13 +262,16 @@ confirm/cancel, reused widely), `SetPinDialog` (Profile only), `QRScannerDialog`
    (`workshop_repairs`, `workshop_reports`, `mt_detail_sheets`) — this is pure UI
    work, no schema needed.
 
-2. **No Soldier-facing page.** Soldier is excluded from every `allowedRoles` list
-   and every `canManage` check in the codebase. They can technically load unguarded
-   module pages but see no controls, and RLS returns zero rows on tables with no
-   per-person column. There is no "My Kit" / "My Issued Items" view scoped to their
-   real permission (`view_own_items`) even though the data model supports it
-   (every issuable table has an `issued_to`/similar column). This is the single
-   biggest missing page, and it's for the most populous role in the system.
+2. ~~No Soldier-facing page~~ — **resolved**: added `MyKit.tsx` at `/my-kit`
+   (sidebar entry under Overview, visible to every role since anyone can have
+   issued kit, not only Soldiers). Queries every issuable module (weapons, tools,
+   engineer equipment, uniforms, PPE, plant & machinery, vehicles) filtered to
+   rows issued/assigned to the current user, and reuses `ItemDetailDialog` for
+   the read-only detail view. Weapons' `serial_number` is deliberately excluded
+   from this view's fetch, same as the gated pattern elsewhere — a soldier's own
+   weapon still goes through the sensitive-reveal flow, not a shortcut here.
+   Live-verified with a real test weapon (empty state, populated state, and
+   detail dialog all confirmed correct), test data cleaned up after.
 
 3. ~~RSM sidebar/route mismatch~~ — **resolved**: added RSM to `/audit-trail`'s
    `allowedRoles` in `App.tsx` (RSM's permission shape already matches S1, which

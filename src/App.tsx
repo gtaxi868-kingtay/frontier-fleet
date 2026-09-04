@@ -11,6 +11,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { SplashScreen } from "@/components/SplashScreen";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import Index from "./pages/Index";
+import MyKit from "./pages/MyKit";
 import Stores from "./pages/Stores";
 import StoreDetail from "./pages/StoreDetail";
 import Auth from "./pages/Auth";
@@ -108,6 +109,7 @@ const App = () => {
               <div className="flex-1 flex flex-col min-w-0">
                         <Routes>
                           <Route path="/" element={<Index />} />
+                          <Route path="/my-kit" element={<MyKit />} />
                           <Route path="/stores" element={<Stores />} />
                           <Route path="/stores/:unitId" element={<StoreDetail />} />
                           <Route path="/weapons" element={<Weapons />} />
