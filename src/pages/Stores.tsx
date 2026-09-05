@@ -45,14 +45,16 @@ const unitAccent = (name: string) => {
   return "border-border bg-gradient-to-br from-muted/20 to-background";
 };
 
+// unitId === null means "master": reserve stock not yet assigned to any
+// squadron (squadron_id IS NULL) — NOT every row in the table. Master must
+// stay disjoint from every sub-store's count or the two double-count the
+// same physical items once squadrons have real assignments.
 async function fetchCountsForUnit(unitId: string | null): Promise<Record<string, number>> {
   const counts: Record<string, number> = {};
   await Promise.all(
     CATEGORY_TABLES.map(async ({ key, table }) => {
       let query = supabase.from(table).select("*", { count: "exact", head: true });
-      if (unitId) {
-        query = query.eq("squadron_id", unitId);
-      }
+      query = unitId ? query.eq("squadron_id", unitId) : query.is("squadron_id", null);
       const { count } = await query;
       counts[key] = count || 0;
     })

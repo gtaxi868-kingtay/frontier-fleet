@@ -62,9 +62,7 @@ export default function StoreDetail() {
       await Promise.all(
         CATEGORIES.map(async ({ key, table }) => {
           let query = supabase.from(table).select("*", { count: "exact", head: true });
-          if (!isMaster && unitId) {
-            query = query.eq("squadron_id", unitId);
-          }
+          query = !isMaster && unitId ? query.eq("squadron_id", unitId) : query.is("squadron_id", null);
           const { count } = await query;
           results[key] = count || 0;
         })

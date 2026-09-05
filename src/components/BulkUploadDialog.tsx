@@ -8,7 +8,6 @@ import * as XLSX from 'xlsx';
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { useAuth } from "@/hooks/useAuth";
 import { lookupSoldier } from "@/hooks/useSoldierLookup";
 
 interface BulkUploadDialogProps {
@@ -33,7 +32,6 @@ export function BulkUploadDialog({ module, moduleName, onSuccess }: BulkUploadDi
   const [showPreview, setShowPreview] = useState(false);
   const [uploadResult, setUploadResult] = useState<{ success: number; failed: number; errors: string[] } | null>(null);
   const { toast } = useToast();
-  const { profile } = useAuth();
 
   const requiredFields: Record<string, string[]> = {
     weapons: ['weapon_id', 'weapon_type'],
@@ -270,8 +268,7 @@ export function BulkUploadDialog({ module, moduleName, onSuccess }: BulkUploadDi
     const errors: string[] = [];
 
     const validRows = parsedData.filter(r => r.isValid);
-    const userUnitId = profile?.unit_id || null;
-    
+
     // Determine unit column name based on module
     // ALL inventory modules use squadron_id (including works_materials)
     const getUnitColumnName = () => {
@@ -283,12 +280,22 @@ export function BulkUploadDialog({ module, moduleName, onSuccess }: BulkUploadDi
     for (const row of validRows) {
       try {
         const rowData = { ...row.data };
-        
-        // Auto-assign unit from logged-in user's profile for all modules
-        if (userUnitId && unitColumn) {
-          rowData[unitColumn] = userUnitId;
-        }
-        
+
+        // This dialog is only reachable by S4/S4_ADMIN (command-tier roles
+        // with no squadron of their own — see BulkUploadDialog's callers,
+        // all gated to those two roles). Bulk-uploaded stock is therefore
+        // left unassigned (squadron_id NULL = S4 Stores master reserve) by
+        // default, exactly like any other item added to S4 Stores directly.
+        // It previously auto-stamped the uploader's own profile unit_id onto
+        // every row instead — which silently mis-attributed every bulk
+        // upload to whatever squadron the uploading S4 user's profile
+        // happened to be set to (a personal artifact, not the data's real
+        // owner), inflating that squadron's count in Stores and starving
+        // the S4 Stores master total. Fixed: items land in S4 Stores unless
+        // explicitly assigned to a squadron below (weapons only, via a
+        // resolved soldier's own unit) or already carry a squadron_id in
+        // the uploaded file itself.
+
         // For weapons module, handle soldier lookup and unit sync
         if (module === 'weapons') {
           if (rowData.name || rowData.rank || rowData.service_number) {
@@ -297,11 +304,12 @@ export function BulkUploadDialog({ module, moduleName, onSuccess }: BulkUploadDi
               rowData.rank || null,
               rowData.name || null
             );
-            
+
             if (lookupResult.found && lookupResult.profile) {
               // Link to soldier profile
               rowData.issued_to = lookupResult.profile.id;
-              // Auto-sync weapon unit to match soldier unit if found
+              // Assign the weapon to the soldier's own squadron, since it's
+              // now issued to them there — not the uploader's squadron.
               if (lookupResult.profile.unit_id) {
                 rowData[unitColumn] = lookupResult.profile.unit_id;
               }

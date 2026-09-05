@@ -260,7 +260,14 @@ const Index = () => {
         generalInventory: {
           categories: new Set(generalInventory?.map(g => g.category)).size,
           items: generalInventoryTotal,
-          stockLevel: totalCheckableItems > 0 ? `${Math.round((generalInventoryTotal / totalCheckableItems) * 100)}%` : "0%",
+          // % of general-inventory line items currently above their reorder
+          // threshold — previously this divided total qty-on-hand by an
+          // unrelated row count from other modules (weapons/tools/etc.),
+          // which was meaningless and read "0%" whenever those modules were
+          // empty regardless of actual general-inventory stock.
+          stockLevel: (generalInventory?.length || 0) > 0
+            ? `${Math.round(((generalInventory.length - generalInventoryLowStock) / generalInventory.length) * 100)}%`
+            : "0%",
           lowStock: generalInventoryLowStock,
         },
         roomInventory: {

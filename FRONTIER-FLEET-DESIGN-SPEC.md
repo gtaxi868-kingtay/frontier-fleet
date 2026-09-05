@@ -295,6 +295,52 @@ confirm/cancel, reused widely), `SetPinDialog` (Profile only), `QRScannerDialog`
    all. It's a pure client-side PDF generator (`generateRoutingSlip`/`downloadPdf`
    from `lib/pdfForms`) — no DB flow to design around.
 
+7. **Stores drill-down — how it actually works, and the one real gap in it.**
+   The 3-level click-down (`Stores.tsx` → `StoreDetail.tsx` → a module page,
+   e.g. `/inventory`) is fully wired end-to-end and was live-verified this
+   session with a real tagged test row (inserted, clicked through all 3 levels,
+   confirmed correctly scoped, then deleted). Design can build more UI on top
+   of this without touching the plumbing:
+   - `Stores.tsx` shows one **S4 Stores** master card plus one card per row in
+     `units` (currently Construction, EME, Field, Support Squadron).
+   - Every count on both `Stores.tsx` and `StoreDetail.tsx` is a
+     `{count:"exact",head:true}` query per category table, filtered by
+     `squadron_id`. **Master = `squadron_id IS NULL`** (unassigned reserve
+     stock), **a squadron card = `squadron_id = <that unit's id>`.** These two
+     counts are disjoint by design — the same item is never counted in both,
+     so Master's total plus all squadron totals always equals the table's
+     full row count. (This was a real bug fixed this session: master used to
+     run the same query with no filter at all, i.e. "count everything,"
+     which double-counted every squadron-tagged item on top of its own
+     squadron's card. Fixed in both `Stores.tsx`'s `fetchCountsForUnit` and
+     `StoreDetail.tsx`'s per-category count query.)
+   - Clicking a category tile on `StoreDetail.tsx` navigates to
+     `<module route>?unit=<squadronId>` (e.g. `/inventory?unit=<id>`) for a
+     squadron card, or the bare module route for the Master card. That `unit`
+     query param is read by `useUnitFilter.ts`, which every module page
+     consumes — either directly (`Inventory.tsx`, `Facilities.tsx`,
+     `ClothingEquipment.tsx`, `Explosives.tsx`, `BarracksStores.tsx`) or via
+     `useInventoryData.ts` (`Weapons.tsx`, `Tools.tsx`,
+     `EngineerEquipment.tsx`, `PlantMachinery.tsx`, `Uniforms.tsx`, `PPE.tsx`),
+     which calls `applyUnitFilter` internally. **Command roles** (CO/S1/S4/
+     S4_ADMIN/RSM/MTO/WKSP_WO) honor the `?unit=` override; **unit-scoped
+     roles** (OC/SQMS/STOREMAN/Soldier) always see only their own unit
+     regardless of the URL — the override is ignored for them by design, so a
+     Soldier can't be sent a link that shows another squadron's stock.
+   - **The actual gap, and the reason per-squadron breakdown still looks
+     empty**: this is a *data* gap, not a wiring gap. Every table's
+     `squadron_id` column exists and is correctly plumbed through the whole
+     UI — but every row in the database currently has `squadron_id = NULL`
+     (192 `general_inventory` rows, confirmed via SQL) or the table is
+     entirely empty (weapons, tools, engineer_equipment, plant_machinery,
+     uniforms, ppe, explosives, facilities — zero rows in all of them).
+     Design does not need to build anything new to make the per-squadron
+     breakdown populate — it needs real squadron assignments entered against
+     existing items (or new items created with a squadron already set) via
+     each module's own "Add Item" / "Edit" dialog, which already has a
+     squadron/unit field. No fabricated data should be entered against real
+     inventory — this needs the actual quartermaster's assignments.
+
 ---
 
 ## 6. Shared patterns already established
